@@ -1,0 +1,17 @@
+{
+  "online": false,
+  "hijrioffset": 0,
+  "join": "0",
+  "jummuahtime": [13, 30],
+  "taraweehtime": [23, 15],
+  "jamaahmethods": ["", "", "", "", "", ""],
+  "jamaahoffsets": [
+    [0, 0],
+    [0, 0],
+    [0, 0],
+    [0, 0],
+    [0, 0],
+    [0, 0]
+  ],
+  "updated": 1514764800
+}
