@@ -1,0 +1,14 @@
+{
+  "welcome": "Welcome to our website",
+  "description": "This is a multi-language React app.",
+
+  "editingPrayer": "تعديل ",
+  "Editing": "",
+  "Iqamah": "أقامة",
+  "Fajr": "فجر",
+  "Shurooq": "شروق",
+  "Dhuhr": "ضهر",
+  "Asr": "عصر",
+  "Maghrib": "مغرب",
+  "Isha": "عشاء"
+}

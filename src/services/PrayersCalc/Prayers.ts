@@ -16,6 +16,9 @@ import {
 import timetable from "./TimeTable.json";
 import settings from "./Settings.json";
 import { apiGet } from "../../utils/api";
+import { getFromLocalDB, LocalStorageKeys } from "../../utils/localDB";
+import findClosestMosque from "../../utils/findClosestMosque";
+import { mosquesDatabaseType } from "../../types/index";
 
 const isDST = function (d:Date) {
   const jan = new Date(d.getFullYear(), 0, 1).getTimezoneOffset();
@@ -100,6 +103,7 @@ const prayerCalc = (
   const [hour, minute] = hourMinute;
   const [hourNext, minuteNext] = hourMinuteNext;
 
+
   let adhan = addHours(
     toDate(new Date(getYear(now), getMonth(now), getDate(now), hour, minute)),
     dstAdjust
@@ -155,13 +159,14 @@ const prayerCalc = (
   return result;
 };
 
-const prayersCalc = (
+const prayersCalc =  (
   showJamaah:boolean = true,
   city:string = "Europe/Dublin", // user Current location
   nowDate : Date = new Date(), // date of the prayers
   onlinePrayerData = null // get the data from local data base
 ) => {
-  const { hijrioffset, jamaahmethods, jamaahoffsets } = settings;
+/*   const mosquesdb =   getFromLocalDB(LocalStorageKeys.MosquesData)
+ */  const { hijrioffset, jamaahmethods, jamaahoffsets } = settings;
   const { now, month, date, start, hijri, dstAdjust } = dayCalc(
     0,
     0,
@@ -169,13 +174,25 @@ const prayersCalc = (
     city,
     nowDate
   );
-
-/*   const {
+  /*   const {
     now: nowTomorrow,
     month: monthTomorrow,
     date: dateTomorrow,
     dstAdjust: dstAdjustTomorrow,
   } = dayCalc(1, 0, hijrioffset, city, nowDate); */
+
+/*   let closestMosque :mosquesDatabaseType | null = null;
+  // find closest mosque to the user
+        try {
+         closestMosque = await  findClosestMosque(mosquesdb)
+        } catch (error) {
+        closestMosque = null
+        }
+        if(!closestMosque){
+        closestMosque =  getFromLocalDB(LocalStorageKeys.DefaultMosque)
+        } */
+
+
 
   /* *********************** */
   /* SET PRAYERS             */
@@ -193,6 +210,13 @@ const prayersCalc = (
     let useAdjust = true;
     const hourMinuteNext =
       index < 5 ? prayersTable[(month + 1).toString()][date.toString()][index + 1] : [24, 0];
+/* 
+      closestMosque?.prayers.map((prayer)=>{
+        
+console.log("im here")
+      }) */
+    
+
 
     return prayerCalc(
       hourMinute,

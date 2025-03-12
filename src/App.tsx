@@ -10,17 +10,18 @@ import CustomAppBar from './navigation/AppBar';
 import Prayers from './pages/Prayers';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Home from './pages/Home';
-import { getOnlinePrayers } from './services/PrayersCalc/Prayers';
 import { getFromLocalDB, isKeyInLocalDB, LocalStorageKeys, saveToLocalDB } from './utils/localDB';
 import { apiGet } from './utils/api';
 import { locales } from 'moment';
 import { mosquesDatabaseType } from './types';
 import SettingsPage from './pages/Settings';
 import findClosestMosque from './utils/findClosestMosque';
+import { usePopup } from './hooks/PopupContext';
 
 
 export default function App() {
   const { theme, toggleTheme } = useTheme();
+
 
   useEffect(()=>{
     appFirstLunch()
@@ -92,9 +93,7 @@ const appFirstLunch =async ()=>{
     if(!error){
       saveToLocalDB(LocalStorageKeys.MosquesData,data?.mosques)
     }
-   const mosquesdb =   getFromLocalDB(LocalStorageKeys.MosquesData)
-   const closestmosque =  findClosestMosque(mosquesdb)
-console.log(closestmosque)
+
     //Set Default Values
     saveToLocalDB(LocalStorageKeys.TimeFormatIs24H,true)
 

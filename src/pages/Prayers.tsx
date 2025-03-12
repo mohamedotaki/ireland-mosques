@@ -5,7 +5,6 @@ import { prayersCalc } from "../services/PrayersCalc/Prayers";
 import { useState } from "react";
 import PrayerEditModal from "../components/PrayerEditModal";
 import { PrayerType } from "../types";
-import FloatingButton from "../components/FloatingButton";
 import ProgressBar from "../components/ProgressBar";
 
 
@@ -26,6 +25,10 @@ const handleOpenModal =(prayer:PrayerType,isIqamahClicked:boolean)=>{
 const handleCloseModal =()=>{
   setModalData({showModal:false,prayer:undefined,isIqamahClicked:false})
 }
+
+const onPrayerUpdate=()=>{
+
+}
  
   return (
     <>
@@ -37,12 +40,14 @@ const handleCloseModal =()=>{
     <HadithCard/>
     
     {/* Popups */}
-    <PrayerEditModal 
+   {modalData?.prayer&& <PrayerEditModal 
     prayer={modalData?.prayer} 
     handleClose={handleCloseModal} 
     openModal={modalData?.showModal} 
     isIqamahClicked={modalData?.isIqamahClicked}
+    onUpdate={onPrayerUpdate}
     />
+  }
 
     
     </>

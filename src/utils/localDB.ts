@@ -3,7 +3,8 @@ export enum LocalStorageKeys {
   FirstLaunch = "firstLaunch",
   AppTheme = "AppTheme",
   MosquesData = "MosquesData",
-  TimeFormatIs24H = "TimeFormatIs24H"
+  TimeFormatIs24H = "TimeFormatIs24H",
+  DefaultMosque = "DefaultMosque"
 }
 
 

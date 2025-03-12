@@ -3,20 +3,25 @@ import {  Typography, FormControl, Select, MenuItem, Grid, Card } from '@mui/mat
 import { SelectChangeEvent } from '@mui/material/Select';
 import { useTheme } from '../hooks/ThemeContext';
 import { getFromLocalDB, LocalStorageKeys, saveToLocalDB } from '../utils/localDB';
+import { useTranslation } from 'react-i18next';
 
 // Define types for the state
-type Language = 'en' | 'es' | 'fr' | 'de';
+type Language = 'en' | 'ar' ;
 type Theme = 'light' | 'dark' | 'system_default';
 type TimeFormat = '12-h' | '24-h';
 
 const SettingsPage: React.FC = () => {
   const { selectedTheme ,toggleTheme } = useTheme();
+  const { t, i18n } = useTranslation();
+
   
   const [language, setLanguage] = useState<Language>('en');
   const [timeFormat, setTimeFormat] = useState<TimeFormat>(getFromLocalDB(LocalStorageKeys.TimeFormatIs24H)?'24-h':'12-h');
 
   const handleLanguageChange = (event: SelectChangeEvent<Language>) => {
     setLanguage(event.target.value as Language);
+      i18n.changeLanguage(event.target.value); // Change language dynamically
+    
   };
 
   const handleThemeChange = (event: SelectChangeEvent<Theme>) => {
@@ -48,9 +53,8 @@ const SettingsPage: React.FC = () => {
             <FormControl fullWidth>
               <Select value={language} onChange={handleLanguageChange}>
                 <MenuItem value="en">English</MenuItem>
-                <MenuItem value="es">Spanish</MenuItem>
-                <MenuItem value="fr">French</MenuItem>
-                <MenuItem value="de">German</MenuItem>
+                <MenuItem value="ar">العربية</MenuItem>
+    
               </Select>
             </FormControl>
           </Grid>

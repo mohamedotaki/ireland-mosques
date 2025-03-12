@@ -7,6 +7,8 @@ import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFnsV3'
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { MobileTimePicker } from '@mui/x-date-pickers/MobileTimePicker';
 import { Container } from '@mui/material';
+import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 const style = {
   position: 'absolute',
@@ -23,13 +25,17 @@ const style = {
 
   interface PrayerModalProps {
     openModal:boolean;
-    prayer: PrayerType| undefined;
+    prayer: PrayerType;
     isIqamahClicked:boolean;
     handleClose: () => void; 
+    onUpdate: (prayer:PrayerType | undefined) => void;
 
   }
 
-export default function PrayerEditModal({prayer, openModal, handleClose, isIqamahClicked}:PrayerModalProps) {
+export default function PrayerEditModal({prayer, openModal, handleClose, isIqamahClicked, onUpdate}:PrayerModalProps) {
+const [prayerToEdit,setPrayerToEdit] = useState<PrayerType>(prayer)
+const { t } = useTranslation();
+
 
 
   return (
@@ -41,14 +47,14 @@ export default function PrayerEditModal({prayer, openModal, handleClose, isIqama
       >
         <Box borderRadius={5} maxWidth={"90%"} sx={style}>
           <Typography id="modal-modal-title" variant="h6" component="h3" textAlign={"center"} mb={3}>
-            {`Editing ${prayer?.name} ${isIqamahClicked?"Iqamah":"Adahn"}`}
+          {`${t('Editing')} ${t(prayerToEdit?.name)} ${isIqamahClicked ? t('Iqamah') : t('Adhan')}`}
           </Typography>
           <Container sx={{display:"flex" , justifyContent:"center", mb:3 ,textAlign:"center"}}>
           <LocalizationProvider dateAdapter={AdapterDateFns}>
           <MobileTimePicker  
-          defaultValue={new Date()}  
+          value={isIqamahClicked?prayerToEdit?.iqamah:prayerToEdit?.adhan}  
           ampm={false} 
-          label={"Iqamah Time"}
+          label={isIqamahClicked?"Iqamah Time":"Adhan Time"}
           sx={{ 
         '& .MuiInputBase-input': {
           textAlign: 'center'  // Centers the text inside the input field
@@ -60,7 +66,7 @@ export default function PrayerEditModal({prayer, openModal, handleClose, isIqama
 
           <Container sx={{display:"flex",justifyContent:"space-evenly"}}>
           <Button variant="outlined" size="large" onClick={handleClose}>Cancel</Button>
-          <Button  variant="contained" size="large">Update</Button>
+          <Button onClick={()=>onUpdate(prayerToEdit)}  variant="contained" size="large">{t("Update")}</Button>
           </Container>
         </Box>
       </Modal>
