@@ -47,14 +47,14 @@ const { t } = useTranslation();
       >
         <Box borderRadius={5} maxWidth={"90%"} sx={style}>
           <Typography id="modal-modal-title" variant="h6" component="h3" textAlign={"center"} mb={3}>
-          {`${t('Editing')} ${t(prayerToEdit?.name)} ${isIqamahClicked ? t('Iqamah') : t('Adhan')}`}
+          {`${t('PrayerEditModalTitle',{prayer:t(prayerToEdit?.name) ,time:isIqamahClicked ? t('Iqamah') : t('Adhan')})}`}
           </Typography>
           <Container sx={{display:"flex" , justifyContent:"center", mb:3 ,textAlign:"center"}}>
           <LocalizationProvider dateAdapter={AdapterDateFns}>
           <MobileTimePicker  
           value={isIqamahClicked?prayerToEdit?.iqamah:prayerToEdit?.adhan}  
           ampm={false} 
-          label={isIqamahClicked?"Iqamah Time":"Adhan Time"}
+          label={isIqamahClicked?t("Iqamah Time"):t("Adhan Time")}
           sx={{ 
         '& .MuiInputBase-input': {
           textAlign: 'center'  // Centers the text inside the input field
@@ -65,7 +65,7 @@ const { t } = useTranslation();
           </Container>
 
           <Container sx={{display:"flex",justifyContent:"space-evenly"}}>
-          <Button variant="outlined" size="large" onClick={handleClose}>Cancel</Button>
+          <Button variant="outlined" size="large" onClick={handleClose}>{t("Cancel")}</Button>
           <Button onClick={()=>onUpdate(prayerToEdit)}  variant="contained" size="large">{t("Update")}</Button>
           </Container>
         </Box>

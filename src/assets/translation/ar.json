@@ -2,13 +2,18 @@
   "welcome": "Welcome to our website",
   "description": "This is a multi-language React app.",
 
-  "editingPrayer": "تعديل ",
+  "PrayerEditModalTitle": "  تعديل وقت {{time}} ال{{prayer}}",
   "Editing": "",
+  "Adhan": "أذان",
   "Iqamah": "أقامة",
   "Fajr": "فجر",
   "Shurooq": "شروق",
   "Dhuhr": "ضهر",
   "Asr": "عصر",
   "Maghrib": "مغرب",
-  "Isha": "عشاء"
+  "Isha": "عشاء",
+  "Update": "تحديث",
+  "Cancel": "الغاء",
+  "Iqamah Time": "وقت الاقامة",
+  "Adhan Time": "وقت الأذان"
 }

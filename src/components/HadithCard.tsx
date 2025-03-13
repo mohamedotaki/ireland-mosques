@@ -5,7 +5,10 @@ import CardActions from '@mui/material/CardActions';
 import CardContent from '@mui/material/CardContent';
 import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
-import hadith from "../assets/hadith.json";
+import en from "../assets/eng-bukhari.json";
+import ar from "../assets/ara-bukhari.json";
+import { useTranslation } from 'react-i18next';
+
 
 interface HadithData {
   metadata: {
@@ -18,8 +21,8 @@ interface HadithData {
 }
 
 const HadithCard = memo(() => {
-  const hadiths: HadithData = hadith;
-
+  const { i18n } = useTranslation();
+  const hadiths : HadithData = i18n.language === "ar" ? ar : en
   // Initialize the hadithIndex from localStorage, defaulting to 0 if not found
   const [hadithIndex, setHadithIndex] = useState<number>(
     () => Number(localStorage.getItem('hadith-index')) || 0
@@ -40,8 +43,6 @@ const HadithCard = memo(() => {
         </Typography>
         <Typography variant="body2">
           {hadiths.hadiths[hadithIndex].text}
-          <br />
-          {'"a benevolent smile"'}
         </Typography>
       </CardContent>
       <CardActions  sx={{ mt: -2, justifyContent: "right" }}>

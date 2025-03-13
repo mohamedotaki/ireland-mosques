@@ -12,7 +12,7 @@ i18n
       en: { translation: en },
       ar: { translation: ar },
     },
-    fallbackLng: 'ar',  // Default language if user language is not found
+    fallbackLng: 'en',  // Default language if user language is not found
     interpolation: {
       escapeValue: false, // React already escapes values
     },

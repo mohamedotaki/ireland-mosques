@@ -2,10 +2,14 @@
   "welcome": "Welcome to our website",
   "description": "This is a multi-language React app.",
 
+  "PrayerEditModalTitle": "Editing {{prayer}} {{time}}",
+
   "Fajr": "Fajr",
   "Shurooq": "Shurooq",
   "Dhuhr": "Dhuhr",
   "Asr": "Asr",
   "Maghrib": "Maghrib",
-  "Isha": "Isha"
+  "Isha": "Isha",
+  "Iqamah Time": "Iqamah Time",
+  "Adhan Time": "Adhan Time"
 }

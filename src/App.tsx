@@ -20,86 +20,71 @@ import { usePopup } from './hooks/PopupContext';
 
 
 export default function App() {
-  const { theme, toggleTheme } = useTheme();
 
 
-  useEffect(()=>{
+  useEffect(() => {
     appFirstLunch()
-  },[])
+  }, [])
   // Create the themes
-  const lightTheme = createTheme({
-    palette: {
-      mode: 'light',
-    },
-  });
 
-  const darkTheme = createTheme({
-    palette: {
-      mode: 'dark',
-    },
-  });
-
-  // Determine which theme to use
-  const currentTheme = theme === 'light' ? lightTheme : darkTheme;
 
 
   return (
     <Router>
 
-    <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
-        <ThemeProvider theme={currentTheme}>
+      <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
         <CssBaseline /> {/* This will apply global CSS resets */}
 
-      <CustomAppBar/>
-      <Box
-        component="main"
-        sx={{ flexGrow: 1,     paddingBottom: '60px',  // Adjust based on the height of your BottomNavigation
-        }}
-      >
-        <Container  maxWidth="lg">
-          {/* Your content goes here */}
-              <Routes>
-              <Route path="/" element={<Home/>} />
-              <Route path="/prayers" element={<Prayers/>} />
-              <Route path="/settings" element={<SettingsPage/>} />
+        <CustomAppBar />
+        <Box
+          component="main"
+          sx={{
+            flexGrow: 1, paddingBottom: '60px',  // Adjust based on the height of your BottomNavigation
+          }}
+        >
+          <Container maxWidth="lg">
+            {/* Your content goes here */}
+            <Routes>
+              <Route path="/" element={<Home />} />
+              <Route path="/prayers" element={<Prayers />} />
+              <Route path="/settings" element={<SettingsPage />} />
 
-              </Routes>
+            </Routes>
 
 
 
-        </Container>
+          </Container>
+        </Box>
+
+        <BottomNavigationBar />
+
+
       </Box>
-
-<BottomNavigationBar/>
-
-</ThemeProvider>
-
-    </Box>
     </Router>
 
   );
 }
 
 
-interface appFirstLunchType{
-  mosques:mosquesDatabaseType
+interface appFirstLunchType {
+  mosques: mosquesDatabaseType
 }
 
-const appFirstLunch =async ()=>{
-  if(isKeyInLocalDB(LocalStorageKeys.FirstLaunch)){
+const appFirstLunch = async () => {
+  if (isKeyInLocalDB(LocalStorageKeys.FirstLaunch)) {
     //get mosques data
-    saveToLocalDB(LocalStorageKeys.FirstLaunch,true)
-    const {data, error}  = await apiGet<appFirstLunchType>("app")
-    if(!error){
-      saveToLocalDB(LocalStorageKeys.MosquesData,data?.mosques)
+    saveToLocalDB(LocalStorageKeys.FirstLaunch, true)
+    const { data, error } = await apiGet<appFirstLunchType>("app")
+    if (!error) {
+      saveToLocalDB(LocalStorageKeys.MosquesData, data?.mosques)
     }
 
     //Set Default Values
-    saveToLocalDB(LocalStorageKeys.TimeFormatIs24H,true)
+    saveToLocalDB(LocalStorageKeys.TimeFormatIs24H, true)
 
 
-    
+
   }
-  
+
 }
 
