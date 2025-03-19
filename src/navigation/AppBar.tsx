@@ -11,9 +11,10 @@ import Avatar from '@mui/material/Avatar';
 import Button from '@mui/material/Button';
 import Tooltip from '@mui/material/Tooltip';
 import MenuItem from '@mui/material/MenuItem';
-import AdbIcon from '@mui/icons-material/Adb';
+import LoginIcon from '@mui/icons-material/Login';
 import logo from "../assets/logo.png"
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../hooks/AuthContext';
 
 const pages = ['Products', 'Pricing', 'Blog'];
 const settings = ['Profile', 'Account', 'Dashboard', 'Logout'];
@@ -22,15 +23,20 @@ function CustomAppBar() {
   const [anchorElNav, setAnchorElNav] = React.useState<null | HTMLElement>(null);
   const [anchorElUser, setAnchorElUser] = React.useState<null | HTMLElement>(null);
   const navigate = useNavigate();  // <-- hook for navigation
+  const { authState } = useAuth()
 
   const handleOpenNavMenu = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorElNav(event.currentTarget);
   };
   const handleOpenUserMenu = (event: React.MouseEvent<HTMLElement>) => {
+    setAnchorElUser(event.currentTarget);
+  };
+
+  const handleSignin = (event: React.MouseEvent<HTMLElement>) => {
     navigate('/signin');
 
 /*     setAnchorElUser(event.currentTarget);
- */  };
+*/  };
 
   const handleCloseNavMenu = () => {
     setAnchorElNav(null);
@@ -80,9 +86,13 @@ function CustomAppBar() {
           </Box>
           <Box sx={{ flexGrow: 0 }}>
             <Tooltip title="Open settings">
-              <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
+              {authState.isAuthenticated ? <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
                 <Avatar alt="Remy Sharp" src="/static/images/avatar/2.jpg" />
-              </IconButton>
+              </IconButton> :
+                <IconButton onClick={handleSignin} sx={{ p: 0 }}>
+                  <LoginIcon sx={{ fontSize: 30 }} />
+                </IconButton>
+              }
             </Tooltip>
             <Menu
               sx={{ mt: '45px' }}

@@ -65,93 +65,121 @@ const SettingsPage: React.FC = () => {
   }
 
   return (
-    <Card sx={{ maxWidth: 600, margin: 'auto', padding: 2, mt: 2, direction: isArabic ? "rtl" : "ltr" }}>
-      <Typography variant="h6" textAlign="center" sx={{ mb: 2 }} >
-        General
-      </Typography>
+    <>
+      <Card sx={{ maxWidth: 600, margin: 'auto', padding: 2, mt: 2, direction: isArabic ? "rtl" : "ltr" }}>
+        <Typography variant="h6" textAlign="center" sx={{ mb: 2 }} >
+          General
+        </Typography>
 
 
-      <Grid container spacing={3}>
-        <Grid item xs={12} container >
-          <Grid item xs={6}>
-            <Typography variant="body1">{t("Language")}</Typography>
+        <Grid container spacing={3}>
+          <Grid item xs={12} container >
+            <Grid item xs={6}>
+              <Typography variant="body1">{t("Language")}</Typography>
+            </Grid>
+            <Grid item xs={6}>
+              <FormControl fullWidth>
+                <Select value={language} onChange={handleLanguageChange}>
+                  <MenuItem value="en">English</MenuItem>
+                  <MenuItem value="ar">العربية</MenuItem>
+
+                </Select>
+              </FormControl>
+            </Grid>
           </Grid>
-          <Grid item xs={6}>
-            <FormControl fullWidth>
-              <Select value={language} onChange={handleLanguageChange}>
-                <MenuItem value="en">English</MenuItem>
-                <MenuItem value="ar">العربية</MenuItem>
 
-              </Select>
-            </FormControl>
+          <Grid item xs={12} container alignItems="center" >
+            <Grid item xs={6}>
+              <Typography variant="body1">{t("Theme")}</Typography>
+            </Grid>
+            <Grid item xs={6}>
+              <FormControl fullWidth>
+                <Select value={selectedTheme} onChange={handleThemeChange}>
+                  <MenuItem value="system_default">{t("System Default")}</MenuItem>
+                  <MenuItem value="dark">{t("Dark")}</MenuItem>
+                  <MenuItem value="light">{t("Light")}</MenuItem>
+
+                </Select>
+              </FormControl>
+            </Grid>
+          </Grid>
+
+          <Grid item xs={12} container alignItems="center" >
+            <Grid item xs={6}>
+              <Typography variant="body1">{t("Time Format")}</Typography>
+            </Grid>
+            <Grid item xs={6}>
+              <FormControl fullWidth>
+                <Select value={timeFormat} onChange={handleTimeFormatChange}>
+                  <MenuItem value="12-h">{t("12-hour")}</MenuItem>
+                  <MenuItem value="24-h">{t("24-hour")}</MenuItem>
+                </Select>
+              </FormControl>
+            </Grid>
+          </Grid>
+          <Grid item xs={12} container alignItems="center" >
+            <Grid item xs={6}>
+              <Typography variant="body1">{t("Font Size")}</Typography>
+            </Grid>
+            <Grid item xs={6}>
+              <FormControl fullWidth>
+                <Slider
+                  aria-label="Font Size"
+                  defaultValue={14}
+                  valueLabelDisplay="auto"
+                  value={fontSize}
+                  step={1}
+                  marks={marks}
+                  min={10}
+                  max={20}
+                  onChange={handleFontSizeChange}
+                  sx={{
+
+                    '& .MuiSlider-thumb': {
+                      marginRight: "-10%"
+                    },
+                    '& .MuiSlider-track': {
+                      // Flip the track in RTL mode
+                      direction: 'ltr',
+                    },
+                  }}
+                />
+              </FormControl>
+            </Grid>
+          </Grid>
+
+
+
+
+        </Grid>
+      </Card>
+
+      <Card sx={{ maxWidth: 600, margin: 'auto', padding: 2, mt: 2, direction: isArabic ? "rtl" : "ltr" }}>
+        <Typography variant="h6" textAlign="center" sx={{ mb: 2 }} >
+          Mosque
+        </Typography>
+
+
+        <Grid container spacing={3}>
+          <Grid item xs={12} container >
+            <Grid item xs={6}>
+              <Typography variant="body1">{t("Default Mosque")}</Typography>
+            </Grid>
+            <Grid item xs={6}>
+              <FormControl fullWidth>
+                <Select value={language} onChange={handleLanguageChange}>
+                  <MenuItem value="en">English</MenuItem>
+                  <MenuItem value="ar">العربية</MenuItem>
+
+                </Select>
+              </FormControl>
+            </Grid>
           </Grid>
         </Grid>
-
-        <Grid item xs={12} container alignItems="center" >
-          <Grid item xs={6}>
-            <Typography variant="body1">{t("Theme")}</Typography>
-          </Grid>
-          <Grid item xs={6}>
-            <FormControl fullWidth>
-              <Select value={selectedTheme} onChange={handleThemeChange}>
-                <MenuItem value="system_default">{t("System Default")}</MenuItem>
-                <MenuItem value="dark">{t("Dark")}</MenuItem>
-                <MenuItem value="light">{t("Light")}</MenuItem>
-
-              </Select>
-            </FormControl>
-          </Grid>
-        </Grid>
-
-        <Grid item xs={12} container alignItems="center" >
-          <Grid item xs={6}>
-            <Typography variant="body1">{t("Time Format")}</Typography>
-          </Grid>
-          <Grid item xs={6}>
-            <FormControl fullWidth>
-              <Select value={timeFormat} onChange={handleTimeFormatChange}>
-                <MenuItem value="12-h">{t("12-hour")}</MenuItem>
-                <MenuItem value="24-h">{t("24-hour")}</MenuItem>
-              </Select>
-            </FormControl>
-          </Grid>
-        </Grid>
-        <Grid item xs={12} container alignItems="center" >
-          <Grid item xs={6}>
-            <Typography variant="body1">{t("Font Size")}</Typography>
-          </Grid>
-          <Grid item xs={6}>
-            <FormControl fullWidth>
-              <Slider
-                aria-label="Font Size"
-                defaultValue={14}
-                valueLabelDisplay="auto"
-                value={fontSize}
-                step={1}
-                marks={marks}
-                min={10}
-                max={20}
-                onChange={handleFontSizeChange}
-                sx={{
-
-                  '& .MuiSlider-thumb': {
-                    marginRight: "-10%"
-                  },
-                  '& .MuiSlider-track': {
-                    // Flip the track in RTL mode
-                    direction: 'ltr',
-                  },
-                }}
-              />
-            </FormControl>
-          </Grid>
-        </Grid>
+      </Card>
 
 
-
-
-      </Grid>
-    </Card>
+    </>
   );
 };
 

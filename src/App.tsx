@@ -24,7 +24,7 @@ export default function App() {
   }
 
   const appFirstLunch = async () => {
-    if (isKeyInLocalDB(LocalStorageKeys.FirstLaunch)) {
+    if (!isKeyInLocalDB(LocalStorageKeys.FirstLaunch)) {
       saveToLocalDB(LocalStorageKeys.FirstLaunch, true)
       const { data, error } = await apiGet<appFirstLunchType>("app")
       if (data) {

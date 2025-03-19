@@ -10,17 +10,20 @@ import '@fontsource/roboto/500.css';
 import '@fontsource/roboto/700.css';
 import { PopupProviderWrapper } from './hooks/PopupContext';
 import "./services/i18n"
+import { AuthProvider } from './hooks/AuthContext';
 
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
 );
 root.render(
   <React.StrictMode>
-    <ThemeProviderWrapper>
-    <PopupProviderWrapper>
-    <App />
-    </PopupProviderWrapper>
-    </ThemeProviderWrapper>
+    <AuthProvider>
+      <ThemeProviderWrapper>
+        <PopupProviderWrapper>
+          <App />
+        </PopupProviderWrapper>
+      </ThemeProviderWrapper>
+    </AuthProvider>
   </React.StrictMode>
 );
 
