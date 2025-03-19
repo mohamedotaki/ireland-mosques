@@ -1,4 +1,5 @@
 import { mosquesDatabaseType } from "../types";
+import { LocalStorageKeys, saveToLocalDB } from "./localDB";
 
 const findClosestMosque = (mosques: Array<mosquesDatabaseType>): Promise<mosquesDatabaseType | null> => {
   return new Promise((resolve, reject) => {
@@ -22,14 +23,15 @@ const findClosestMosque = (mosques: Array<mosquesDatabaseType>): Promise<mosques
         });
 
         resolve(closest);
+        saveToLocalDB(LocalStorageKeys.DefaultMosque, closest)
       },
       (error) => {
         reject(error.message);
-      },  {
-        enableHighAccuracy: true, // Try to get the most accurate location
-    /*     timeout: 10000, // Timeout after 10 seconds
-        maximumAge: 0 // Prevent using cached location */
-      }
+      }, {
+      enableHighAccuracy: true, // Try to get the most accurate location
+      /*     timeout: 10000, // Timeout after 10 seconds
+          maximumAge: 0 // Prevent using cached location */
+    }
     );
   });
 };

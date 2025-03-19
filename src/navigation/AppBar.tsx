@@ -13,6 +13,7 @@ import Tooltip from '@mui/material/Tooltip';
 import MenuItem from '@mui/material/MenuItem';
 import AdbIcon from '@mui/icons-material/Adb';
 import logo from "../assets/logo.png"
+import { useNavigate } from 'react-router-dom';
 
 const pages = ['Products', 'Pricing', 'Blog'];
 const settings = ['Profile', 'Account', 'Dashboard', 'Logout'];
@@ -20,13 +21,16 @@ const settings = ['Profile', 'Account', 'Dashboard', 'Logout'];
 function CustomAppBar() {
   const [anchorElNav, setAnchorElNav] = React.useState<null | HTMLElement>(null);
   const [anchorElUser, setAnchorElUser] = React.useState<null | HTMLElement>(null);
+  const navigate = useNavigate();  // <-- hook for navigation
 
   const handleOpenNavMenu = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorElNav(event.currentTarget);
   };
   const handleOpenUserMenu = (event: React.MouseEvent<HTMLElement>) => {
-    setAnchorElUser(event.currentTarget);
-  };
+    navigate('/signin');
+
+/*     setAnchorElUser(event.currentTarget);
+ */  };
 
   const handleCloseNavMenu = () => {
     setAnchorElNav(null);
@@ -40,14 +44,15 @@ function CustomAppBar() {
     <AppBar position="sticky">
       <Container maxWidth="xl">
         <Toolbar disableGutters>
-        <Box sx={{ display: { xs: 'flex', md: 'flex' }, mr: 1 }}>
-            <img src={logo} alt="Logo" style={{ height: 45, width:45 }} />
+          <Box sx={{ display: { xs: 'flex', md: 'flex' }, mr: 1 }}>
+            <img src={logo} alt="Logo" style={{ height: 45, width: 45 }} />
           </Box>
           <Typography
             variant="h6"
             noWrap
             component="a"
             sx={{
+              fontSize: 15,
               flexGrow: 1,
               mr: 2,
               display: { xs: 'flex', md: 'flex' },
@@ -61,8 +66,8 @@ function CustomAppBar() {
             Ballyhaunis
           </Typography>
 
-        
-          <Box sx={{   flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
+
+          <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
             {pages.map((page) => (
               <Button
                 key={page}

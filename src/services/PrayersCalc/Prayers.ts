@@ -18,9 +18,9 @@ import settings from "./Settings.json";
 import { apiGet } from "../../utils/api";
 import { getFromLocalDB, LocalStorageKeys } from "../../utils/localDB";
 import findClosestMosque from "../../utils/findClosestMosque";
-import { mosquesDatabaseType } from "../../types/index";
+import { mosquesDatabaseType, prayerDatabaseType, PrayersCalcType, PrayerType } from "../../types/index";
 
-const isDST = function (d:Date) {
+const isDST = function (d: Date) {
   const jan = new Date(d.getFullYear(), 0, 1).getTimezoneOffset();
   const jul = new Date(d.getFullYear(), 6, 1).getTimezoneOffset();
   return Math.max(jan, jul) !== d.getTimezoneOffset();
@@ -61,17 +61,17 @@ function HHMMToDate(timeString) {
 } */
 
 
-const getOnlinePrayers =async ()=>{
-const onlineData = await apiGet(`${true}/${true}`)
-console.log(onlineData)
+const getOnlinePrayers = async () => {
+  const onlineData = await apiGet(`${true}/${true}`)
+  console.log(onlineData)
 }
 
 const dayCalc = (
-  offsetDay:number = 0,
-  offSetHour:number = 0,
-  hijrioffset:number = 0,
-  city:string = "Europe/Dublin",
-  nowDate:Date = new Date()
+  offsetDay: number = 0,
+  offSetHour: number = 0,
+  hijrioffset: number = 0,
+  city: string = "Europe/Dublin",
+  nowDate: Date = new Date()
 ) => {
   const now = addHours(nowDate, offSetHour + offsetDay * 24);
   const month = getMonth(now);
@@ -91,17 +91,27 @@ const dayCalc = (
 } */
 
 const prayerCalc = (
-  hourMinute:Array<number>,
-  hourMinuteNext:Array<number>,
-  index:number,
-  now:Date,
-  when:any,
-  jamaahmethods:Array<string>,
-  jamaahoffsets:Array<Array<number>>,
-  dstAdjust:any
+  hourMinute: Array<number>,
+  hourMinuteNext: Array<number>,
+  onlineData: prayerDatabaseType | undefined,
+  index: number,
+  now: Date,
+  when: any,
+  jamaahmethods: Array<string>,
+  jamaahoffsets: Array<Array<number>>,
+  dstAdjust: any
 ) => {
-  const [hour, minute] = hourMinute;
+  let [hour, minute] = hourMinute;
   const [hourNext, minuteNext] = hourMinuteNext;
+  let iqamah = null;
+
+  if (onlineData) {
+    if (onlineData.adhan_time) {
+      const onlineAdhan = onlineData?.adhan_time?.split(":")
+      hour = Number(onlineAdhan[0])
+      minute = Number(onlineAdhan[1])
+    }
+  }
 
 
   let adhan = addHours(
@@ -109,31 +119,30 @@ const prayerCalc = (
     dstAdjust
   );
 
-  let iqamah = adhan;
 
-/*   switch (null) {
-    case "useOffset":
-      iqamah = addMinutes(adhan, minuteOffset);
-      break;
-    case "fixed":
-      iqamah = toDate(
-        new Date(
-          getYear(now),
-          getMonth(now),
-          getDate(now),
-          hourOffset,
-          minuteOffset
-        )
-      );
-      break;
-    default:
-      iqamah = adhan;
-  } */
+  /*   switch (null) {
+      case "useOffset":
+        iqamah = addMinutes(adhan, minuteOffset);
+        break;
+      case "fixed":
+        iqamah = toDate(
+          new Date(
+            getYear(now),
+            getMonth(now),
+            getDate(now),
+            hourOffset,
+            minuteOffset
+          )
+        );
+        break;
+      default:
+        iqamah = adhan;
+    } */
 
   // if iqamah before adhan / ie. summer adhan
-   if (isBefore(iqamah, adhan)) {
+  if (iqamah && isBefore(iqamah, adhan)) {
     adhan = iqamah;
-  } 
+  }
 
   /* *********************** */
   /* NAMES                   */
@@ -141,56 +150,44 @@ const prayerCalc = (
   const names = ["Fajr", "Shurooq", "Dhuhr", "Asr", "Maghrib", "Isha"];
   const name = names[index];
   const hasPassed = isAfter(now, adhan);
-  const isJamaahPending = isWithinInterval(now, { start: adhan, end: iqamah });
-
+  /*   const isJamaahPending = isWithinInterval(now, { start: adhan, end: iqamah });
+   */
   const isNext = false;
 
   const result = {
     adhan,
 /*     isJamaahPending,
  */    iqamah,
-/*     index,
- */   /*  hasPassed, */
+    /*     index,
+     */   /*  hasPassed, */
     name,
-/*     when,
- */   /*  dstAdjust, */
+    /*     when,
+     */   /*  dstAdjust, */
     isNext,
   };
   return result;
 };
 
-const prayersCalc =  (
-  showJamaah:boolean = true,
-  city:string = "Europe/Dublin", // user Current location
-  nowDate : Date = new Date(), // date of the prayers
-  onlinePrayerData = null // get the data from local data base
-) => {
-/*   const mosquesdb =   getFromLocalDB(LocalStorageKeys.MosquesData)
- */  const { hijrioffset, jamaahmethods, jamaahoffsets } = settings;
+const prayersCalc = (
+  mosque: mosquesDatabaseType,
+  dateToShow: Date = new Date(),
+  showJamaah: boolean = true,
+  city: string = "Europe/Dublin", // user Current location
+): PrayersCalcType => {
+  const { hijrioffset, jamaahmethods, jamaahoffsets } = settings;
   const { now, month, date, start, hijri, dstAdjust } = dayCalc(
     0,
     0,
     0,
     city,
-    nowDate
+    dateToShow
   );
-  /*   const {
+  const {
     now: nowTomorrow,
     month: monthTomorrow,
     date: dateTomorrow,
     dstAdjust: dstAdjustTomorrow,
-  } = dayCalc(1, 0, hijrioffset, city, nowDate); */
-
-/*   let closestMosque :mosquesDatabaseType | null = null;
-  // find closest mosque to the user
-        try {
-         closestMosque = await  findClosestMosque(mosquesdb)
-        } catch (error) {
-        closestMosque = null
-        }
-        if(!closestMosque){
-        closestMosque =  getFromLocalDB(LocalStorageKeys.DefaultMosque)
-        } */
+  } = dayCalc(1, 0, hijrioffset, city, dateToShow);
 
 
 
@@ -206,21 +203,16 @@ const prayersCalc =  (
 
   const prayersTable: TimetableProbes = timetable
 
-  const prayersToday = prayersTable[(month + 1).toString() ][date.toString()].map((hourMinute:Array<number>, index:number) => {
+  const prayersToday = prayersTable[(month + 1).toString()][date.toString()].map((hourMinute: Array<number>, index: number) => {
     let useAdjust = true;
     const hourMinuteNext =
       index < 5 ? prayersTable[(month + 1).toString()][date.toString()][index + 1] : [24, 0];
-/* 
-      closestMosque?.prayers.map((prayer)=>{
-        
-console.log("im here")
-      }) */
-    
 
 
     return prayerCalc(
       hourMinute,
       hourMinuteNext,
+      mosque?.prayers[index],
       index,
       now,
       "today",
@@ -363,6 +355,18 @@ console.log("im here")
   const newHijri = isAfterIsha ? addDays(hijri, 1) : hijri; */
 
   const result = {
+    mosque: {
+      id: 0,
+      name: "Al-Kausar",
+      address: "3 Sherwood Ave, Hazelhill, Ballyhaunis, Co. Mayo, Ireland",
+      eircode: "F35 DY95",
+      location: "Ballyhaunis",
+      contact_number: "+353 892201526",
+      website: "www.seventhbyte.com",
+      latitude: 53.760110570124525,
+      longitude: -8.771078816946458,
+      iban: "IE28AIBK93744421240194"
+    },
     prayers: {
       today: prayersToday,
       /*       tomorrow: prayersTomorrow,
@@ -381,10 +385,8 @@ console.log("im here")
     isAfterIsha, */
     /*     isJamaahPending,
      */ /*  focus, */
-    adhan_locked: true,
-    alarm: true,
   };
   return result;
 };
 
-export { prayersCalc, dayCalc,getOnlinePrayers };
+export { prayersCalc, dayCalc, getOnlinePrayers };

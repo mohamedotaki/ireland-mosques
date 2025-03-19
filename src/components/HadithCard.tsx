@@ -21,8 +21,9 @@ interface HadithData {
 }
 
 const HadithCard = memo(() => {
-  const { i18n } = useTranslation();
-  const hadiths : HadithData = i18n.language === "ar" ? ar : en
+  const { t, i18n } = useTranslation();
+  const isArabic = i18n.language === "ar"
+  const hadiths: HadithData = i18n.language === "ar" ? ar : en
   // Initialize the hadithIndex from localStorage, defaulting to 0 if not found
   const [hadithIndex, setHadithIndex] = useState<number>(
     () => Number(localStorage.getItem('hadith-index')) || 0
@@ -36,7 +37,7 @@ const HadithCard = memo(() => {
   }, [hadithIndex]);
 
   return (
-    <Card sx={{ minWidth: 275 , mt:1 }}>
+    <Card sx={{ minWidth: 275, my: 1, direction: isArabic ? "rtl" : "ltr" }}>
       <CardContent>
         <Typography gutterBottom sx={{ color: 'text.secondary', fontSize: 14 }}>
           {`${hadiths.metadata.name} - No: ${hadiths.hadiths[hadithIndex].hadithnumber}`}
@@ -45,8 +46,8 @@ const HadithCard = memo(() => {
           {hadiths.hadiths[hadithIndex].text}
         </Typography>
       </CardContent>
-      <CardActions  sx={{ mt: -2, justifyContent: "right" }}>
-        <Button onClick={handleHadithRed} size="small">Mark As Red</Button>
+      <CardActions sx={{ mt: -2, justifyContent: "right" }}>
+        <Button onClick={handleHadithRed} size="small">{t("Mark As Read")}</Button>
       </CardActions>
     </Card>
   );

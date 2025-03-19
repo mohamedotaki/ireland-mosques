@@ -3,6 +3,7 @@ import { initReactI18next } from "react-i18next";
 import LanguageDetector from "i18next-browser-languagedetector";
 import en from "../assets/translation/en.json"
 import ar from "../assets/translation/ar.json"
+import { getFromLocalDB, LocalStorageKeys } from "../utils/localDB";
 
 i18n
 /*   .use(LanguageDetector)  // Detects the user's language
@@ -12,6 +13,7 @@ i18n
       en: { translation: en },
       ar: { translation: ar },
     },
+    lng: getFromLocalDB(LocalStorageKeys.AppLanguage),
     fallbackLng: 'en',  // Default language if user language is not found
     interpolation: {
       escapeValue: false, // React already escapes values

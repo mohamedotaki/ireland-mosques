@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
 import { createTheme, ThemeProvider as MUIThemeProvider } from '@mui/material/styles';
 import { getFromLocalDB, isKeyInLocalDB, LocalStorageKeys, removeFromLocalDB, saveToLocalDB } from '../utils/localDB';
+import { useTranslation } from 'react-i18next';
 
 // Define the types for the context value
 interface ThemeContextType {
@@ -26,6 +27,7 @@ const getSystemDefaultTheme = (): 'light' | 'dark' => {
 
 // Provide the context to the app
 export const ThemeProviderWrapper: React.FC<ThemeProviderProps> = ({ children }) => {
+  const { i18n } = useTranslation();
   const savedTheme = getFromLocalDB(LocalStorageKeys.AppTheme);
   const [theme, setTheme] = useState<'light' | 'dark'>(savedTheme || getSystemDefaultTheme()); // Default theme is light
   const [selectedTheme, setSelectedTheme] = useState<'light' | 'dark' | 'system_default'>(isKeyInLocalDB(LocalStorageKeys.AppTheme) ? savedTheme : 'system_default'); // Default theme is light
@@ -53,6 +55,7 @@ export const ThemeProviderWrapper: React.FC<ThemeProviderProps> = ({ children })
     palette: {
       mode: theme, // Use the theme mode (light/dark)
     },
+    direction: i18n.language === "ar" ? "rtl" : "ltr",
     typography: {
       fontSize, // Dynamically set the font size here
     },

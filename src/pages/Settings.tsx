@@ -19,20 +19,17 @@ const SettingsPage: React.FC = () => {
   const marks = [
     {
       value: 10,
-      label: 'Small',
     },
     {
       value: 15,
-      label: 'Normal',
     },
     {
       value: 20,
-      label: 'Larg',
     },
 
   ];
 
-
+  const isArabic = i18n.language === "ar" ? true : false;
   const [language, setLanguage] = useState<Language>(i18n.language as Language);
   const [fontSize, setFontSize] = useState<FontSize>(getFromLocalDB(LocalStorageKeys.FontSize) || 14);
 
@@ -68,16 +65,16 @@ const SettingsPage: React.FC = () => {
   }
 
   return (
-    <Card sx={{ maxWidth: 600, margin: 'auto', padding: 2, mt: 2 }}>
+    <Card sx={{ maxWidth: 600, margin: 'auto', padding: 2, mt: 2, direction: isArabic ? "rtl" : "ltr" }}>
       <Typography variant="h6" textAlign="center" sx={{ mb: 2 }} >
         General
       </Typography>
 
 
       <Grid container spacing={3}>
-        <Grid item xs={12} container alignItems="center">
+        <Grid item xs={12} container >
           <Grid item xs={6}>
-            <Typography variant="body1">Language</Typography>
+            <Typography variant="body1">{t("Language")}</Typography>
           </Grid>
           <Grid item xs={6}>
             <FormControl fullWidth>
@@ -90,38 +87,38 @@ const SettingsPage: React.FC = () => {
           </Grid>
         </Grid>
 
-        <Grid item xs={12} container alignItems="center">
+        <Grid item xs={12} container alignItems="center" >
           <Grid item xs={6}>
-            <Typography variant="body1">Theme</Typography>
+            <Typography variant="body1">{t("Theme")}</Typography>
           </Grid>
           <Grid item xs={6}>
             <FormControl fullWidth>
               <Select value={selectedTheme} onChange={handleThemeChange}>
-                <MenuItem value="system_default">System Default</MenuItem>
-                <MenuItem value="dark">Dark</MenuItem>
-                <MenuItem value="light">Light</MenuItem>
+                <MenuItem value="system_default">{t("System Default")}</MenuItem>
+                <MenuItem value="dark">{t("Dark")}</MenuItem>
+                <MenuItem value="light">{t("Light")}</MenuItem>
 
               </Select>
             </FormControl>
           </Grid>
         </Grid>
 
-        <Grid item xs={12} container alignItems="center">
+        <Grid item xs={12} container alignItems="center" >
           <Grid item xs={6}>
-            <Typography variant="body1">Time Format</Typography>
+            <Typography variant="body1">{t("Time Format")}</Typography>
           </Grid>
           <Grid item xs={6}>
             <FormControl fullWidth>
               <Select value={timeFormat} onChange={handleTimeFormatChange}>
-                <MenuItem value="12-h">12-hour</MenuItem>
-                <MenuItem value="24-h">24-hour</MenuItem>
+                <MenuItem value="12-h">{t("12-hour")}</MenuItem>
+                <MenuItem value="24-h">{t("24-hour")}</MenuItem>
               </Select>
             </FormControl>
           </Grid>
         </Grid>
-        <Grid item xs={12} container alignItems="center">
+        <Grid item xs={12} container alignItems="center" >
           <Grid item xs={6}>
-            <Typography variant="body1">Font Size</Typography>
+            <Typography variant="body1">{t("Font Size")}</Typography>
           </Grid>
           <Grid item xs={6}>
             <FormControl fullWidth>
@@ -135,7 +132,16 @@ const SettingsPage: React.FC = () => {
                 min={10}
                 max={20}
                 onChange={handleFontSizeChange}
+                sx={{
 
+                  '& .MuiSlider-thumb': {
+                    marginRight: "-10%"
+                  },
+                  '& .MuiSlider-track': {
+                    // Flip the track in RTL mode
+                    direction: 'ltr',
+                  },
+                }}
               />
             </FormControl>
           </Grid>

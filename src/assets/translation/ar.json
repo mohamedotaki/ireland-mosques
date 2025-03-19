@@ -15,5 +15,20 @@
   "Update": "تحديث",
   "Cancel": "الغاء",
   "Iqamah Time": "وقت الاقامة",
-  "Adhan Time": "وقت الأذان"
+  "Adhan Time": "وقت الأذان",
+
+  "Time Format": "تنسيق الوقت",
+  "Font Size": "حجم الخط",
+  "Dark": "داكن",
+  "Light": "فاتح",
+  "System Default": "الإعدادات الافتراضية للنظام",
+  "Theme": "السمات",
+  "Language": "اللغة",
+  "General": "عام",
+  "24-hour": "24 ساعة",
+  "12-hour": "12 ساعة",
+  "Prayer": "صلاة",
+  "Mark As Read": "تم القراءة",
+  "Not Set": "غير محدد",
+  "Jummuah Iqamah Is Not Set": "إقامة الجمعة غير محددة"
 }

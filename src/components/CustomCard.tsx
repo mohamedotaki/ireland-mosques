@@ -17,7 +17,7 @@ const bull = (
 
 export default function CustomCard() {
   return (
-    <Card sx={{ minWidth: 275 }}>
+    <Card sx={{ minWidth: 275, my: 2 }}>
       <CardContent>
         <Typography gutterBottom sx={{ color: 'text.secondary', fontSize: 14 }}>
           Word of the Day

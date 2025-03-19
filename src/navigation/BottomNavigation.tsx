@@ -14,7 +14,7 @@ export default function BottomNavigationBar() {
   const [value, setValue] = React.useState(1);
   const navigate = useNavigate(); // useNavigate hook for navigation
 
-  const handleNavigation = (event:any, newValue:number) => {
+  const handleNavigation = (event: any, newValue: number) => {
     setValue(newValue);
     // Navigate to the respective route
     if (newValue === 0) {
@@ -27,17 +27,18 @@ export default function BottomNavigationBar() {
   };
 
   return (
-     <Box sx={{  bottom:0,right:0,left:0, position:"fixed" }}>
+    <Box sx={{ bottom: 0, right: 0, left: 0, position: "fixed", display: { md: 'none' } }}>
       <BottomNavigation
         value={value}
         onChange={handleNavigation}
-       
+
+
       >
-        <BottomNavigationAction label="Home" icon={<FeedIcon />} />
-        <BottomNavigationAction label="Prayers" icon={<WatchLaterIcon />} />
-        <BottomNavigationAction label="Settings" icon={<SettingsIcon />} />
+        <BottomNavigationAction label="Home" icon={<FeedIcon sx={{ fontSize: 30 }} />} />
+        <BottomNavigationAction label="Prayers" icon={<WatchLaterIcon sx={{ fontSize: 30 }} />} />
+        <BottomNavigationAction label="Settings" icon={<SettingsIcon sx={{ fontSize: 30 }} />} />
       </BottomNavigation>
-    </Box> 
+    </Box>
 
   );
 }
