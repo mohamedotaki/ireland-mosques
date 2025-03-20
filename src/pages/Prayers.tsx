@@ -10,6 +10,7 @@ import findClosestMosque from "../utils/findClosestMosque";
 import { getFromLocalDB, LocalStorageKeys } from "../utils/localDB";
 import MosqueInfo from "../components/MosqueInfo";
 import MosqueInfoModal from "../components/MosqueInfoModal";
+import CompassModal from "../components/CompassModal";
 
 
 interface ModalProps {
@@ -22,9 +23,10 @@ interface ModalProps {
 export default function Prayers() {
   const [mosque, setMosque] = useState<mosquesDatabaseType>(getFromLocalDB(LocalStorageKeys.DefaultMosque))
   const [prayersDate, setPrayerDate] = useState<Date>(new Date())
-  const [prayersData, setPrayersData] = useState<PrayersCalcType>(prayersCalc(mosque, prayersDate))
+  const [prayersData, setPrayersData] = useState<PrayersCalcType>(prayersCalc())
   const [modalData, setModalData] = useState<ModalProps>({ showModal: false, prayer: undefined, isIqamahClicked: false })
   const [mosqueInfoOpen, setMosqueInfoOpen] = useState<boolean>(false)
+  const [compassOpen, setCompassOpen] = useState<boolean>(false)
 
 
 
@@ -44,9 +46,9 @@ export default function Prayers() {
       prayersCalc(mosque)
     }, []) */
 
-  useEffect(() => {
-    setPrayersData(prayersCalc(mosque, prayersDate))
-  }, [prayersDate, mosque])
+  /*   useEffect(() => {
+      setPrayersData(prayersCalc(mosque, prayersDate))
+    }, [prayersDate, mosque]) */
 
 
   const handleOpenModal = (prayer: PrayerType, isIqamahClicked: boolean) => {
@@ -72,7 +74,7 @@ export default function Prayers() {
         prayersToShow={prayersData.prayers.today}
         onPrayerTimeClick={handleOpenModal}>
         <>
-          <MosqueInfo mosqueDetails={mosque} handleInfoModalOpen={() => setMosqueInfoOpen(true)} />
+          <MosqueInfo mosqueDetails={mosque} handleInfoModalOpen={() => setMosqueInfoOpen(true)} handleCompassOpen={() => setCompassOpen(true)} />
           <ProgressBar />
         </>
       </PrayerTable>
@@ -92,6 +94,13 @@ export default function Prayers() {
           mosqueInfo={mosque}
           openModal={mosqueInfoOpen}
           handleClose={() => setMosqueInfoOpen(false)}
+        />
+      }
+
+      {
+        compassOpen && <CompassModal
+          openModal={compassOpen}
+          handleClose={() => setCompassOpen(false)}
         />
       }
 

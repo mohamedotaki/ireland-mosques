@@ -5,6 +5,7 @@ import CardActions from '@mui/material/CardActions';
 import CardContent from '@mui/material/CardContent';
 import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
+import { getFromLocalDB, LocalStorageKeys } from '../utils/localDB';
 
 const bull = (
   <Box
@@ -20,7 +21,7 @@ export default function CustomCard() {
     <Card sx={{ minWidth: 275, my: 2 }}>
       <CardContent>
         <Typography gutterBottom sx={{ color: 'text.secondary', fontSize: 14 }}>
-          Word of the Day
+          {getFromLocalDB(LocalStorageKeys.MosquesData).toString()}
         </Typography>
         <Typography variant="h5" component="div">
           be{bull}nev{bull}o{bull}lent

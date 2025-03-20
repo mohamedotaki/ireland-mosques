@@ -8,7 +8,7 @@ export interface ApiResponse<T> {
 }
 
 const apiClient = axios.create({
-  baseURL: 'http://192.168.0.11:3002/api', // Default API base URL (can be modified)
+  baseURL: 'http://192.168.0.11:3001/api', // Default API base URL (can be modified)
   headers: {
     'Content-Type': 'application/json',
   },

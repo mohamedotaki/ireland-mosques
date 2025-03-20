@@ -169,7 +169,7 @@ const prayerCalc = (
 };
 
 const prayersCalc = (
-  mosque: mosquesDatabaseType,
+  mosque?: mosquesDatabaseType,
   dateToShow: Date = new Date(),
   showJamaah: boolean = true,
   city: string = "Europe/Dublin", // user Current location
