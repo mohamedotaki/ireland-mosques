@@ -21,6 +21,7 @@ interface HadithData {
 }
 
 const HadithCard = memo(() => {
+  console.log("Hadith Card Rendering")
   const { t, i18n } = useTranslation();
   const isArabic = i18n.language === "ar"
   const hadiths: HadithData = i18n.language === "ar" ? ar : en

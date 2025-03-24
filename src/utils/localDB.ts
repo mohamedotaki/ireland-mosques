@@ -6,7 +6,9 @@ export enum LocalStorageKeys {
   TimeFormatIs24H = "TimeFormatIs24H",
   DefaultMosque = "DefaultMosque",
   FontSize = "FontSize",
-  AppLanguage = "AppLanguage"
+  AppLanguage = "AppLanguage",
+  user = "User"
+
 
 
 }

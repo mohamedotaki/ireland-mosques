@@ -12,6 +12,7 @@ import {
   isAfter,
   isWithinInterval,
   differenceInSeconds,
+  format, addSeconds
 } from "date-fns";
 import timetable from "./TimeTable.json";
 import settings from "./Settings.json";
@@ -188,6 +189,12 @@ const prayersCalc = (
     date: dateTomorrow,
     dstAdjust: dstAdjustTomorrow,
   } = dayCalc(1, 0, hijrioffset, city, dateToShow);
+  const {
+    now: nowYesterday,
+    month: monthYesterday,
+    date: dateYesterday,
+    dstAdjust: dstAdjustYesterday,
+  } = dayCalc(-1, 0, hijrioffset, city, dateToShow);
 
 
 
@@ -222,13 +229,22 @@ const prayersCalc = (
     );
   });
 
-  /* const prayersTomorrow = timetable[monthTomorrow + 1][dateTomorrow].map(
+  prayersToday.push({
+    adhan: new Date(),
+    iqamah: null,
+    name: "jummuah",
+    isNext: false,
+  });
+
+  const prayersTomorrow = prayersTable[monthTomorrow + 1][dateTomorrow].map(
     (hourMinute, index) => {
       const hourMinuteNext =
-        index < 5 ? timetable[month + 1][date][index + 1] : [24, 0];
+        index < 5 ? prayersTable[month + 1][date][index + 1] : [24, 0];
       return prayerCalc(
         hourMinute,
         hourMinuteNext,
+        mosque?.prayers[index],
+
         index,
         nowTomorrow,
         "tomorrow",
@@ -237,18 +253,36 @@ const prayersCalc = (
         dstAdjustTomorrow
       );
     }
-  ); */
+  );
+  const prayersYesterday = prayersTable[monthYesterday + 1][dateYesterday].map(
+    (hourMinute, index) => {
+      const hourMinuteNext =
+        index < 5 ? prayersTable[month + 1][date][index + 1] : [24, 0];
+      return prayerCalc(
+        hourMinute,
+        hourMinuteNext,
+        mosque?.prayers[index],
+        index,
+        nowYesterday,
+        "yesterday",
+        jamaahmethods,
+        jamaahoffsets,
+        dstAdjustYesterday
+      );
+    }
+  );
+
 
   /* *********************** */
   /* PREVIOUS, CURRENT, NEXT */
   /* *********************** */
-  /*  let current;
+  let current;
   let next;
   let previous;
 
   if (isWithinInterval(now, { start, end: prayersToday[0].adhan })) {
-     previous = prayersYesterday[4];
-    current = prayersYesterday[5]; 
+    previous = prayersYesterday[4];
+    current = prayersYesterday[5];
     next = prayersToday[0];
   } else if (
     isWithinInterval(now, {
@@ -256,8 +290,8 @@ const prayersCalc = (
       end: prayersToday[1].adhan,
     })
   ) {
-        previous = prayersYesterday[5];
-      current = prayersToday[0];
+    previous = prayersYesterday[5];
+    current = prayersToday[0];
     next = prayersToday[1];
   } else if (
     isWithinInterval(now, {
@@ -299,34 +333,21 @@ const prayersCalc = (
     previous = prayersToday[4];
     current = prayersToday[5];
     next = prayersTomorrow[0];
-  } */
+  }
 
   /* *********************** */
   /* COUNTDOWN/UP            */
   /* *********************** */
-  /*   const countUp = {
-    name:
-      current?.isJamaahPending || !showJamaah
-        ? current.name
-        : `${current.name}${current.index !== 1 ? " jamaah" : ""}`,
-    time:
-      current?.isJamaahPending || !showJamaah ? current.adhan : current.iqamah,
-    duration:
-      current?.isJamaahPending || !showJamaah
-        ? differenceInSeconds(now, current.adhan)
-        : differenceInSeconds(now, current.iqamah),
+  const countUp = {
+    name: current.name,
+    time: current.adhan,
+    duration: differenceInSeconds(now, current.adhan),
   };
 
   const countDown = {
-    name:
-      current?.isJamaahPending && showJamaah
-        ? `${current.name}${current.index !== 1 ? " jamaah" : ""}`
-        : next.name,
-    time: current?.isJamaahPending && showJamaah ? current.iqamah : next.adhan,
-    duration:
-      current?.isJamaahPending && showJamaah
-        ? differenceInSeconds(current.iqamah, now) + 1
-        : differenceInSeconds(next.adhan, now) + 1,
+    name: next.name,
+    time: next.adhan,
+    duration: differenceInSeconds(next.adhan, now) + 1,
   };
 
   const totalDuration = countUp.duration + countDown.duration;
@@ -334,7 +355,7 @@ const prayersCalc = (
   const percentageRaw = 10000 - (countDown.duration / totalDuration) * 10000;
   const percentage = Math.floor(percentageRaw) / 100;
 
-  const isAfterIsha = isAfter(now, prayersToday[5].iqamah); */
+  const isAfterIsha = isAfter(now, prayersToday[5].adhan);
   /*   const isJamaahPending = isWithinInterval(now, {
     start: current.adhan,
     end: current.iqamah,
@@ -372,21 +393,30 @@ const prayersCalc = (
       /*       tomorrow: prayersTomorrow,
        */
     },
-    /*    previous,
+    previous,
     current,
     next,
     countUp,
     countDown,
-    now: newNow,
-    hijri: newHijri,
-    trueNow,
-    trueHijri,
+    /*     now: newNow,
+        hijri: newHijri, */
+    /*     trueNow, */
+    /*     trueHijri, */
     percentage,
-    isAfterIsha, */
+    isAfterIsha,
     /*     isJamaahPending,
      */ /*  focus, */
   };
   return result;
 };
 
-export { prayersCalc, dayCalc, getOnlinePrayers };
+
+const calculatePrayerProgress = (countUp: number, countDown: number) => {
+  const totalDuration = countUp + countDown;
+  const percentageRaw = 10000 - (countDown / totalDuration) * 10000;
+  const percentage = Math.floor(percentageRaw) / 100;
+  const time = addSeconds(startOfDay(new Date()), countDown);
+  return { percentage, timeLeft: format(time, 'HH:mm:ss') };
+};
+
+export { prayersCalc, dayCalc, getOnlinePrayers, calculatePrayerProgress };

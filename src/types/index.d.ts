@@ -48,6 +48,16 @@ export type PrayersCalcType = {
   prayers: {
     today: Array<prayerCalcType>,
   }
+  countUp: {
+    duration: number,
+    name: string,
+    time: Date,
+  },
+  countDown: {
+    duration: number,
+    name: string,
+    time: Date,
+  }
 }
 
 export type prayerCalcType = {

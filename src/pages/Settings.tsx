@@ -154,29 +154,7 @@ const SettingsPage: React.FC = () => {
         </Grid>
       </Card>
 
-      <Card sx={{ maxWidth: 600, margin: 'auto', padding: 2, mt: 2, direction: isArabic ? "rtl" : "ltr" }}>
-        <Typography variant="h6" textAlign="center" sx={{ mb: 2 }} >
-          Mosque
-        </Typography>
 
-
-        <Grid container spacing={3}>
-          <Grid item xs={12} container >
-            <Grid item xs={6}>
-              <Typography variant="body1">{t("Default Mosque")}</Typography>
-            </Grid>
-            <Grid item xs={6}>
-              <FormControl fullWidth>
-                <Select value={language} onChange={handleLanguageChange}>
-                  <MenuItem value="en">English</MenuItem>
-                  <MenuItem value="ar">العربية</MenuItem>
-
-                </Select>
-              </FormControl>
-            </Grid>
-          </Grid>
-        </Grid>
-      </Card>
 
 
     </>

@@ -13,7 +13,10 @@ import SettingsPage from './pages/Settings';
 import findClosestMosque from './utils/findClosestMosque';
 import { usePopup } from './hooks/PopupContext';
 import { defaultMosque } from './types/defaults';
-import SignInSignUpPage from './pages/SignInSignUpPage';
+import SignInSignUpPage from './components/SignInSignUp';
+import AccountScreen from './pages/Account';
+import AccountPage from './pages/Account';
+import { messaging } from './services/firebase-config';
 
 
 export default function App() {
@@ -26,6 +29,7 @@ export default function App() {
   const appFirstLunch = async () => {
     if (!isKeyInLocalDB(LocalStorageKeys.FirstLaunch)) {
       saveToLocalDB(LocalStorageKeys.FirstLaunch, true)
+      saveToLocalDB(LocalStorageKeys.TimeFormatIs24H, true)
       const { data, error } = await apiGet<appFirstLunchType>("app")
       if (data) {
         saveToLocalDB(LocalStorageKeys.MosquesData, data?.mosques)
@@ -40,8 +44,7 @@ export default function App() {
         showPopup({ message: "Unable to get mosques details. please connect to internet and try later", type: "warning" })
       }
 
-      //Set Default Values
-      saveToLocalDB(LocalStorageKeys.TimeFormatIs24H, true)
+
 
 
 
@@ -49,8 +52,15 @@ export default function App() {
 
   }
 
+
+
+
+
+
+
   useEffect(() => {
     appFirstLunch()
+
   }, [])
   // Create the themes
 
@@ -75,8 +85,10 @@ export default function App() {
               <Route path="/" element={<Home />} />
               <Route path="/prayers" element={<Prayers />} />
               <Route path="/settings" element={<SettingsPage />} />
-              <Route path="/signin" element={<SignInSignUpPage />}
-              />
+              <Route path="/account" element={<AccountPage />} />
+
+
+
 
             </Routes>
 

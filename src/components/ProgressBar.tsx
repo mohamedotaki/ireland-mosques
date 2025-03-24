@@ -1,29 +1,29 @@
 import * as React from 'react';
 import Box from '@mui/material/Box';
 import LinearProgress from '@mui/material/LinearProgress';
+import { useState } from 'react';
+import { Typography } from '@mui/material';
 
-export default function ProgressBar() {
-  const [progress, setProgress] = React.useState(0);
 
-  React.useEffect(() => {
-    const timer = setInterval(() => {
-      setProgress((oldProgress) => {
-        if (oldProgress === 100) {
-          return 0;
-        }
-        const diff = Math.random() * 10;
-        return Math.min(oldProgress + diff, 100);
-      });
-    }, 500);
-
-    return () => {
-      clearInterval(timer);
-    };
-  }, []);
+export default function ProgressBar({ progress = 0, time }: { progress: number, time: string }) {
 
   return (
-    <Box sx={{ width: '100%' }}>
-      <LinearProgress variant="determinate" value={progress} />
+    <Box sx={{ width: '100%', position: 'relative' }}>
+
+      <LinearProgress variant="determinate" value={progress} sx={{ height: 25 }} />
+      <Typography
+        variant="body2"
+        color="black"
+        sx={{
+          position: 'absolute',
+          top: '50%',
+          left: '50%',
+          transform: 'translate(-50%, -50%)',
+          zIndex: 1, // Make sure text is above the progress bar
+        }}
+      >
+        {time}
+      </Typography>
     </Box>
   );
 }

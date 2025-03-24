@@ -6,12 +6,14 @@ import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
-import { TableFooter, Tooltip } from '@mui/material';
+import { TableFooter, Tooltip, Typography } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import ProgressBar from './ProgressBar';
 import { prayerCalcType, PrayerType } from '../types';
 import { format } from 'date-fns';
 import { useTranslation } from 'react-i18next';
+import { memo } from 'react';
+import { LocalStorageKeys } from '../utils/localDB';
 
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
@@ -36,24 +38,23 @@ const StyledTableRow = styled(TableRow)(({ theme }) => ({
 interface PrayerTableProps {
   prayersToShow: Array<prayerCalcType>; // assuming `prayer` is a type you've defined
   onPrayerTimeClick: (prayer: PrayerType, isIqamahClicked: boolean) => void;
-  children: React.ReactElement;
-}
+/*   children: React.ReactElement;
+ */}
 
-export default function PrayerTable({ prayersToShow, onPrayerTimeClick, children }: PrayerTableProps) {
+const PrayerTable = memo(({ prayersToShow, onPrayerTimeClick }: PrayerTableProps) => {
   const { t, i18n } = useTranslation();
   const isArabic = i18n.language === "ar"
+  const is24hFormat = localStorage.getItem(LocalStorageKeys.TimeFormatIs24H) === "true" ? "HH:mm" : "hh:mm"
 
+  console.log("Prayer Table")
   return (
-    <TableContainer component={Paper} sx={{ direction: isArabic ? "rtl" : "ltr" }}>
-      {children}
+    <TableContainer component={Paper} sx={{ direction: isArabic ? "rtl" : "ltr", borderRadius: "0 0 5px 5px" }}>
       <Table sx={{ flex: 1 }} size="medium" aria-label="simple table">
         <TableHead>
           <TableRow>
             <TableCell align={isArabic ? "right" : "left"}>{t("Prayer")}</TableCell>
-            <Tooltip title="Time of the adhan">
 
-              <TableCell align="center">{t("Adhan")}</TableCell>
-            </Tooltip>
+            <TableCell align="center">{t("Adhan")}</TableCell>
             <TableCell align="center">{t("Iqamah")}</TableCell>
           </TableRow>
         </TableHead>
@@ -64,14 +65,14 @@ export default function PrayerTable({ prayersToShow, onPrayerTimeClick, children
                 <StyledTableCell component="th" scope="row" align={isArabic ? "right" : "left"}>
                   {t(prayer.name)}
                 </StyledTableCell>
-                <StyledTableCell onClick={() => onPrayerTimeClick(prayer, false)} align="center">{format(prayer.adhan, "hh:mm")}</StyledTableCell >
-                <StyledTableCell onClick={() => onPrayerTimeClick(prayer, true)} align="center">{prayer.iqamah ? format(prayer.iqamah, "HH:mm") : '-'}</StyledTableCell >
+                <StyledTableCell onClick={() => onPrayerTimeClick(prayer, false)} align="center">{format(prayer.adhan, is24hFormat)} </StyledTableCell >
+                <StyledTableCell onClick={() => onPrayerTimeClick(prayer, true)} align="center">{prayer.iqamah ? format(prayer.iqamah, is24hFormat) : '-'}</StyledTableCell >
               </StyledTableRow>
               :
               <StyledTableRow key={"jummuah"}>
                 <StyledTableCell component="th" scope="row" colSpan={3} sx={{ textAlign: "center" }}>
 
-                  {prayer.iqamah ? `Jummuah Prayer is fixed at ${format(prayer.iqamah, "HH:mm")}` : t('Jummuah Iqamah Is Not Set')}
+                  {prayer.iqamah ? `Jummuah Prayer is fixed at ${format(prayer.iqamah, is24hFormat)}` : t('Jummuah Iqamah Is Not Set')}
                 </StyledTableCell>
               </StyledTableRow>
 
@@ -80,5 +81,8 @@ export default function PrayerTable({ prayersToShow, onPrayerTimeClick, children
       </Table>
     </TableContainer>
   );
-}
+})
 
+
+
+export default PrayerTable;

@@ -1,12 +1,13 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { getFromLocalDB, LocalStorageKeys, removeFromLocalDB, saveToLocalDB } from '../utils/localDB';
+import { UserType } from '../types/user';
+import { apiGet, apiPost } from '../utils/api';
 
 // Define types for our auth state
 interface User {
-  // Add appropriate user properties based on your application
   id?: string;
   name?: string;
   email?: string;
-  // Add other user properties as needed
 }
 
 interface AuthState {
@@ -15,8 +16,9 @@ interface AuthState {
 }
 
 interface AuthContextType {
-  authState: AuthState;
-  login: (user: User) => void;
+  isAuth: boolean;
+  user: User | null;
+  login: (user: UserType) => void;
   logout: () => void;
 }
 
@@ -32,31 +34,32 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   // Use effect to check for saved login status in localStorage
   useEffect(() => {
-    const storedUser = localStorage.getItem('user');
+    const storedUser = getFromLocalDB(LocalStorageKeys.user);
     if (storedUser) {
-      try {
-        setAuthState({ isAuthenticated: true, user: JSON.parse(storedUser) });
-      } catch (error) {
-        console.error('Failed to parse stored user data:', error);
-        localStorage.removeItem('user'); // Remove invalid data
-      }
+      setAuthState({ isAuthenticated: true, user: storedUser });
     }
   }, []);
 
   // Login function
-  const login = (user: User) => {
-    localStorage.setItem('user', JSON.stringify(user));
+  const login = (user: UserType) => {
+    saveToLocalDB(LocalStorageKeys.user, user);
     setAuthState({ isAuthenticated: true, user });
   };
 
   // Logout function
-  const logout = () => {
-    localStorage.removeItem('user');
-    setAuthState({ isAuthenticated: false, user: null });
+  const logout = async () => {
+    const { data, error } = await apiGet('auth/signout');
+    console.log(data, error)
+    if (data) {
+      removeFromLocalDB(LocalStorageKeys.user);
+      setAuthState({ isAuthenticated: false, user: null });
+      return
+    }
+
   };
 
   return (
-    <AuthContext.Provider value={{ authState, login, logout }}>
+    <AuthContext.Provider value={{ isAuth: authState.isAuthenticated, user: authState.user, login, logout }}>
       {children}
     </AuthContext.Provider>
   );
