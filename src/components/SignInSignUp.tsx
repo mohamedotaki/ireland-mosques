@@ -1,78 +1,57 @@
 import React, { useState } from 'react';
-import { Container, TextField, Button, Typography, Box, Grid, StepIconClassKey } from '@mui/material';
+import { Container, TextField, Button, Typography, Box, StepIconClassKey } from '@mui/material';
 import { UserSignupType, UserType } from '../types/user';
-import { apiPost } from '../utils/api';
 import { useAuth } from '../hooks/AuthContext';
-/* import { GoogleLogin } from '@react-oauth/google';
- */
-
+import { SigninType, SignupType } from '../types/authTyps';
 
 
 const SignInSignUp = () => {
-  const [isSignUp, setIsSignUp] = useState(false); // toggle between SignUp and SignIn
-  const [loading, setLoading] = useState(false); // toggle between SignUp and SignIn
-  const [verification, setVerification] = useState(true); // toggle between SignUp and SignIn
-  const [verificationCode, setVerificationCode] = useState(""); // toggle between SignUp and SignIn
-  const [user, setUser] = useState<UserSignupType>({
+  const [isSignUp, setIsSignUp] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [verification, setVerification] = useState(false);
+  const [verificationCode, setVerificationCode] = useState("");
+  const [user, setUser] = useState<SignupType | SigninType>({
     email: '',
-    password: ''
+    password: '',
+    ...(isSignUp && {
+      name: '',
+      phoneNumber: '',
+      confirmPassword: ''
+    })
   });
-  const [badPassword, setBadPassword] = useState(false); // toggle between SignUp and SignIn
-  const [error, setError] = useState<string>(""); // toggle between SignUp and SignIn
-  const { login } = useAuth()
+  const [badPassword, setBadPassword] = useState(false);
+  const [error, setError] = useState<string>("");
+  const { signup, signin } = useAuth()
 
-
-  // Handle form submission (SignUp or SignIn)
   const handleFormSubmit = async (event: React.FormEvent) => {
-    setLoading(true)
     event.preventDefault();
+    setLoading(true)
     setError("")
-    if (verification) {
-      const { data, error } = await apiPost<{ verificationCode: string }, UserType>('auth/verify', { verificationCode })
-      if (data) {
-        login(data)
+    if (handlePassCheck()) {
+      if (verification) {
+        /// handle verification
       } else {
-        setError(error || "")
-      }
-    } else {
-      if (user.password.length < 8 || user.password !== user.confirmPassword) {
-        setBadPassword(true)
-        return
-      }
-      if (isSignUp) {
-        badPassword && setBadPassword(false)
-        const { data, error } = await apiPost('auth/signup', { user })
-        console.log(data, error)
-        if (data) {
-          setVerification(true)
+        if (isSignUp) {
+          signup(user as SignupType)
         } else {
-          setError(error || "")
+          signin(user as SigninType)
         }
-      } else {
-        const { data, error } = await apiPost<{ user: UserSignupType }, UserType>('auth/signin', { user })
-        if (data) {
-          setVerification(true)
-        } else {
-          setError(error || "")
-        }
-        badPassword && setBadPassword(false)
       }
     }
     setLoading(false)
-
   };
-  const handleGoogleLogin = (response: any) => {
-    console.log("Google Login Success", response);
-    // Implement further login logic
-  };
-
-  // Facebook login success handler
-  const handleFacebookLogin = (response: any) => {
-    console.log("Facebook Login Success", response);
-    // Implement further login logic
-  };
-
-
+  const handlePassCheck = (): boolean => {
+    if ((user as SigninType).password.length < 8) {
+      setBadPassword(true)
+      return false
+    }
+    if (isSignUp && (user as SignupType).password !== (user as SignupType).confirmPassword) {
+      setBadPassword(true)
+      return false
+    }
+    setBadPassword(false)
+    return true
+  }
 
   const handleFieldChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = event.target;
@@ -81,6 +60,7 @@ const SignInSignUp = () => {
       [name]: value,
     }));
   };
+
   return (
     <Container maxWidth="xs" sx={{ mt: 8 }}>
       <Typography variant="h4" align="center" gutterBottom>
@@ -116,7 +96,7 @@ const SignInSignUp = () => {
                     margin="normal"
                     type="text"
                     required
-                    value={user.name}
+                    value={(user as SignupType).name}
                     onChange={handleFieldChange}
                   />
                   <TextField
@@ -128,7 +108,7 @@ const SignInSignUp = () => {
                     type="tel"
                     inputMode="tel"
                     required
-                    value={user.phoneNumber}
+                    value={(user as SignupType).phoneNumber}
                     onChange={handleFieldChange}
                   />
                 </>
@@ -158,7 +138,6 @@ const SignInSignUp = () => {
                 error={badPassword}
               />
 
-              {/* Conditional field for Confirm Password (only visible during SignUp) */}
               {isSignUp && (
                 <TextField
                   fullWidth
@@ -168,7 +147,7 @@ const SignInSignUp = () => {
                   margin="normal"
                   type="password"
                   required
-                  value={user.confirmPassword}
+                  value={(user as SignupType).confirmPassword}
                   onChange={handleFieldChange}
                   error={badPassword}
                 />
@@ -176,8 +155,6 @@ const SignInSignUp = () => {
             </>
           )
         }
-
-
 
         {error && <Typography variant="body2" sx={{ mt: 2, color: 'red', textAlign: "center" }}>{error}</Typography>
         }
@@ -192,8 +169,6 @@ const SignInSignUp = () => {
             </Button>
           </Typography>}
 
-
-
           {/* Social Login Buttons */}
           {/*           <Box sx={{ mt: 3 }}>
             <GoogleLogin
@@ -207,5 +182,4 @@ const SignInSignUp = () => {
     </Container>
   );
 };
-
 export default SignInSignUp;

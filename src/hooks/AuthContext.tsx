@@ -2,24 +2,17 @@ import React, { createContext, useContext, useState, useEffect, ReactNode } from
 import { getFromLocalDB, LocalStorageKeys, removeFromLocalDB, saveToLocalDB } from '../utils/localDB';
 import { UserType } from '../types/user';
 import { apiGet, apiPost } from '../utils/api';
+import { SigninType, SignupType } from '../types/authTyps';
 
 // Define types for our auth state
-interface User {
-  id?: string;
-  name?: string;
-  email?: string;
-}
-
-interface AuthState {
-  isAuthenticated: boolean;
-  user: User | null;
-}
 
 interface AuthContextType {
-  isAuth: boolean;
-  user: User | null;
-  login: (user: UserType) => void;
-  logout: () => void;
+  user: UserType | null;
+  signout: () => void;
+  signin: (user: SigninType) => void;
+  signup: (user: SignupType) => void;
+  verify: (code: string) => void;
+
 }
 
 // Create the context with proper typing
@@ -27,39 +20,74 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 // Create the provider component with proper typing
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const [authState, setAuthState] = useState<AuthState>({
-    isAuthenticated: false,
-    user: null,
-  });
+  const [user, setUser] = useState<UserType | null>(null);
 
   // Use effect to check for saved login status in localStorage
   useEffect(() => {
     const storedUser = getFromLocalDB(LocalStorageKeys.user);
     if (storedUser) {
-      setAuthState({ isAuthenticated: true, user: storedUser });
+      setUser(storedUser);
     }
   }, []);
 
-  // Login function
-  const login = (user: UserType) => {
-    saveToLocalDB(LocalStorageKeys.user, user);
-    setAuthState({ isAuthenticated: true, user });
-  };
+
 
   // Logout function
-  const logout = async () => {
+  const signout = async () => {
     const { data, error } = await apiGet('auth/signout');
-    console.log(data, error)
     if (data) {
       removeFromLocalDB(LocalStorageKeys.user);
-      setAuthState({ isAuthenticated: false, user: null });
-      return
+      setUser(null);
     }
 
   };
 
+  const signin = async (user: SigninType) => {
+    const { data, error } = await apiPost<SigninType, { user: UserType }>('auth/signin', user)
+    if (data) {
+      saveToLocalDB(LocalStorageKeys.user, user);
+      setUser(data.user);
+    } else {
+      return error
+    }
+  }
+
+  const signup = async (user: SignupType) => {
+    const { data, error } = await apiPost<{ user: SignupType }, { user: UserType }>('auth/signup', { user })
+    console.log(data, error)
+
+    if (data) {
+      saveToLocalDB(LocalStorageKeys.user, user);
+      setUser(data.user);
+    } else {
+      return error
+    }
+  }
+
+
+  const verify = async (code: string) => {
+    const { data, error } = await apiPost<string, string>('auth/verify', "sad")
+    /*  if (data) {
+       saveToLocalDB(LocalStorageKeys.user, user);
+       setUser(data.user);
+     } else {
+       return error
+     } */
+  }
+
+
+  /*   const signup =async (user:)=>{
+       const { data, error } = await apiPost('auth/signup', { user })
+       if (data) {
+         setVerification(true)
+       } else {
+         setError(error || "")
+       }
+    } */
+
+
   return (
-    <AuthContext.Provider value={{ isAuth: authState.isAuthenticated, user: authState.user, login, logout }}>
+    <AuthContext.Provider value={{ user, signout, signin, signup, verify }}>
       {children}
     </AuthContext.Provider>
   );
