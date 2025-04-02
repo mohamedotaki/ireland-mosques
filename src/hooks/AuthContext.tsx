@@ -1,8 +1,7 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { getFromLocalDB, LocalStorageKeys, removeFromLocalDB, saveToLocalDB } from '../utils/localDB';
-import { UserType } from '../types/user';
 import { apiGet, apiPost } from '../utils/api';
-import { SigninType, SignupType } from '../types/authTyps';
+import { SigninType, SignupType, UserType } from '../types/authTyps';
 
 // Define types for our auth state
 
@@ -20,16 +19,14 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 // Create the provider component with proper typing
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const [user, setUser] = useState<UserType | null>(null);
+  const [user, setUser] = useState<UserType | null>(getFromLocalDB(LocalStorageKeys.user || null));
 
   // Use effect to check for saved login status in localStorage
-  useEffect(() => {
-    const storedUser = getFromLocalDB(LocalStorageKeys.user);
-    if (storedUser) {
-      setUser(storedUser);
-    }
-  }, []);
-
+  /*   useEffect(() => {
+      if(user) {
+        apiGet<{ user: UserType }>('auth/verify')
+      }, []); 
+   */
 
 
   // Logout function
@@ -43,21 +40,18 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   };
 
   const signin = async (user: SigninType) => {
-    const { data, error } = await apiPost<SigninType, { user: UserType }>('auth/signin', user)
+    const { data, error } = await apiPost<{ user: SigninType }, { user: UserType }>('auth/signin', { user })
     if (data) {
-      saveToLocalDB(LocalStorageKeys.user, user);
+      saveToLocalDB(LocalStorageKeys.user, data.user);
       setUser(data.user);
     } else {
       return error
     }
   }
-
   const signup = async (user: SignupType) => {
     const { data, error } = await apiPost<{ user: SignupType }, { user: UserType }>('auth/signup', { user })
-    console.log(data, error)
-
     if (data) {
-      saveToLocalDB(LocalStorageKeys.user, user);
+      saveToLocalDB(LocalStorageKeys.user, data.user);
       setUser(data.user);
     } else {
       return error
@@ -66,13 +60,18 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
 
   const verify = async (code: string) => {
-    const { data, error } = await apiPost<string, string>('auth/verify', "sad")
-    /*  if (data) {
-       saveToLocalDB(LocalStorageKeys.user, user);
-       setUser(data.user);
-     } else {
-       return error
-     } */
+    const { data, error } = await apiPost<{ user: UserType | null, code: string }, { user: UserType | null }>('auth/verify', { user, code })
+    console.log(data, error)
+    if (data) {
+      saveToLocalDB(LocalStorageKeys.user, data.user);
+      setUser(data.user);
+    } else {
+      if (error === "Too many attempts") {
+        removeFromLocalDB(LocalStorageKeys.user);
+        setUser(null);
+      }
+      return error
+    }
   }
 
 

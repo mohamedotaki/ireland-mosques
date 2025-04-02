@@ -6,11 +6,11 @@ import { SigninType, SignupType } from '../types/authTyps';
 
 
 const SignInSignUp = () => {
+  const { user, signup, signin, verify } = useAuth()
   const [isSignUp, setIsSignUp] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [verification, setVerification] = useState(false);
   const [verificationCode, setVerificationCode] = useState("");
-  const [user, setUser] = useState<SignupType | SigninType>({
+  const [inputData, setUser] = useState<SignupType | SigninType>({
     email: '',
     password: '',
     ...(isSignUp && {
@@ -21,31 +21,33 @@ const SignInSignUp = () => {
   });
   const [badPassword, setBadPassword] = useState(false);
   const [error, setError] = useState<string>("");
-  const { signup, signin } = useAuth()
 
   const handleFormSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
     setLoading(true)
     setError("")
-    if (handlePassCheck()) {
-      if (verification) {
-        /// handle verification
-      } else {
+    if (user?.account_status === "Pending") {
+      console.log("Verifying")
+      verify(verificationCode)
+    } else {
+
+      if (handlePassCheck()) {
         if (isSignUp) {
-          signup(user as SignupType)
+          signup(inputData as SignupType)
         } else {
-          signin(user as SigninType)
+          signin(inputData as SigninType)
         }
       }
     }
     setLoading(false)
   };
+
   const handlePassCheck = (): boolean => {
-    if ((user as SigninType).password.length < 8) {
+    if ((inputData as SigninType).password.length < 8) {
       setBadPassword(true)
       return false
     }
-    if (isSignUp && (user as SignupType).password !== (user as SignupType).confirmPassword) {
+    if (isSignUp && (inputData as SignupType).password !== (inputData as SignupType).confirmPassword) {
       setBadPassword(true)
       return false
     }
@@ -60,16 +62,15 @@ const SignInSignUp = () => {
       [name]: value,
     }));
   };
-
   return (
     <Container maxWidth="xs" sx={{ mt: 8 }}>
       <Typography variant="h4" align="center" gutterBottom>
-        {!verification ? isSignUp ? 'Sign Up' : 'Sign In' : "Verification"}
+        {user?.account_status === "Pending" ? "Verification" : isSignUp ? 'Sign Up' : 'Sign In'}
       </Typography>
 
       <form onSubmit={handleFormSubmit}>
         {
-          verification ? (
+          user?.account_status === "Pending" ? (
             <>
               <TextField
                 fullWidth
@@ -82,7 +83,8 @@ const SignInSignUp = () => {
                 value={verificationCode}
                 onChange={(e) => setVerificationCode(e.target.value)}
               />
-              <Typography variant="body2" sx={{ mt: 2, textAlign: "center" }}>Please Check your inbox or junk</Typography>
+              <Typography variant="body2" sx={{ mt: 2, textAlign: "center" }}>Please Check your inbox or junk.</Typography>
+
             </>
           ) : (
             <>
@@ -96,7 +98,7 @@ const SignInSignUp = () => {
                     margin="normal"
                     type="text"
                     required
-                    value={(user as SignupType).name}
+                    value={(inputData as SignupType).name}
                     onChange={handleFieldChange}
                   />
                   <TextField
@@ -108,7 +110,7 @@ const SignInSignUp = () => {
                     type="tel"
                     inputMode="tel"
                     required
-                    value={(user as SignupType).phoneNumber}
+                    value={(inputData as SignupType).phoneNumber}
                     onChange={handleFieldChange}
                   />
                 </>
@@ -122,7 +124,7 @@ const SignInSignUp = () => {
                 margin="normal"
                 type="email"
                 required
-                value={user.email}
+                value={inputData.email}
                 onChange={handleFieldChange}
               />
               <TextField
@@ -133,7 +135,7 @@ const SignInSignUp = () => {
                 margin="normal"
                 type="password"
                 required
-                value={user.password}
+                value={inputData.password}
                 onChange={handleFieldChange}
                 error={badPassword}
               />
@@ -147,7 +149,7 @@ const SignInSignUp = () => {
                   margin="normal"
                   type="password"
                   required
-                  value={(user as SignupType).confirmPassword}
+                  value={(inputData as SignupType).confirmPassword}
                   onChange={handleFieldChange}
                   error={badPassword}
                 />
@@ -160,9 +162,9 @@ const SignInSignUp = () => {
         }
         <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', mt: 2 }}>
           <Button loading={loading} type="submit" variant="contained" color="primary" fullWidth>
-            {!verification ? isSignUp ? 'Sign Up' : 'Sign In' : "Verify"}
+            {user?.account_status === "Pending" ? "Verify" : isSignUp ? 'Sign Up' : 'Sign In'}
           </Button>
-          {!verification && <Typography variant="body2" sx={{ mt: 2 }}>
+          {user?.account_status !== "Pending" && <Typography variant="body2" sx={{ mt: 2 }}>
             {isSignUp ? 'Already have an account?' : "Don't have an account?"}{' '}
             <Button onClick={() => setIsSignUp(!isSignUp)} color="primary">
               {isSignUp ? 'Sign In' : 'Sign Up'}
