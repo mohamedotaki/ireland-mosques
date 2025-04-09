@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
-import { Container, TextField, Button, Typography, Box, StepIconClassKey } from '@mui/material';
-import { UserSignupType, UserType } from '../types/user';
+import { Container, TextField, Button, Typography, Box } from '@mui/material';
 import { useAuth } from '../hooks/AuthContext';
 import { SigninType, SignupType } from '../types/authTyps';
 
@@ -8,6 +7,7 @@ import { SigninType, SignupType } from '../types/authTyps';
 const SignInSignUp = () => {
   const { user, signup, signin, verify } = useAuth()
   const [isSignUp, setIsSignUp] = useState(false);
+  const [message, setMessage] = useState<string>();
   const [loading, setLoading] = useState(false);
   const [verificationCode, setVerificationCode] = useState("");
   const [inputData, setUser] = useState<SignupType | SigninType>({
@@ -20,17 +20,16 @@ const SignInSignUp = () => {
     })
   });
   const [badPassword, setBadPassword] = useState(false);
-  const [error, setError] = useState<string>("");
+  const [error, setError] = useState<string | undefined>("");
 
   const handleFormSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
     setLoading(true)
     setError("")
     if (user?.account_status === "Pending") {
-      console.log("Verifying")
       verify(verificationCode)
-    } else {
 
+    } else {
       if (handlePassCheck()) {
         if (isSignUp) {
           signup(inputData as SignupType)
@@ -40,8 +39,8 @@ const SignInSignUp = () => {
       }
     }
     setLoading(false)
-  };
 
+  };
   const handlePassCheck = (): boolean => {
     if ((inputData as SigninType).password.length < 8) {
       setBadPassword(true)
@@ -83,7 +82,7 @@ const SignInSignUp = () => {
                 value={verificationCode}
                 onChange={(e) => setVerificationCode(e.target.value)}
               />
-              <Typography variant="body2" sx={{ mt: 2, textAlign: "center" }}>Please Check your inbox or junk.</Typography>
+              <Typography variant="body2" sx={{ mt: 2, textAlign: "center" }}>{message}</Typography>
 
             </>
           ) : (

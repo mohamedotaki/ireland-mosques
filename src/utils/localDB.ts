@@ -7,7 +7,8 @@ export enum LocalStorageKeys {
   DefaultMosque = "DefaultMosque",
   FontSize = "FontSize",
   AppLanguage = "AppLanguage",
-  user = "User"
+  user = "User",
+  LastDataUpdate = "LastDataUpdate"
 
 
 

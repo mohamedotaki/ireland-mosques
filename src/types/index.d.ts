@@ -40,7 +40,19 @@ export type mosquesDatabaseType = {
   longitude: number;
   iban: string;
   prayers: Array<prayerDatabaseType>
+  time_table: TimetableType;
 }
+
+export type TimetableType = {
+  [month: string]: {
+    [date: string]: Array<Array<number>>;
+  };
+}
+
+
+
+
+
 
 
 export type PrayersCalcType = {
@@ -58,6 +70,8 @@ export type PrayersCalcType = {
     name: string,
     time: Date,
   }
+  percentage: number,
+  timeLeft: string,
 }
 
 export type prayerCalcType = {

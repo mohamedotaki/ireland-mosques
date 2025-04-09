@@ -24,14 +24,15 @@ interface ModalProps {
 export default function Prayers() {
   const [mosque, setMosque] = useState<mosquesDatabaseType>(getFromLocalDB(LocalStorageKeys.DefaultMosque))
   const [prayersDate, setPrayerDate] = useState<Date>(new Date())
-  const [prayersData, setPrayersData] = useState<PrayersCalcType>(prayersCalc(mosque))
+  const [prayersData, setPrayersData] = useState<PrayersCalcType>(prayersCalc(mosque, prayersDate))
   const [modalData, setModalData] = useState<ModalProps>({ showModal: false, prayer: undefined, isIqamahClicked: false })
   const [mosqueInfoOpen, setMosqueInfoOpen] = useState<boolean>(false)
   const [compassOpen, setCompassOpen] = useState<boolean>(false)
-  const [progress, setProgress] = useState<number>(0)
-  const [timeLeftToNextPrayer, setTimeLeftToNextPrayer] = useState<string>("")
-
+  const [progress, setProgress] = useState<number>(prayersData.percentage)
+  const [timeLeftToNextPrayer, setTimeLeftToNextPrayer] = useState<string>(prayersData.timeLeft)
   useEffect(() => {
+    console.log(prayersData)
+
     let newCountUp = prayersData.countUp.duration;
     let newCountDown = prayersData.countDown.duration;
     const timer = setInterval(() => {
@@ -50,6 +51,11 @@ export default function Prayers() {
       clearInterval(timer);
     };
   }, [prayersData]);
+
+
+  useEffect(() => {
+    setPrayersData(prayersCalc(mosque, prayersDate))
+  }, [prayersDate, mosque]);
 
 
   const handleOpenModal = useCallback((prayer: PrayerType, isIqamahClicked: boolean) => {
@@ -86,7 +92,6 @@ export default function Prayers() {
 
       <HadithCard />
 
-      {/* Popups */}
       {modalData?.prayer &&
         <PrayerEditModal
           prayer={modalData?.prayer}

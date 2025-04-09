@@ -1,29 +1,46 @@
-import { Container, Typography } from "@mui/material";
+import { Container, IconButton, Typography } from "@mui/material";
 import PrayerTable from "../components/PrayerTable";
 import PrayerDate from "../components/PrayerDate";
 import CustomCard from "../components/CustomCard";
 import ToolsBar from "../components/ToolsBar";
-
-
+import AddIcon from '@mui/icons-material/Add';
+import { useEffect, useState } from "react";
+import Editor from "../components/text editor/Editor";
+import RemoveIcon from '@mui/icons-material/Remove';
+import { useAuth } from "../hooks/AuthContext";
 
 export default function Home() {
+  const [addNewPost, setAddNewPost] = useState<boolean>(false)
+  const [newPost, setNewPost] = useState<string>("");
+  const { user } = useAuth()
+
+  useEffect(() => {
+    setNewPost("")
+  }, [addNewPost])
 
   return (
     <>
-      <Typography variant="h4" sx={{ marginTop: 3 }}>
-        Tools
-      </Typography>
-      <ToolsBar />
-      <Typography variant="h4" sx={{ marginTop: 3 }}>
-        News
-      </Typography>
+      <Container sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mt: 3 }}>
+        <Typography variant="h4" >
+          News
+        </Typography>
+        {(user?.userType === "Admin" || user?.userType === "Owner") && <IconButton onClick={() => setAddNewPost((i) => !i)}>
+          {addNewPost ? <RemoveIcon fontSize="medium" /> : <AddIcon fontSize="medium" />}
+        </IconButton>}
+      </Container>
 
-      <CustomCard />
+      {addNewPost && <Editor
+        editorContent={newPost}
+        setEditorContent={setNewPost}
+
+      />}
+
+
+      <CustomCard content={newPost} />
 
     </>
 
 
   );
 }
-
 ;

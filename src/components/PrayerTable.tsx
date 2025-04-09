@@ -14,6 +14,8 @@ import { format } from 'date-fns';
 import { useTranslation } from 'react-i18next';
 import { memo } from 'react';
 import { LocalStorageKeys } from '../utils/localDB';
+import { useAuth } from '../hooks/AuthContext';
+import { UserType } from '../types/authTyps';
 
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
@@ -38,13 +40,18 @@ const StyledTableRow = styled(TableRow)(({ theme }) => ({
 interface PrayerTableProps {
   prayersToShow: Array<prayerCalcType>; // assuming `prayer` is a type you've defined
   onPrayerTimeClick: (prayer: PrayerType, isIqamahClicked: boolean) => void;
-/*   children: React.ReactElement;
- */}
+
+}
 
 const PrayerTable = memo(({ prayersToShow, onPrayerTimeClick }: PrayerTableProps) => {
+  const { user } = useAuth()
+  const allowedUserTypes: UserType["userType"][] = ["Owner", "Admin"];
   const { t, i18n } = useTranslation();
   const isArabic = i18n.language === "ar"
   const is24hFormat = localStorage.getItem(LocalStorageKeys.TimeFormatIs24H) === "true" ? "HH:mm" : "hh:mm"
+
+
+  const isClickable = allowedUserTypes.includes(user?.userType)
 
   console.log("Prayer Table")
   return (
@@ -65,8 +72,8 @@ const PrayerTable = memo(({ prayersToShow, onPrayerTimeClick }: PrayerTableProps
                 <StyledTableCell component="th" scope="row" align={isArabic ? "right" : "left"}>
                   {t(prayer.name)}
                 </StyledTableCell>
-                <StyledTableCell onClick={() => onPrayerTimeClick(prayer, false)} align="center">{format(prayer.adhan, is24hFormat)} </StyledTableCell >
-                <StyledTableCell onClick={() => onPrayerTimeClick(prayer, true)} align="center">{prayer.iqamah ? format(prayer.iqamah, is24hFormat) : '-'}</StyledTableCell >
+                <StyledTableCell onClick={() => isClickable ? onPrayerTimeClick(prayer, false) : undefined} align="center">{format(prayer.adhan, is24hFormat)} </StyledTableCell >
+                <StyledTableCell onClick={() => isClickable ? onPrayerTimeClick(prayer, true) : undefined} align="center">{prayer.iqamah ? format(prayer.iqamah, is24hFormat) : '-'}</StyledTableCell >
               </StyledTableRow>
               :
               <StyledTableRow key={"jummuah"}>

@@ -4,7 +4,7 @@ export type UserType = {
   name: string;
   email: string;
   account_status: "Active" | "Inactive" | "Pending";
-  user_type: "User" | "Admin" | "Owner";
+  userType: "User" | "Admin" | "Owner" | undefined;
   createdAt: Date;
 };
 

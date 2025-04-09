@@ -16,9 +16,6 @@ import {
 } from "date-fns";
 import timetable from "./TimeTable.json";
 import settings from "./Settings.json";
-import { apiGet } from "../../utils/api";
-import { getFromLocalDB, LocalStorageKeys } from "../../utils/localDB";
-import findClosestMosque from "../../utils/findClosestMosque";
 import { mosquesDatabaseType, prayerDatabaseType, PrayersCalcType, PrayerType } from "../../types/index";
 
 const isDST = function (d: Date) {
@@ -62,11 +59,6 @@ function HHMMToDate(timeString) {
 } */
 
 
-const getOnlinePrayers = async () => {
-  const onlineData = await apiGet(`${true}/${true}`)
-  console.log(onlineData)
-}
-
 const dayCalc = (
   offsetDay: number = 0,
   offSetHour: number = 0,
@@ -87,32 +79,27 @@ const dayCalc = (
   return { now, month, date, start, end, hijri, dstAdjust };
 };
 
-/* const storePrayerData =(prayerData)=>{
-  localStorage.setItem('prayerData', JSON.stringify(prayerData));
-} */
 
 const prayerCalc = (
   hourMinute: Array<number>,
-  hourMinuteNext: Array<number>,
-  onlineData: prayerDatabaseType | undefined,
+  onlineData: prayerDatabaseType[] | undefined,
   index: number,
   now: Date,
-  when: any,
-  jamaahmethods: Array<string>,
-  jamaahoffsets: Array<Array<number>>,
   dstAdjust: any
 ) => {
+  /* *********************** */
+  /* NAMES                   */
+  /* *********************** */
+  const names = ["Fajr", "Shurooq", "Dhuhr", "Asr", "Maghrib", "Isha"];
+  const name = names[index];
+  ////////////////////////////
   let [hour, minute] = hourMinute;
-  const [hourNext, minuteNext] = hourMinuteNext;
+  let onlineHourAdhan = null
+  let onlineMinAdhan = null
+  let onlineHourIqamah = null
+  let onlineMinIqamah = null
   let iqamah = null;
 
-  if (onlineData) {
-    if (onlineData.adhan_time) {
-      const onlineAdhan = onlineData?.adhan_time?.split(":")
-      hour = Number(onlineAdhan[0])
-      minute = Number(onlineAdhan[1])
-    }
-  }
 
 
   let adhan = addHours(
@@ -121,49 +108,38 @@ const prayerCalc = (
   );
 
 
-  /*   switch (null) {
-      case "useOffset":
-        iqamah = addMinutes(adhan, minuteOffset);
-        break;
-      case "fixed":
-        iqamah = toDate(
-          new Date(
-            getYear(now),
-            getMonth(now),
-            getDate(now),
-            hourOffset,
-            minuteOffset
-          )
-        );
-        break;
-      default:
-        iqamah = adhan;
-    } */
-
-  // if iqamah before adhan / ie. summer adhan
-  if (iqamah && isBefore(iqamah, adhan)) {
-    adhan = iqamah;
+  if (onlineData) {
+    onlineData.forEach((prayer: prayerDatabaseType) => {
+      if (prayer.prayer_name === name) {
+        if (prayer.adhan_time && !prayer.adhan_locked) {
+          const onlineIqamah = prayer.adhan_time.split(":")
+          onlineHourAdhan = Number(onlineIqamah[0])
+          onlineMinAdhan = Number(onlineIqamah[1])
+          adhan = addHours(
+            toDate(new Date(getYear(now), getMonth(now), getDate(now), onlineHourAdhan, onlineMinAdhan)),
+            dstAdjust
+          );
+        }
+        if (prayer.iquamh_time) {
+          const onlineIqamah = prayer.iquamh_time.split(":")
+          onlineHourIqamah = Number(onlineIqamah[0])
+          onlineMinIqamah = Number(onlineIqamah[1])
+          iqamah = toDate(new Date(getYear(now), getMonth(now), getDate(now), onlineHourIqamah, onlineMinIqamah))
+        } else if (prayer.iquamh_offset) {
+          iqamah = addMinutes(adhan, prayer.iquamh_offset)
+        } else {
+          iqamah = null
+        }
+      }
+    })
   }
 
-  /* *********************** */
-  /* NAMES                   */
-  /* *********************** */
-  const names = ["Fajr", "Shurooq", "Dhuhr", "Asr", "Maghrib", "Isha"];
-  const name = names[index];
-  const hasPassed = isAfter(now, adhan);
-  /*   const isJamaahPending = isWithinInterval(now, { start: adhan, end: iqamah });
-   */
-  const isNext = false;
 
+  const isNext = false;
   const result = {
     adhan,
-/*     isJamaahPending,
- */    iqamah,
-    /*     index,
-     */   /*  hasPassed, */
+    iqamah,
     name,
-    /*     when,
-     */   /*  dstAdjust, */
     isNext,
   };
   return result;
@@ -172,7 +148,6 @@ const prayerCalc = (
 const prayersCalc = (
   mosque?: mosquesDatabaseType,
   dateToShow: Date = new Date(),
-  showJamaah: boolean = true,
   city: string = "Europe/Dublin", // user Current location
 ): PrayersCalcType => {
   const { hijrioffset, jamaahmethods, jamaahoffsets } = settings;
@@ -211,23 +186,19 @@ const prayersCalc = (
   const prayersTable: TimetableProbes = timetable
 
   const prayersToday = prayersTable[(month + 1).toString()][date.toString()].map((hourMinute: Array<number>, index: number) => {
-    let useAdjust = true;
     const hourMinuteNext =
       index < 5 ? prayersTable[(month + 1).toString()][date.toString()][index + 1] : [24, 0];
 
 
     return prayerCalc(
       hourMinute,
-      hourMinuteNext,
-      mosque?.prayers[index],
+      mosque?.prayers,
       index,
       now,
-      "today",
-      jamaahmethods,
-      jamaahoffsets,
-      useAdjust ? dstAdjust : 0
+      dstAdjust
     );
   });
+
 
   prayersToday.push({
     adhan: new Date(),
@@ -242,14 +213,9 @@ const prayersCalc = (
         index < 5 ? prayersTable[month + 1][date][index + 1] : [24, 0];
       return prayerCalc(
         hourMinute,
-        hourMinuteNext,
-        mosque?.prayers[index],
-
+        mosque?.prayers,
         index,
         nowTomorrow,
-        "tomorrow",
-        jamaahmethods,
-        jamaahoffsets,
         dstAdjustTomorrow
       );
     }
@@ -260,13 +226,9 @@ const prayersCalc = (
         index < 5 ? prayersTable[month + 1][date][index + 1] : [24, 0];
       return prayerCalc(
         hourMinute,
-        hourMinuteNext,
-        mosque?.prayers[index],
+        mosque?.prayers,
         index,
         nowYesterday,
-        "yesterday",
-        jamaahmethods,
-        jamaahoffsets,
         dstAdjustYesterday
       );
     }
@@ -350,10 +312,9 @@ const prayersCalc = (
     duration: differenceInSeconds(next.adhan, now) + 1,
   };
 
-  const totalDuration = countUp.duration + countDown.duration;
 
-  const percentageRaw = 10000 - (countDown.duration / totalDuration) * 10000;
-  const percentage = Math.floor(percentageRaw) / 100;
+  const { percentage, timeLeft } = calculatePrayerProgress(countUp.duration, countDown.duration)
+
 
   const isAfterIsha = isAfter(now, prayersToday[5].adhan);
   /*   const isJamaahPending = isWithinInterval(now, {
@@ -403,6 +364,7 @@ const prayersCalc = (
     /*     trueNow, */
     /*     trueHijri, */
     percentage,
+    timeLeft,
     isAfterIsha,
     /*     isJamaahPending,
      */ /*  focus, */
@@ -419,4 +381,4 @@ const calculatePrayerProgress = (countUp: number, countDown: number) => {
   return { percentage, timeLeft: format(time, 'HH:mm:ss') };
 };
 
-export { prayersCalc, dayCalc, getOnlinePrayers, calculatePrayerProgress };
+export { prayersCalc, dayCalc, calculatePrayerProgress };

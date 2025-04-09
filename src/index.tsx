@@ -11,6 +11,7 @@ import '@fontsource/roboto/700.css';
 import { PopupProviderWrapper } from './hooks/PopupContext';
 import "./services/i18n"
 import { AuthProvider } from './hooks/AuthContext';
+import 'react-quill/dist/quill.snow.css'; // Import styles for Quill
 
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement

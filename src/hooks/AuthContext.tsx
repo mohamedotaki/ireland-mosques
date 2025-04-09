@@ -22,11 +22,10 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [user, setUser] = useState<UserType | null>(getFromLocalDB(LocalStorageKeys.user || null));
 
   // Use effect to check for saved login status in localStorage
-  /*   useEffect(() => {
-      if(user) {
-        apiGet<{ user: UserType }>('auth/verify')
-      }, []); 
-   */
+  useEffect(() => {
+
+  }, []);
+
 
 
   // Logout function
@@ -61,16 +60,16 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   const verify = async (code: string) => {
     const { data, error } = await apiPost<{ user: UserType | null, code: string }, { user: UserType | null }>('auth/verify', { user, code })
-    console.log(data, error)
     if (data) {
       saveToLocalDB(LocalStorageKeys.user, data.user);
       setUser(data.user);
+      return undefined
     } else {
       if (error === "Too many attempts") {
         removeFromLocalDB(LocalStorageKeys.user);
         setUser(null);
       }
-      return error
+      return error as string
     }
   }
 
