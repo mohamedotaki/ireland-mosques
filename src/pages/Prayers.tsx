@@ -30,9 +30,8 @@ export default function Prayers() {
   const [compassOpen, setCompassOpen] = useState<boolean>(false)
   const [progress, setProgress] = useState<number>(prayersData.percentage)
   const [timeLeftToNextPrayer, setTimeLeftToNextPrayer] = useState<string>(prayersData.timeLeft)
-  useEffect(() => {
-    console.log(prayersData)
 
+  useEffect(() => {
     let newCountUp = prayersData.countUp.duration;
     let newCountDown = prayersData.countDown.duration;
     const timer = setInterval(() => {

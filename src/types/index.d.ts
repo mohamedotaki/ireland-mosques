@@ -17,6 +17,9 @@ export type prayerDatabaseType = {
   adhan_locked: boolean;
   iquamh_time: string;
   iquamh_offset: number;
+  adhan_modified_on: string;
+  iquamh_modified_on: string;
+
 }
 
 
@@ -78,7 +81,6 @@ export type prayerCalcType = {
   adhan: Date,
   iqamah: Date | null,
   name: string,
-  isNext: boolean
 }
 
 export type MosqueInfoType = {

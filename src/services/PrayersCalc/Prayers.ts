@@ -85,46 +85,48 @@ const prayerCalc = (
   onlineData: prayerDatabaseType[] | undefined,
   index: number,
   now: Date,
-  dstAdjust: any
+  dstAdjust: number
 ) => {
-  /* *********************** */
-  /* NAMES                   */
-  /* *********************** */
-  const names = ["Fajr", "Shurooq", "Dhuhr", "Asr", "Maghrib", "Isha"];
-  const name = names[index];
-  ////////////////////////////
   let [hour, minute] = hourMinute;
   let onlineHourAdhan = null
   let onlineMinAdhan = null
   let onlineHourIqamah = null
   let onlineMinIqamah = null
   let iqamah = null;
-
-
+  const todaysDate = new Date();
+  const names = ["Fajr", "Shurooq", "Dhuhr", "Asr", "Maghrib", "Isha"];
+  const name = names[index];
 
   let adhan = addHours(
     toDate(new Date(getYear(now), getMonth(now), getDate(now), hour, minute)),
     dstAdjust
   );
 
-
   if (onlineData) {
     onlineData.forEach((prayer: prayerDatabaseType) => {
+      const modifiedDate = new Date(prayer.adhan_modified_on);
       if (prayer.prayer_name === name) {
         if (prayer.adhan_time && !prayer.adhan_locked) {
-          const onlineIqamah = prayer.adhan_time.split(":")
-          onlineHourAdhan = Number(onlineIqamah[0])
-          onlineMinAdhan = Number(onlineIqamah[1])
+          const onlineAdhan = prayer.adhan_time.split(":")
+          onlineHourAdhan = Number(onlineAdhan[0])
+          onlineMinAdhan = Number(onlineAdhan[1])
           adhan = addHours(
             toDate(new Date(getYear(now), getMonth(now), getDate(now), onlineHourAdhan, onlineMinAdhan)),
-            dstAdjust
+            isDST(modifiedDate) ? 0 : dstAdjust
           );
         }
         if (prayer.iquamh_time) {
+          const modifiedDate = new Date(prayer.iquamh_modified_on);
           const onlineIqamah = prayer.iquamh_time.split(":")
           onlineHourIqamah = Number(onlineIqamah[0])
           onlineMinIqamah = Number(onlineIqamah[1])
-          iqamah = toDate(new Date(getYear(now), getMonth(now), getDate(now), onlineHourIqamah, onlineMinIqamah))
+          iqamah = addHours(
+            toDate(new Date(getYear(now), getMonth(now), getDate(now), onlineHourIqamah, onlineMinIqamah)),
+            isDST(modifiedDate) ? 0 : dstAdjust
+          );
+          if (isAfter(adhan, iqamah) || !isWithinInterval(now, { start: addDays(todaysDate, -3), end: addDays(todaysDate, 5) })) {
+            iqamah = null
+          }
         } else if (prayer.iquamh_offset) {
           iqamah = addMinutes(adhan, prayer.iquamh_offset)
         } else {
@@ -133,23 +135,20 @@ const prayerCalc = (
       }
     })
   }
-
-
-  const isNext = false;
   const result = {
     adhan,
     iqamah,
     name,
-    isNext,
   };
   return result;
 };
 
 const prayersCalc = (
-  mosque?: mosquesDatabaseType,
+  mosque: mosquesDatabaseType,
   dateToShow: Date = new Date(),
   city: string = "Europe/Dublin", // user Current location
 ): PrayersCalcType => {
+  const todaysDate = new Date();
   const { hijrioffset, jamaahmethods, jamaahoffsets } = settings;
   const { now, month, date, start, hijri, dstAdjust } = dayCalc(
     0,
@@ -159,17 +158,24 @@ const prayersCalc = (
     dateToShow
   );
   const {
+    now: nowToday,
+    month: monthToday,
+    date: dateToday,
+    start: startToday,
+    dstAdjust: dstAdjustToday,
+  } = dayCalc(0, 0, hijrioffset, city, todaysDate);
+  const {
     now: nowTomorrow,
     month: monthTomorrow,
     date: dateTomorrow,
     dstAdjust: dstAdjustTomorrow,
-  } = dayCalc(1, 0, hijrioffset, city, dateToShow);
+  } = dayCalc(1, 0, hijrioffset, city, todaysDate);
   const {
     now: nowYesterday,
     month: monthYesterday,
     date: dateYesterday,
     dstAdjust: dstAdjustYesterday,
-  } = dayCalc(-1, 0, hijrioffset, city, dateToShow);
+  } = dayCalc(-1, 0, hijrioffset, city, todaysDate);
 
 
 
@@ -183,9 +189,9 @@ const prayersCalc = (
     };
   };
 
-  const prayersTable: TimetableProbes = timetable
+  const prayersTable = mosque.time_table
 
-  const prayersToday = prayersTable[(month + 1).toString()][date.toString()].map((hourMinute: Array<number>, index: number) => {
+  const userPrayerDate = prayersTable[(month + 1).toString()][date.toString()].map((hourMinute: Array<number>, index: number) => {
     const hourMinuteNext =
       index < 5 ? prayersTable[(month + 1).toString()][date.toString()][index + 1] : [24, 0];
 
@@ -199,13 +205,27 @@ const prayersCalc = (
     );
   });
 
+  /*   prayersToday.push({
+      adhan: new Date(),
+      iqamah: null,
+      name: "jummuah",
+    }); */
 
-  prayersToday.push({
-    adhan: new Date(),
-    iqamah: null,
-    name: "jummuah",
-    isNext: false,
+
+  const prayersToday = prayersTable[(monthToday + 1).toString()][dateToday.toString()].map((hourMinute: Array<number>, index: number) => {
+    const hourMinuteNext =
+      index < 5 ? prayersTable[(monthToday + 1).toString()][dateToday.toString()][index + 1] : [24, 0];
+
+
+    return prayerCalc(
+      hourMinute,
+      mosque?.prayers,
+      index,
+      nowToday,
+      dstAdjustToday
+    );
   });
+
 
   const prayersTomorrow = prayersTable[monthTomorrow + 1][dateTomorrow].map(
     (hourMinute, index) => {
@@ -242,12 +262,12 @@ const prayersCalc = (
   let next;
   let previous;
 
-  if (isWithinInterval(now, { start, end: prayersToday[0].adhan })) {
+  if (isWithinInterval(nowToday, { start: startToday, end: prayersToday[0].adhan })) {
     previous = prayersYesterday[4];
     current = prayersYesterday[5];
     next = prayersToday[0];
   } else if (
-    isWithinInterval(now, {
+    isWithinInterval(nowToday, {
       start: prayersToday[0].adhan,
       end: prayersToday[1].adhan,
     })
@@ -256,7 +276,7 @@ const prayersCalc = (
     current = prayersToday[0];
     next = prayersToday[1];
   } else if (
-    isWithinInterval(now, {
+    isWithinInterval(nowToday, {
       start: prayersToday[1].adhan,
       end: prayersToday[2].adhan,
     })
@@ -265,7 +285,7 @@ const prayersCalc = (
     current = prayersToday[1];
     next = prayersToday[2];
   } else if (
-    isWithinInterval(now, {
+    isWithinInterval(nowToday, {
       start: prayersToday[2].adhan,
       end: prayersToday[3].adhan,
     })
@@ -274,7 +294,7 @@ const prayersCalc = (
     current = prayersToday[2];
     next = prayersToday[3];
   } else if (
-    isWithinInterval(now, {
+    isWithinInterval(nowToday, {
       start: prayersToday[3].adhan,
       end: prayersToday[4].adhan,
     })
@@ -283,7 +303,7 @@ const prayersCalc = (
     current = prayersToday[3];
     next = prayersToday[4];
   } else if (
-    isWithinInterval(now, {
+    isWithinInterval(nowToday, {
       start: prayersToday[4].adhan,
       end: prayersToday[5].adhan,
     })
@@ -303,20 +323,21 @@ const prayersCalc = (
   const countUp = {
     name: current.name,
     time: current.adhan,
-    duration: differenceInSeconds(now, current.adhan),
+    duration: differenceInSeconds(nowToday, current.adhan),
   };
 
   const countDown = {
     name: next.name,
     time: next.adhan,
-    duration: differenceInSeconds(next.adhan, now) + 1,
+    duration: differenceInSeconds(next.adhan, nowToday) + 1,
   };
+
 
 
   const { percentage, timeLeft } = calculatePrayerProgress(countUp.duration, countDown.duration)
 
 
-  const isAfterIsha = isAfter(now, prayersToday[5].adhan);
+  const isAfterIsha = isAfter(nowToday, prayersToday[5].adhan);
   /*   const isJamaahPending = isWithinInterval(now, {
     start: current.adhan,
     end: current.iqamah,
@@ -350,9 +371,8 @@ const prayersCalc = (
       iban: "IE28AIBK93744421240194"
     },
     prayers: {
-      today: prayersToday,
-      /*       tomorrow: prayersTomorrow,
-       */
+      today: userPrayerDate,
+
     },
     previous,
     current,
