@@ -23,10 +23,10 @@ function CustomAppBar() {
   const [anchorElNav, setAnchorElNav] = React.useState<null | HTMLElement>(null);
   const [anchorElUser, setAnchorElUser] = React.useState<null | HTMLElement>(null);
   const navigate = useNavigate();  // <-- hook for navigation
-  const { isAuth, user, logout } = useAuth()
+  const { user, signout } = useAuth()
   const settings = [
-    { name: 'Account', function: logout },
-    { name: 'Logout', function: logout }
+    { name: 'Account', function: signout },
+    { name: 'Logout', function: signout }
   ];
 
 
@@ -66,18 +66,18 @@ function CustomAppBar() {
             noWrap
             component="a"
             sx={{
-              fontSize: 15,
+              fontSize: 18,
               flexGrow: 1,
               mr: 2,
               display: { xs: 'flex', md: 'flex' },
-              fontFamily: 'monospace',
+              fontFamily: "serif",
               fontWeight: 700,
               letterSpacing: '.3rem',
               color: 'inherit',
               textDecoration: 'none',
             }}
           >
-            Ballyhaunis
+            Muslims Ireland
           </Typography>
 
 
@@ -93,7 +93,7 @@ function CustomAppBar() {
             ))}
           </Box>
           <Box sx={{ flexGrow: 0 }}>
-            {isAuth ?
+            {user ?
               <IconButton onClick={handleSignin} sx={{ p: 0 }}>
                 <Avatar alt={user?.name} src="/static/images/avatar/2.jpg" />
               </IconButton> :

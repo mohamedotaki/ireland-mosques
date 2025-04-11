@@ -1,9 +1,10 @@
 import { mosquesDatabaseType } from "../types";
-import { LocalStorageKeys, saveToLocalDB } from "./localDB";
+import { getFromLocalDB, LocalStorageKeys, saveToLocalDB } from "./localDB";
 
 const findClosestMosque = (mosques: Array<mosquesDatabaseType>): Promise<mosquesDatabaseType | null> => {
   return new Promise((resolve, reject) => {
     if (!navigator.geolocation) {
+      console.log("Geolocation is not supported by this browser.");
       return reject("Geolocation is not supported by this browser.");
     }
 
@@ -21,12 +22,11 @@ const findClosestMosque = (mosques: Array<mosquesDatabaseType>): Promise<mosques
             minDistance = distance;
           }
         });
-
-        resolve(closest);
         saveToLocalDB(LocalStorageKeys.DefaultMosque, closest)
+        resolve(closest);
       },
       (error) => {
-        reject(error.message);
+        resolve(getFromLocalDB(LocalStorageKeys.DefaultMosque));
       }, {
       enableHighAccuracy: true, // Try to get the most accurate location
       /*     timeout: 10000, // Timeout after 10 seconds

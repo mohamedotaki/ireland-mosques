@@ -1,78 +1,58 @@
 import React, { useState } from 'react';
-import { Container, TextField, Button, Typography, Box, Grid, StepIconClassKey } from '@mui/material';
-import { UserSignupType, UserType } from '../types/user';
-import { apiPost } from '../utils/api';
+import { Container, TextField, Button, Typography, Box } from '@mui/material';
 import { useAuth } from '../hooks/AuthContext';
-/* import { GoogleLogin } from '@react-oauth/google';
- */
-
+import { SigninType, SignupType } from '../types/authTyps';
 
 
 const SignInSignUp = () => {
-  const [isSignUp, setIsSignUp] = useState(false); // toggle between SignUp and SignIn
-  const [loading, setLoading] = useState(false); // toggle between SignUp and SignIn
-  const [verification, setVerification] = useState(true); // toggle between SignUp and SignIn
-  const [verificationCode, setVerificationCode] = useState(""); // toggle between SignUp and SignIn
-  const [user, setUser] = useState<UserSignupType>({
+  const { user, signup, signin, verify } = useAuth()
+  const [isSignUp, setIsSignUp] = useState(false);
+  const [message, setMessage] = useState<string>();
+  const [loading, setLoading] = useState(false);
+  const [verificationCode, setVerificationCode] = useState("");
+  const [inputData, setUser] = useState<SignupType | SigninType>({
     email: '',
-    password: ''
+    password: '',
+    ...(isSignUp && {
+      name: '',
+      phoneNumber: '',
+      confirmPassword: ''
+    })
   });
-  const [badPassword, setBadPassword] = useState(false); // toggle between SignUp and SignIn
-  const [error, setError] = useState<string>(""); // toggle between SignUp and SignIn
-  const { login } = useAuth()
+  const [badPassword, setBadPassword] = useState(false);
+  const [error, setError] = useState<string | undefined>("");
 
-
-  // Handle form submission (SignUp or SignIn)
   const handleFormSubmit = async (event: React.FormEvent) => {
-    setLoading(true)
     event.preventDefault();
+    setLoading(true)
     setError("")
-    if (verification) {
-      const { data, error } = await apiPost<{ verificationCode: string }, UserType>('auth/verify', { verificationCode })
-      if (data) {
-        login(data)
-      } else {
-        setError(error || "")
-      }
+    if (user?.account_status === "Pending") {
+      verify(verificationCode)
+
     } else {
-      if (user.password.length < 8 || user.password !== user.confirmPassword) {
-        setBadPassword(true)
-        return
-      }
-      if (isSignUp) {
-        badPassword && setBadPassword(false)
-        const { data, error } = await apiPost('auth/signup', { user })
-        console.log(data, error)
-        if (data) {
-          setVerification(true)
+      if (handlePassCheck()) {
+        if (isSignUp) {
+          signup(inputData as SignupType)
         } else {
-          setError(error || "")
+          signin(inputData as SigninType)
         }
-      } else {
-        const { data, error } = await apiPost<{ user: UserSignupType }, UserType>('auth/signin', { user })
-        if (data) {
-          setVerification(true)
-        } else {
-          setError(error || "")
-        }
-        badPassword && setBadPassword(false)
       }
     }
     setLoading(false)
 
   };
-  const handleGoogleLogin = (response: any) => {
-    console.log("Google Login Success", response);
-    // Implement further login logic
-  };
-
-  // Facebook login success handler
-  const handleFacebookLogin = (response: any) => {
-    console.log("Facebook Login Success", response);
-    // Implement further login logic
-  };
-
-
+  const handlePassCheck = (): boolean => {
+    if ((inputData as SigninType).password.length < 8) {
+      setBadPassword(true)
+      return false
+    }
+    if (isSignUp && (inputData as SignupType).password !== (inputData as SignupType).confirmPassword) {
+      setBadPassword(true)
+      return false
+    }
+    setBadPassword(false)
+    return true
+  }
 
   const handleFieldChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = event.target;
@@ -84,12 +64,12 @@ const SignInSignUp = () => {
   return (
     <Container maxWidth="xs" sx={{ mt: 8 }}>
       <Typography variant="h4" align="center" gutterBottom>
-        {!verification ? isSignUp ? 'Sign Up' : 'Sign In' : "Verification"}
+        {user?.account_status === "Pending" ? "Verification" : isSignUp ? 'Sign Up' : 'Sign In'}
       </Typography>
 
       <form onSubmit={handleFormSubmit}>
         {
-          verification ? (
+          user?.account_status === "Pending" ? (
             <>
               <TextField
                 fullWidth
@@ -102,7 +82,8 @@ const SignInSignUp = () => {
                 value={verificationCode}
                 onChange={(e) => setVerificationCode(e.target.value)}
               />
-              <Typography variant="body2" sx={{ mt: 2, textAlign: "center" }}>Please Check your inbox or junk</Typography>
+              <Typography variant="body2" sx={{ mt: 2, textAlign: "center" }}>{message}</Typography>
+
             </>
           ) : (
             <>
@@ -116,7 +97,7 @@ const SignInSignUp = () => {
                     margin="normal"
                     type="text"
                     required
-                    value={user.name}
+                    value={(inputData as SignupType).name}
                     onChange={handleFieldChange}
                   />
                   <TextField
@@ -128,7 +109,7 @@ const SignInSignUp = () => {
                     type="tel"
                     inputMode="tel"
                     required
-                    value={user.phoneNumber}
+                    value={(inputData as SignupType).phoneNumber}
                     onChange={handleFieldChange}
                   />
                 </>
@@ -142,7 +123,7 @@ const SignInSignUp = () => {
                 margin="normal"
                 type="email"
                 required
-                value={user.email}
+                value={inputData.email}
                 onChange={handleFieldChange}
               />
               <TextField
@@ -153,12 +134,11 @@ const SignInSignUp = () => {
                 margin="normal"
                 type="password"
                 required
-                value={user.password}
+                value={inputData.password}
                 onChange={handleFieldChange}
                 error={badPassword}
               />
 
-              {/* Conditional field for Confirm Password (only visible during SignUp) */}
               {isSignUp && (
                 <TextField
                   fullWidth
@@ -168,7 +148,7 @@ const SignInSignUp = () => {
                   margin="normal"
                   type="password"
                   required
-                  value={user.confirmPassword}
+                  value={(inputData as SignupType).confirmPassword}
                   onChange={handleFieldChange}
                   error={badPassword}
                 />
@@ -177,22 +157,18 @@ const SignInSignUp = () => {
           )
         }
 
-
-
         {error && <Typography variant="body2" sx={{ mt: 2, color: 'red', textAlign: "center" }}>{error}</Typography>
         }
         <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', mt: 2 }}>
           <Button loading={loading} type="submit" variant="contained" color="primary" fullWidth>
-            {!verification ? isSignUp ? 'Sign Up' : 'Sign In' : "Verify"}
+            {user?.account_status === "Pending" ? "Verify" : isSignUp ? 'Sign Up' : 'Sign In'}
           </Button>
-          {!verification && <Typography variant="body2" sx={{ mt: 2 }}>
+          {user?.account_status !== "Pending" && <Typography variant="body2" sx={{ mt: 2 }}>
             {isSignUp ? 'Already have an account?' : "Don't have an account?"}{' '}
             <Button onClick={() => setIsSignUp(!isSignUp)} color="primary">
               {isSignUp ? 'Sign In' : 'Sign Up'}
             </Button>
           </Typography>}
-
-
 
           {/* Social Login Buttons */}
           {/*           <Box sx={{ mt: 3 }}>
@@ -207,5 +183,4 @@ const SignInSignUp = () => {
     </Container>
   );
 };
-
 export default SignInSignUp;

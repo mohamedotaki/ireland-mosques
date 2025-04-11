@@ -40,3 +40,15 @@
     transform: rotate(360deg);
   }
 }
+
+.ql-align-right {
+  text-align: right !important; /* Ensure it takes precedence */
+}
+
+.ql-align-center {
+  text-align: center !important;
+}
+
+.ql-align-left {
+  text-align: left !important;
+}

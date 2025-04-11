@@ -39,9 +39,10 @@ const handleError = <T>(error: any): ApiResponse<T> => {
 };
 
 // GET request
-const apiGet = async <T>(url: string, config?: AxiosRequestConfig): Promise<ApiResponse<T>> => {
+const apiGet = async <T>(url: string, params?: { [key: string]: any } // Accept a params object
+  , config?: AxiosRequestConfig): Promise<ApiResponse<T>> => {
   try {
-    const response = await apiClient.get<T>(url, config);
+    const response = await apiClient.get<T>(url, { ...config, params });
     return handleResponse(response);
   } catch (error) {
     return handleError<T>(error);

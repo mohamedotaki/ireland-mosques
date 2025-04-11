@@ -17,6 +17,9 @@ export type prayerDatabaseType = {
   adhan_locked: boolean;
   iquamh_time: string;
   iquamh_offset: number;
+  adhan_modified_on: string;
+  iquamh_modified_on: string;
+
 }
 
 
@@ -40,7 +43,19 @@ export type mosquesDatabaseType = {
   longitude: number;
   iban: string;
   prayers: Array<prayerDatabaseType>
+  time_table: TimetableType;
 }
+
+export type TimetableType = {
+  [month: string]: {
+    [date: string]: Array<Array<number>>;
+  };
+}
+
+
+
+
+
 
 
 export type PrayersCalcType = {
@@ -58,13 +73,14 @@ export type PrayersCalcType = {
     name: string,
     time: Date,
   }
+  percentage: number,
+  timeLeft: string,
 }
 
 export type prayerCalcType = {
   adhan: Date,
   iqamah: Date | null,
   name: string,
-  isNext: boolean
 }
 
 export type MosqueInfoType = {

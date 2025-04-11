@@ -6,12 +6,10 @@ import { useCallback, useEffect, useState } from "react";
 import PrayerEditModal from "../components/PrayerEditModal";
 import { mosquesDatabaseType, PrayersCalcType, PrayerType } from "../types";
 import ProgressBar from "../components/ProgressBar";
-import findClosestMosque from "../utils/findClosestMosque";
 import { getFromLocalDB, LocalStorageKeys } from "../utils/localDB";
 import MosqueInfo from "../components/MosqueInfo";
 import MosqueInfoModal from "../components/MosqueInfoModal";
 import CompassModal from "../components/CompassModal";
-import { LinearProgress } from "@mui/material";
 
 
 interface ModalProps {
@@ -24,12 +22,12 @@ interface ModalProps {
 export default function Prayers() {
   const [mosque, setMosque] = useState<mosquesDatabaseType>(getFromLocalDB(LocalStorageKeys.DefaultMosque))
   const [prayersDate, setPrayerDate] = useState<Date>(new Date())
-  const [prayersData, setPrayersData] = useState<PrayersCalcType>(prayersCalc(mosque))
+  const [prayersData, setPrayersData] = useState<PrayersCalcType>(prayersCalc(mosque, prayersDate))
   const [modalData, setModalData] = useState<ModalProps>({ showModal: false, prayer: undefined, isIqamahClicked: false })
   const [mosqueInfoOpen, setMosqueInfoOpen] = useState<boolean>(false)
   const [compassOpen, setCompassOpen] = useState<boolean>(false)
-  const [progress, setProgress] = useState<number>(0)
-  const [timeLeftToNextPrayer, setTimeLeftToNextPrayer] = useState<string>("")
+  const [progress, setProgress] = useState<number>(prayersData.percentage)
+  const [timeLeftToNextPrayer, setTimeLeftToNextPrayer] = useState<string>(prayersData.timeLeft)
 
   useEffect(() => {
     let newCountUp = prayersData.countUp.duration;
@@ -50,6 +48,11 @@ export default function Prayers() {
       clearInterval(timer);
     };
   }, [prayersData]);
+
+
+  useEffect(() => {
+    setPrayersData(prayersCalc(mosque, prayersDate))
+  }, [prayersDate, mosque]);
 
 
   const handleOpenModal = useCallback((prayer: PrayerType, isIqamahClicked: boolean) => {
@@ -82,11 +85,11 @@ export default function Prayers() {
       <PrayerTable
         prayersToShow={prayersData.prayers.today}
         onPrayerTimeClick={handleOpenModal}
+        mosqueID={mosque.id}
       />
 
       <HadithCard />
 
-      {/* Popups */}
       {modalData?.prayer &&
         <PrayerEditModal
           prayer={modalData?.prayer}
