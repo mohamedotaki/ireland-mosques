@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import './App.css';
 import BottomNavigationBar from './navigation/BottomNavigation';
 import { CssBaseline, Box, Container } from '@mui/material';
@@ -14,9 +14,15 @@ import findClosestMosque from './utils/findClosestMosque';
 import { usePopup } from './hooks/PopupContext';
 import AccountPage from './pages/Account';
 import { getDateTimeString } from './utils/dateTime';
+import AppLoading from './pages/AppLoading';
+import { addDays, isWithinInterval } from 'date-fns';
+import { useAuth } from './hooks/AuthContext';
 
 export default function App() {
+  const { user } = useAuth()
   const { showPopup } = usePopup()
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string>("");
 
   interface appFirstLunchType {
     mosques: { [key: string]: mosquesDatabaseType };
@@ -24,24 +30,27 @@ export default function App() {
   }
 
   const appFirstLunch = async () => {
-    saveToLocalDB(LocalStorageKeys.FirstLaunch, true)
     saveToLocalDB(LocalStorageKeys.TimeFormatIs24H, true)
     const { data, error } = await apiGet<appFirstLunchType>("app")
     if (data) {
+      const arrayOfMosques = Object.values(data.mosques)
+      if (arrayOfMosques.length === 0) {
+        setError("Please connect to internet and try later")
+        return
+      }
+      saveToLocalDB(LocalStorageKeys.FirstLaunch, true)
       saveToLocalDB(LocalStorageKeys.LastDataUpdate, data.newUpdateDate)
       saveToLocalDB(LocalStorageKeys.MosquesData, data.mosques)
-      const arrayOfMosques = Object.values(data.mosques)
       try {
         const closestMosque = await findClosestMosque(arrayOfMosques)
-
         saveToLocalDB(LocalStorageKeys.DefaultMosque, closestMosque || arrayOfMosques[0])
       } catch (error) {
         saveToLocalDB(LocalStorageKeys.DefaultMosque, arrayOfMosques[0])
       }
+      setLoading(false)
     } else {
-      showPopup({ message: "Unable to get mosques details. please connect to internet and try later", type: "warning" })
+      setError("Unable to get mosques and prayers data. please connect to internet and try later")
     }
-
   }
 
   const checkForUpdate = async () => {
@@ -58,12 +67,16 @@ export default function App() {
             localDBMosques[mosqueID] = updatedMosque
           })
           saveToLocalDB(LocalStorageKeys.MosquesData, localDBMosques)
-          saveToLocalDB(LocalStorageKeys.LastDataUpdate, data.newUpdateDate)
         }
-      } else {
-        showPopup({ message: "Unable to update mosques and prayers.", type: "warning" })
-      }
+        saveToLocalDB(LocalStorageKeys.LastDataUpdate, data.newUpdateDate)
 
+      } else {
+        const todaysDate = new Date()
+        if (!isWithinInterval(new Date(lastUpdate), { start: addDays(todaysDate, -5), end: addDays(todaysDate, 2) })) {
+          showPopup({ message: "Unable to update mosques and prayers data. Please connect to the internet to update", type: "warning" })
+        }
+      }
+      setLoading(false)
     }
   }
 
@@ -86,39 +99,31 @@ export default function App() {
 
 
   return (
-
     <Router>
       <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
         <CssBaseline /> {/* This will apply global CSS resets */}
 
-        <CustomAppBar />
-        <Box
-          component="main"
-          sx={{
-            flexGrow: 1, paddingBottom: '60px',  // Adjust based on the height of your BottomNavigation
-          }}
-        >
-          <Container maxWidth="lg">
-            {/* Your content goes here */}
-            <Routes>
-              <Route path="/" element={<Home />} />
-              <Route path="/prayers" element={<Prayers />} />
-              <Route path="/settings" element={<SettingsPage />} />
-              <Route path="/account" element={<AccountPage />} />
-
-
-
-
-            </Routes>
-
-
-
-          </Container>
-        </Box>
-
-        <BottomNavigationBar />
-
-
+        {!loading ?
+          <>
+            <CustomAppBar />
+            <Box
+              component="main"
+              sx={{
+                flexGrow: 1, paddingBottom: '60px',  // Adjust based on the height of your BottomNavigation
+              }}
+            >
+              <Container maxWidth="lg">
+                <Routes>
+                  <Route path="/" element={<Home />} />
+                  <Route path="/prayers" element={<Prayers />} />
+                  <Route path="/settings" element={<SettingsPage />} />
+                  <Route path="/account" element={<AccountPage />} />
+                </Routes>
+              </Container>
+            </Box>
+            <BottomNavigationBar />
+          </>
+          : <AppLoading error={error} />}
       </Box>
     </Router>
 

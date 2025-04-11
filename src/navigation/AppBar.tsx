@@ -66,18 +66,18 @@ function CustomAppBar() {
             noWrap
             component="a"
             sx={{
-              fontSize: 15,
+              fontSize: 18,
               flexGrow: 1,
               mr: 2,
               display: { xs: 'flex', md: 'flex' },
-              fontFamily: 'monospace',
+              fontFamily: "serif",
               fontWeight: 700,
               letterSpacing: '.3rem',
               color: 'inherit',
               textDecoration: 'none',
             }}
           >
-            Ballyhaunis
+            Muslims Ireland
           </Typography>
 
 

@@ -40,10 +40,11 @@ const StyledTableRow = styled(TableRow)(({ theme }) => ({
 interface PrayerTableProps {
   prayersToShow: Array<prayerCalcType>; // assuming `prayer` is a type you've defined
   onPrayerTimeClick: (prayer: PrayerType, isIqamahClicked: boolean) => void;
+  mosqueID: number;
 
 }
 
-const PrayerTable = memo(({ prayersToShow, onPrayerTimeClick }: PrayerTableProps) => {
+const PrayerTable = memo(({ prayersToShow, onPrayerTimeClick, mosqueID }: PrayerTableProps) => {
   const { user } = useAuth()
   const allowedUserTypes: UserType["userType"][] = ["Owner", "Admin"];
   const { t, i18n } = useTranslation();
