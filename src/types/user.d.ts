@@ -9,8 +9,12 @@ export type UserSignupType = {
 
 
 export type UserType = {
+  userID: number;
   name: string;
-  email: string;
   userType: "User" | "Admin" | "Owner";
-  lastSignin?: Date;
+  account_status: 'Active' | 'Pending' | 'Blocked' | 'inactive';
+  email: string;
+  createdAt: Date;
+  lastSignin: Date;
+  modified_on: Date;
 }

@@ -11,6 +11,8 @@ interface AuthContextType {
   signin: (user: SigninType) => void;
   signup: (user: SignupType) => void;
   verify: (code: string) => void;
+  updateUser: (user: UserType) => void;
+
 
 }
 
@@ -39,13 +41,19 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   };
 
   const signin = async (user: SigninType) => {
-    const { data, error } = await apiPost<{ user: SigninType }, { user: UserType }>('auth/signin', { user })
+    const UUID = getFromLocalDB(LocalStorageKeys.UUID)
+    const { data, error } = await apiPost<{ user: SigninType, UUID: string }, { user: UserType }>('auth/signin', { user, UUID })
     if (data) {
       saveToLocalDB(LocalStorageKeys.user, data.user);
       setUser(data.user);
     } else {
       return error
     }
+  }
+
+  const updateUser = async (user: UserType) => {
+    saveToLocalDB(LocalStorageKeys.user, user);
+    setUser(user);
   }
   const signup = async (user: SignupType) => {
     const { data, error } = await apiPost<{ user: SignupType }, { user: UserType }>('auth/signup', { user })
@@ -59,7 +67,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
 
   const verify = async (code: string) => {
-    const { data, error } = await apiPost<{ user: UserType | null, code: string }, { user: UserType | null }>('auth/verify', { user, code })
+    const UUID = getFromLocalDB(LocalStorageKeys.UUID)
+    const { data, error } = await apiPost<{ user: UserType | null, code: string, UUID: string }, { user: UserType | null }>('auth/verify', { user, code, UUID })
     if (data) {
       saveToLocalDB(LocalStorageKeys.user, data.user);
       setUser(data.user);
@@ -85,7 +94,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
 
   return (
-    <AuthContext.Provider value={{ user, signout, signin, signup, verify }}>
+    <AuthContext.Provider value={{ user, signout, signin, signup, verify, updateUser }}>
       {children}
     </AuthContext.Provider>
   );

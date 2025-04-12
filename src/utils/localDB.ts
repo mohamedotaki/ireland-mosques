@@ -8,10 +8,8 @@ export enum LocalStorageKeys {
   FontSize = "FontSize",
   AppLanguage = "AppLanguage",
   user = "User",
-  LastDataUpdate = "LastDataUpdate"
-
-
-
+  LastDataUpdate = "LastDataUpdate",
+  UUID = "UUID",
 }
 
 
