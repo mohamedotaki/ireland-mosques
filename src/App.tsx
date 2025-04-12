@@ -17,9 +17,12 @@ import { getDateTimeString } from './utils/dateTime';
 import AppLoading from './pages/AppLoading';
 import { addDays, isWithinInterval } from 'date-fns';
 import { useAuth } from './hooks/AuthContext';
+import { UserType } from './types/authTyps';
+import { v4 as uuidv4 } from 'uuid';
+
 
 export default function App() {
-  const { user } = useAuth()
+  const { user, updateUser } = useAuth()
   const { showPopup } = usePopup()
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string>("");
@@ -31,6 +34,8 @@ export default function App() {
 
   const appFirstLunch = async () => {
     saveToLocalDB(LocalStorageKeys.TimeFormatIs24H, true)
+    saveToLocalDB(LocalStorageKeys.UUID, uuidv4())
+
     const { data, error } = await apiGet<appFirstLunchType>("app")
     if (data) {
       const arrayOfMosques = Object.values(data.mosques)
@@ -57,8 +62,11 @@ export default function App() {
     const lastUpdate = getFromLocalDB(LocalStorageKeys.LastDataUpdate)
     if (lastUpdate) {
       const userLastUpdate = getDateTimeString(new Date(lastUpdate))
-      const { data, error } = await apiGet<{ mosques: { [key: string]: mosquesDatabaseType }, newUpdateDate: Date }>(`app/checkForNewData`, { userLastUpdate })
+      const { data, error } = await apiGet<{ mosques: { [key: string]: mosquesDatabaseType }, newUpdateDate: Date, user: UserType }>(`app/checkForNewData`, { userLastUpdate })
       if (data) {
+        if (data.user) {
+          updateUser(data.user)
+        }
         const updatedMosquesIDs = Object.keys(data.mosques)
         if (updatedMosquesIDs.length > 0) {
           const localDBMosques = getFromLocalDB(LocalStorageKeys.MosquesData)
