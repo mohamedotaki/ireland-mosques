@@ -10,6 +10,8 @@ export enum LocalStorageKeys {
   user = "User",
   LastDataUpdate = "LastDataUpdate",
   UUID = "UUID",
+  PrayerNotifications = "PrayerNotifications",
+
 }
 
 

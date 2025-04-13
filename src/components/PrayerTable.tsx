@@ -13,7 +13,8 @@ import { memo } from 'react';
 import { LocalStorageKeys } from '../utils/localDB';
 import { useAuth } from '../hooks/AuthContext';
 import { UserType } from '../types/authTyps';
-
+import NotificationsIcon from '@mui/icons-material/Notifications';
+import NotificationsOffIcon from '@mui/icons-material/NotificationsOff';
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
   [`&.${tableCellClasses.head}`]: {
@@ -38,10 +39,12 @@ interface PrayerTableProps {
   prayersToShow: Array<PrayerType>; // assuming `prayer` is a type you've defined
   onPrayerTimeClick: (prayer: PrayerType, isIqamahClicked: boolean) => void;
   mosqueID: number;
+  prayersNotifications: { [key: string]: boolean }
+  handleNotificationToggle: (prayerName: string) => void;
 
 }
 
-const PrayerTable = memo(({ prayersToShow, onPrayerTimeClick, mosqueID }: PrayerTableProps) => {
+const PrayerTable = memo(({ prayersToShow, onPrayerTimeClick, mosqueID, prayersNotifications, handleNotificationToggle }: PrayerTableProps) => {
   const { user } = useAuth()
   const allowedUserTypes: UserType["userType"][] = ["Owner", "Admin"];
   const { t, i18n } = useTranslation();
@@ -61,6 +64,8 @@ const PrayerTable = memo(({ prayersToShow, onPrayerTimeClick, mosqueID }: Prayer
 
             <TableCell align="center">{t("Adhan")}</TableCell>
             <TableCell align="center">{t("Iqamah")}</TableCell>
+            <TableCell align="center"></TableCell>
+
           </TableRow>
         </TableHead>
         <TableBody>
@@ -72,6 +77,12 @@ const PrayerTable = memo(({ prayersToShow, onPrayerTimeClick, mosqueID }: Prayer
                 </StyledTableCell>
                 <StyledTableCell onClick={() => isClickable ? onPrayerTimeClick(prayer, false) : undefined} align="center">{format(prayer.adhan, is24hFormat)} </StyledTableCell >
                 <StyledTableCell onClick={() => isClickable ? onPrayerTimeClick(prayer, true) : undefined} align="center">{prayer.iqamah ? format(prayer.iqamah, is24hFormat) : '-'}</StyledTableCell >
+                <StyledTableCell style={{ padding: "1px" }} onClick={() => handleNotificationToggle(prayer.name)} align="center">
+                  {prayersNotifications[prayer.name] ?
+                    <NotificationsIcon sx={{ fontSize: "20px" }} /> :
+                    <NotificationsOffIcon sx={{ fontSize: "20px" }} />}
+                </StyledTableCell >
+
               </StyledTableRow>
               :
               <StyledTableRow key={"jummuah"}>

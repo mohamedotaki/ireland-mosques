@@ -8,7 +8,7 @@ export interface ApiResponse<T> {
 }
 
 const apiClient = axios.create({
-  baseURL: 'http://192.168.0.11:3001/api', // Default API base URL (can be modified)
+  baseURL: process.env.REACT_APP_API_LINK || "https://irelandmuslimsapi.alotaki.com/api" || 'http://localhost:3001/api', // Default API base URL (can be modified)
   headers: {
     'Content-Type': 'application/json',
   },

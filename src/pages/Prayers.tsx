@@ -4,13 +4,14 @@ import HadithCard from "../components/HadithCard";
 import { calculatePrayerProgress, prayersCalc } from "../services/PrayersCalc/Prayers";
 import { useCallback, useEffect, useState } from "react";
 import PrayerEditModal from "../components/PrayerEditModal";
-import { mosquesDatabaseType, PrayersCalcType, PrayerTimeUpdate, PrayerType } from "../types";
+import { PrayersCalcType, PrayerType } from "../types";
 import ProgressBar from "../components/ProgressBar";
-import { getFromLocalDB, LocalStorageKeys } from "../utils/localDB";
+import { getFromLocalDB, LocalStorageKeys, saveToLocalDB } from "../utils/localDB";
 import MosqueInfo from "../components/MosqueInfo";
 import MosqueInfoModal from "../components/MosqueInfoModal";
 import CompassModal from "../components/CompassModal";
 import { useUpdate } from "../hooks/UpdateContext";
+import NotificationManager from "../components/NotificationManager";
 
 
 interface ModalProps {
@@ -23,6 +24,7 @@ interface ModalProps {
 export default function Prayers() {
   const { defaultMosque: mosque } = useUpdate()
   const [prayersDate, setPrayerDate] = useState<Date>(new Date())
+  const [prayerNotification, setPrayerNotification] = useState<{ [key: string]: boolean }>(getFromLocalDB(LocalStorageKeys.PrayerNotifications))
   const [prayersData, setPrayersData] = useState<PrayersCalcType>(prayersCalc(mosque, prayersDate))
   const [modalData, setModalData] = useState<ModalProps>({ showModal: false, prayer: undefined, isIqamahClicked: false })
   const [mosqueInfoOpen, setMosqueInfoOpen] = useState<boolean>(false)
@@ -37,6 +39,7 @@ export default function Prayers() {
       newCountDown -= 1
       newCountUp += 1
       const { percentage, timeLeft } = calculatePrayerProgress(newCountUp, newCountDown)
+      percentage >= 100 && setPrayersData(prayersCalc(mosque, prayersDate))
       setProgress(prevProgress => {
         const newProgress = percentage;
         // Only update state if progress has changed significantly
@@ -56,6 +59,8 @@ export default function Prayers() {
   }, [prayersDate, mosque]);
 
 
+
+
   const handleOpenModal = useCallback((prayer: PrayerType, isIqamahClicked: boolean) => {
     setModalData({ showModal: true, prayer, isIqamahClicked })
   }, [])
@@ -69,6 +74,15 @@ export default function Prayers() {
     setMosqueInfoOpen(true)
   }, [])
 
+  const handleNotificationChange = useCallback((prayerName: string) => {
+    setPrayerNotification(prev => {
+      const updatedNotification = { ...prev, [prayerName]: !prev[prayerName] };
+      // Save to local storage with the latest updated state
+      saveToLocalDB(LocalStorageKeys.PrayerNotifications, updatedNotification);
+      return updatedNotification;
+    });
+  }, []);
+
 
 
   /*   const onInfoClick = () => {
@@ -78,13 +92,16 @@ export default function Prayers() {
 
   return (
     <>
+      <NotificationManager todaysPrayers={prayersData.prayers.today} notificationsSettings={prayerNotification} />
       <PrayerDate date={prayersDate} updateDate={setPrayerDate} />
       <MosqueInfo mosqueDetails={mosque} handleInfoModalOpen={handleInfoModalOpen} handleCompassOpen={handleCompassOpen} />
       <ProgressBar progress={progress} time={timeLeftToNextPrayer} />
       <PrayerTable
-        prayersToShow={prayersData.prayers.today}
+        prayersToShow={prayersData.prayers.userSelectedPrayers}
         onPrayerTimeClick={handleOpenModal}
         mosqueID={mosque.id}
+        prayersNotifications={prayerNotification}
+        handleNotificationToggle={handleNotificationChange}
       />
 
       <HadithCard />
