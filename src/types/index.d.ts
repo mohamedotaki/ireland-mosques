@@ -4,9 +4,18 @@ export interface ApiResponse<T> {
 }
 
 export type PrayerType = {
+  prayerID: number;
   name: string;
   adhan: Date;
   iqamah: Date | null;
+}
+
+export type PrayerTimeUpdate = {
+  mosqueID: number;
+  prayerID: number;
+  newPrayerTime: string | null;
+  offset: number | null;
+  isIqamah: boolean;
 }
 
 
@@ -61,7 +70,7 @@ export type TimetableType = {
 export type PrayersCalcType = {
   mosque: MosqueInfoType;
   prayers: {
-    today: Array<prayerCalcType>,
+    today: Array<PrayerType>,
   }
   countUp: {
     duration: number,
@@ -77,11 +86,7 @@ export type PrayersCalcType = {
   timeLeft: string,
 }
 
-export type prayerCalcType = {
-  adhan: Date,
-  iqamah: Date | null,
-  name: string,
-}
+
 
 export type MosqueInfoType = {
   id: number;

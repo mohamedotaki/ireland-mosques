@@ -2,7 +2,7 @@ import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
 import Modal from '@mui/material/Modal';
-import { PrayerType } from '../types';
+import { PrayerTimeUpdate, PrayerType } from '../types';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFnsV3'
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { MobileTimePicker } from '@mui/x-date-pickers/MobileTimePicker';
@@ -12,6 +12,10 @@ import { useTranslation } from 'react-i18next';
 import ToggleButton from '@mui/material/ToggleButton';
 import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
 import TextField from '@mui/material/TextField';
+import { apiPost } from '../utils/api';
+import { format, set } from 'date-fns';
+import { usePopup } from '../hooks/PopupContext';
+import { useUpdate } from '../hooks/UpdateContext';
 
 const style = {
   position: 'absolute',
@@ -29,26 +33,21 @@ const style = {
 interface PrayerModalProps {
   openModal: boolean;
   prayer: PrayerType;
+  mosqueID: number;
   isIqamahClicked: boolean;
   handleClose: () => void;
-  onUpdate: (prayer: PrayerType) => void;
-
 }
 
-interface UpdatedPrayer {
-  mosqueId: number;
-  prayerId: number;
-  isIqamahClicked: boolean;
-  iqamahOffset: number | null;
-  iqamahTime: Date | null;
-  adhanTime: Date | null;
-}
 
-export default function PrayerEditModal({ prayer, openModal, handleClose, isIqamahClicked, onUpdate }: PrayerModalProps) {
-  const [prayerToEdit, setPrayerToEdit] = useState<PrayerType>(prayer)
+
+
+export default function PrayerEditModal({ prayer, mosqueID, openModal, handleClose, isIqamahClicked }: PrayerModalProps) {
+  const { showPopup } = usePopup()
+  const [prayerToEdit, setPrayerToEdit] = useState<any>(prayer)
+  const [loading, setLoading] = useState<boolean>(false)
   const [isFixed, setIsFixed] = useState<"fixed" | "offset">("fixed")
   const { t } = useTranslation();
-  console.log(prayerToEdit)
+  const { checkForUpdate } = useUpdate();
 
   const handleChange = (
     event: React.MouseEvent<HTMLElement>,
@@ -56,6 +55,19 @@ export default function PrayerEditModal({ prayer, openModal, handleClose, isIqam
   ) => {
     setIsFixed(iqamahMethod);
   };
+
+
+  const onPrayerUpdate = async (e: PrayerTimeUpdate) => {
+    setLoading(true)
+    const { data, error } = await apiPost<PrayerTimeUpdate, { message: string }>("prayers/prayertime", e)
+    if (data) {
+      checkForUpdate()
+    }
+
+    showPopup({ message: data ? data.message : error || "Error during updating prayer time", type: data ? "success" : "error" })
+    setLoading(false)
+
+  }
 
 
   return (
@@ -89,6 +101,9 @@ export default function PrayerEditModal({ prayer, openModal, handleClose, isIqam
             id="outlined-number"
             label="Number"
             type="number"
+            onChange={(e) => {
+              setPrayerToEdit({ ...prayerToEdit, iqamahOffset: Number(e.target.value) })
+            }}
             slotProps={{
               inputLabel: {
                 shrink: true,
@@ -100,6 +115,9 @@ export default function PrayerEditModal({ prayer, openModal, handleClose, isIqam
                 value={isIqamahClicked ? prayerToEdit?.iqamah : prayerToEdit?.adhan}
                 ampm={false}
                 label={isIqamahClicked ? t("Iqamah Time") : t("Adhan Time")}
+                onChange={(newValue) => {
+                  setPrayerToEdit({ ...prayerToEdit, [isIqamahClicked ? "iqamah" : "adhan"]: newValue })
+                }}
                 sx={{
                   '& .MuiInputBase-input': {
                     textAlign: 'center'  // Centers the text inside the input field
@@ -112,7 +130,7 @@ export default function PrayerEditModal({ prayer, openModal, handleClose, isIqam
 
         <Container sx={{ display: "flex", justifyContent: "space-evenly" }}>
           <Button variant="outlined" size="large" onClick={handleClose}>{t("Cancel")}</Button>
-          <Button onClick={() => onUpdate(prayerToEdit)} variant="contained" size="large">{t("Update")}</Button>
+          <Button loading={loading} onClick={() => onPrayerUpdate({ mosqueID, prayerID: prayer.prayerID, newPrayerTime: isFixed === "fixed" ? isIqamahClicked ? format(prayerToEdit.iqamah, "HH:mm") : format(prayerToEdit.adhan, "HH:mm") : null, offset: isFixed === "fixed" ? null : prayerToEdit.iqamahOffset, isIqamah: isIqamahClicked })} variant="contained" size="large">{t("Update")}</Button>
         </Container>
       </Box>
     </Modal>

@@ -1,4 +1,3 @@
-import * as React from 'react';
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
 import TableCell, { tableCellClasses } from '@mui/material/TableCell';
@@ -6,10 +5,8 @@ import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
-import { TableFooter, Tooltip, Typography } from '@mui/material';
 import { styled } from '@mui/material/styles';
-import ProgressBar from './ProgressBar';
-import { prayerCalcType, PrayerType } from '../types';
+import { PrayerType } from '../types';
 import { format } from 'date-fns';
 import { useTranslation } from 'react-i18next';
 import { memo } from 'react';
@@ -38,7 +35,7 @@ const StyledTableRow = styled(TableRow)(({ theme }) => ({
 }));
 
 interface PrayerTableProps {
-  prayersToShow: Array<prayerCalcType>; // assuming `prayer` is a type you've defined
+  prayersToShow: Array<PrayerType>; // assuming `prayer` is a type you've defined
   onPrayerTimeClick: (prayer: PrayerType, isIqamahClicked: boolean) => void;
   mosqueID: number;
 
@@ -52,7 +49,7 @@ const PrayerTable = memo(({ prayersToShow, onPrayerTimeClick, mosqueID }: Prayer
   const is24hFormat = localStorage.getItem(LocalStorageKeys.TimeFormatIs24H) === "true" ? "HH:mm" : "hh:mm"
 
 
-  const isClickable = allowedUserTypes.includes(user?.userType)
+  const isClickable = allowedUserTypes.includes(user?.userType) && user?.mosqueID === mosqueID
 
   console.log("Prayer Table")
   return (

@@ -87,7 +87,7 @@ const prayerCalc = (
   index: number,
   now: Date,
   dstAdjust: number
-) => {
+): PrayerType => {
   let [hour, minute] = hourMinute;
   let [hourNext, minuteNext] = hourMinuteNext;
   let onlineHourAdhan = null
@@ -97,6 +97,7 @@ const prayerCalc = (
   let onlineHourIqamah = null
   let onlineMinIqamah = null
   let iqamah = null;
+  let prayerID = 0;
   const todaysDate = new Date();
   const names = ["Fajr", "Shurooq", "Dhuhr", "Asr", "Maghrib", "Isha"];
   const name = names[index];
@@ -131,6 +132,7 @@ const prayerCalc = (
       }
 
       if (prayer.prayer_name === name) {
+        prayerID = prayer.id
         const modifiedDate = new Date(prayer.adhan_modified_on);
         if (prayer.adhan_time && !prayer.adhan_locked && isWithinInterval(todaysDate, { start: modifiedDate, end: addDays(modifiedDate, 15) })) {
           const onlineAdhan = prayer.adhan_time.split(":")
@@ -148,7 +150,7 @@ const prayerCalc = (
           onlineMinIqamah = Number(onlineIqamah[1])
           iqamah = addHours(
             toDate(new Date(getYear(now), getMonth(now), getDate(now), onlineHourIqamah, onlineMinIqamah)),
-            isDST(modifiedDate) ? 0 : dstAdjust
+            isDST(iqamahModifiedDate) ? 0 : dstAdjust
           );
 
           if (isAfter(adhan, iqamah) ||
@@ -165,6 +167,7 @@ const prayerCalc = (
     })
   }
   const result = {
+    prayerID,
     adhan,
     iqamah,
     name,

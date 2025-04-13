@@ -4,12 +4,13 @@ import HadithCard from "../components/HadithCard";
 import { calculatePrayerProgress, prayersCalc } from "../services/PrayersCalc/Prayers";
 import { useCallback, useEffect, useState } from "react";
 import PrayerEditModal from "../components/PrayerEditModal";
-import { mosquesDatabaseType, PrayersCalcType, PrayerType } from "../types";
+import { mosquesDatabaseType, PrayersCalcType, PrayerTimeUpdate, PrayerType } from "../types";
 import ProgressBar from "../components/ProgressBar";
 import { getFromLocalDB, LocalStorageKeys } from "../utils/localDB";
 import MosqueInfo from "../components/MosqueInfo";
 import MosqueInfoModal from "../components/MosqueInfoModal";
 import CompassModal from "../components/CompassModal";
+import { useUpdate } from "../hooks/UpdateContext";
 
 
 interface ModalProps {
@@ -20,7 +21,7 @@ interface ModalProps {
 
 
 export default function Prayers() {
-  const [mosque, setMosque] = useState<mosquesDatabaseType>(getFromLocalDB(LocalStorageKeys.DefaultMosque))
+  const { defaultMosque: mosque } = useUpdate()
   const [prayersDate, setPrayerDate] = useState<Date>(new Date())
   const [prayersData, setPrayersData] = useState<PrayersCalcType>(prayersCalc(mosque, prayersDate))
   const [modalData, setModalData] = useState<ModalProps>({ showModal: false, prayer: undefined, isIqamahClicked: false })
@@ -68,9 +69,7 @@ export default function Prayers() {
     setMosqueInfoOpen(true)
   }, [])
 
-  const onPrayerUpdate = useCallback((e: PrayerType) => {
-    e && console.log(e)
-  }, [])
+
 
   /*   const onInfoClick = () => {
       setMosqueInfoOpen(true)
@@ -95,8 +94,8 @@ export default function Prayers() {
           prayer={modalData?.prayer}
           handleClose={handleCloseModal}
           openModal={modalData?.showModal}
+          mosqueID={mosque.id}
           isIqamahClicked={modalData?.isIqamahClicked}
-          onUpdate={onPrayerUpdate}
         />
       }{
         mosqueInfoOpen && <MosqueInfoModal
