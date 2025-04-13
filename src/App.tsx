@@ -14,6 +14,7 @@ import { isIOS, isInStandaloneMode } from './utils/device';
 import InstallDialog from './components/InstallDialog';
 import { useUpdate } from './hooks/UpdateContext';
 
+
 let deferredPrompt: any;
 
 
@@ -22,10 +23,11 @@ export default function App() {
   const [showInstallPrompt, setShowInstallPrompt] = useState(false);
 
 
+
   useEffect(() => {
+
     if (!isKeyInLocalDB(LocalStorageKeys.FirstLaunch)) {
       appFirstLaunch()
-
     } else {
       checkForUpdate()
     }

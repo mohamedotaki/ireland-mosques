@@ -407,7 +407,8 @@ const prayersCalc = (
       iban: "IE28AIBK93744421240194"
     },
     prayers: {
-      today: userPrayerDate,
+      today: prayersToday,
+      userSelectedPrayers: userPrayerDate,
 
     },
     previous,

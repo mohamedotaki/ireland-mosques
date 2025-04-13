@@ -71,6 +71,7 @@ export type PrayersCalcType = {
   mosque: MosqueInfoType;
   prayers: {
     today: Array<PrayerType>,
+    userSelectedPrayers: Array<PrayerType>
   }
   countUp: {
     duration: number,

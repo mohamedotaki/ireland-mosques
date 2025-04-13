@@ -9,6 +9,7 @@ import { UserType } from '../types/authTyps';
 import { usePopup } from './PopupContext';
 import { v4 as uuidv4 } from 'uuid';
 import findClosestMosque from '../utils/findClosestMosque';
+import { requestNotificationPermission } from '../utils/permissions';
 
 const UpdateContext = createContext<{
     checkForUpdate: () => Promise<void>;
@@ -43,7 +44,9 @@ export const UpdateProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     const appFirstLaunch = async () => {
         saveToLocalDB(LocalStorageKeys.TimeFormatIs24H, true)
         saveToLocalDB(LocalStorageKeys.UUID, uuidv4())
+        saveToLocalDB(LocalStorageKeys.PrayerNotifications, { "Fajr": true, "Shurooq": false, "Dhuhr": true, "Asr": true, "Maghrib": true, "Isha": true })
 
+        requestNotificationPermission()
         const { data, error } = await apiGet<appFirstLunchType>("app")
         if (data) {
             const arrayOfMosques = Object.values(data.mosques)
