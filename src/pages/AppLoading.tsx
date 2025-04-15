@@ -47,9 +47,9 @@ export default function AppLoading({ error }: { error: string }) {
         <img src={logo} alt="Logo" style={{ width: "70px" }} />
         <Typography sx={{
           textAlign: "center",
-          fontSize: "30px",
+          fontSize: "26px",
           fontWeight: 600,
-        }}>Muslims Ireland</Typography>
+        }}>Muslims Ireland 1</Typography>
       </Box>
       {error !== "" && <Typography sx={{
         pt: 3,
