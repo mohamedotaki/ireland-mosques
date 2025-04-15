@@ -31,10 +31,11 @@ jobs:
 
       - name: Deploy to cPanel
         env:
-          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}  # Your private SSH key
-          SERVER_IP: ${{ secrets.SERVER_IP }}              # Your server IP
-          USERNAME: ${{ secrets.CPANEL_USERNAME }}         # Your cPanel username
-          REMOTE_PATH: ${{ secrets.REMOTE_PATH }}          # Remote deployment path (e.g., /public_html)
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          SERVER_IP: ${{ secrets.SERVER_IP }}
+          USERNAME: ${{ secrets.CPANEL_USERNAME }}
+          REMOTE_PATH: ${{ secrets.REMOTE_PATH }}
+          SSH_PORT: ${{ secrets.SSH_PORT }}  # 👈 Add this to your GitHub secrets
         run: |
           sudo apt-get install -y openssh-client
           
@@ -44,5 +45,5 @@ jobs:
           eval $(ssh-agent -s)
           ssh-add private_key.pem
 
-          # Deploy using rsync over SSH
-          rsync -avz --delete-after -e "ssh -o StrictHostKeyChecking=no" build/ $USERNAME@$SERVER_IP:$REMOTE_PATH
+          # Deploy using rsync over SSH with custom port
+          rsync -avz --delete-after -e "ssh -p $SSH_PORT -o StrictHostKeyChecking=no" build/ $USERNAME@$SERVER_IP:$REMOTE_PATH
