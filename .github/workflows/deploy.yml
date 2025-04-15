@@ -1,0 +1,42 @@
+name: Deploy React App to cPanel
+
+on:
+  push:
+    branches:
+      - main  # Adjust this to your default branch if it's not 'main'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '22'  # Use Node.js v22 to match your local setup, or change to v16 or v18 for compatibility
+
+      - name: Install dependencies
+        run: |
+          npm install
+          npm run build
+
+      - name: Deploy to cPanel
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}  # Your private SSH key
+          SERVER_IP: ${{ secrets.SERVER_IP }}              # Your server IP
+          USERNAME: ${{ secrets.CPANEL_USERNAME }}         # Your cPanel username
+          REMOTE_PATH: ${{ secrets.REMOTE_PATH }}          # Remote deployment path (e.g., /public_html)
+        run: |
+          sudo apt-get install -y openssh-client
+          
+          # Add SSH key to SSH agent
+          echo "$SSH_PRIVATE_KEY" > private_key.pem
+          chmod 600 private_key.pem
+          eval $(ssh-agent -s)
+          ssh-add private_key.pem
+
+          # Deploy using rsync over SSH
+          rsync -avz --delete-after -e "ssh -o StrictHostKeyChecking=no" build/ $USERNAME@$SERVER_IP:$REMOTE_PATH
