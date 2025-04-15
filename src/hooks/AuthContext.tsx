@@ -32,7 +32,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   // Logout function
   const signout = async () => {
-    const { data, error } = await apiGet('auth/signout');
+    const { data } = await apiGet('auth/signout');
     if (data) {
       removeFromLocalDB(LocalStorageKeys.user);
       setUser(null);

@@ -39,7 +39,7 @@ const SignInSignUp = () => {
       }
     }
     setLoading(false)
-
+    setMessage("")
   };
   const handlePassCheck = (): boolean => {
     if ((inputData as SigninType).password.length < 8) {

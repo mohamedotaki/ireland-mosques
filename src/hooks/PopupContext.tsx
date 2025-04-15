@@ -1,14 +1,14 @@
-import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
+import React, { createContext, useContext, useState, ReactNode } from 'react';
 import Popup from '../components/Popup';
 
-type PopupProps ={
-  message:string;
+type PopupProps = {
+  message: string;
   type: "success" | "info" | "warning" | "error";
-  show:boolean;
+  show: boolean;
 }
 
-type ShowPopupProps ={
-  message:string;
+type ShowPopupProps = {
+  message: string;
   type: "success" | "info" | "warning" | "error";
 }
 
@@ -18,7 +18,7 @@ interface PopupProviderProps {
 }
 
 interface PopupContextType {
-  showPopup: ({message,type}:ShowPopupProps) => void;
+  showPopup: ({ message, type }: ShowPopupProps) => void;
 }
 
 // Create the context with default values
@@ -28,19 +28,19 @@ const PopupContext = createContext<PopupContextType | undefined>(undefined);
 
 // Provide the context to the app
 export const PopupProviderWrapper: React.FC<PopupProviderProps> = ({ children }) => {
-  const [popupData, setPopupData] = useState<PopupProps>({message:"",type:"success",show:false});
+  const [popupData, setPopupData] = useState<PopupProps>({ message: "", type: "success", show: false });
 
 
-  const showPopup = ({type,message}:ShowPopupProps) => {
-    setPopupData({message,type,show:true});
+  const showPopup = ({ type, message }: ShowPopupProps) => {
+    setPopupData({ message, type, show: true });
   };
   const closePopup = () => {
-    setPopupData({message:"",type:popupData.type,show:false});
+    setPopupData({ message: "", type: popupData.type, show: false });
   };
 
   return (
     <PopupContext.Provider value={{ showPopup }}>
-      <Popup message={popupData.message} type={popupData.type} show={popupData.show} onClose={closePopup}/>
+      <Popup message={popupData.message} type={popupData.type} show={popupData.show} onClose={closePopup} />
       {children}
     </PopupContext.Provider>
   );

@@ -3,7 +3,7 @@ import { getFromLocalDB, LocalStorageKeys, saveToLocalDB } from '../utils/localD
 import { getDateTimeString } from '../utils/dateTime';
 import { apiGet } from '../utils/api';
 import { mosquesDatabaseType } from '../types';
-import { addDays, isWithinInterval, set } from 'date-fns';
+import { addDays, isWithinInterval } from 'date-fns';
 import { useAuth } from './AuthContext';
 import { UserType } from '../types/authTyps';
 import { usePopup } from './PopupContext';
@@ -47,7 +47,7 @@ export const UpdateProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         saveToLocalDB(LocalStorageKeys.PrayerNotifications, { "Fajr": true, "Shurooq": false, "Dhuhr": true, "Asr": true, "Maghrib": true, "Isha": true })
 
         requestNotificationPermission()
-        const { data, error } = await apiGet<appFirstLunchType>("app")
+        const { data } = await apiGet<appFirstLunchType>("app")
         if (data) {
             const arrayOfMosques = Object.values(data.mosques)
             if (arrayOfMosques.length === 0) {
@@ -77,7 +77,7 @@ export const UpdateProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         const lastUpdate = getFromLocalDB(LocalStorageKeys.LastDataUpdate)
         if (lastUpdate) {
             const userLastUpdate = getDateTimeString(new Date(lastUpdate))
-            const { data, error } = await apiGet<{ mosques: { [key: string]: mosquesDatabaseType }, newUpdateDate: Date, user: UserType }>(`app/checkForNewData`, { userLastUpdate })
+            const { data } = await apiGet<{ mosques: { [key: string]: mosquesDatabaseType }, newUpdateDate: Date, user: UserType }>(`app/checkForNewData`, { userLastUpdate })
             if (data) {
                 if (data.user) {
                     updateUser(data.user)

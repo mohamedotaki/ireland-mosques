@@ -20,7 +20,7 @@ const NotificationManager = ({ todaysPrayers, notificationsSettings }: { todaysP
             }
         });
         setPrayerTimes(newData);
-    }, [todaysPrayers]);
+    }, [todaysPrayers, notificationsSettings]);
 
     // Hook to schedule notifications
     usePrayerNotifications(prayerTimes);

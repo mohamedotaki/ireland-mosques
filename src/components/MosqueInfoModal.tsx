@@ -29,14 +29,7 @@ interface PrayerModalProps {
 
 }
 
-interface UpdatedPrayer {
-  mosqueId: number;
-  prayerId: number;
-  isIqamahClicked: boolean;
-  iqamahOffset: number | null;
-  iqamahTime: Date | null;
-  adhanTime: Date | null;
-}
+
 
 export default function MosqueInfoModal({ mosqueInfo, openModal, handleClose }: PrayerModalProps) {
   const googleMapsUrl = `https://www.google.com/maps?q=${encodeURIComponent(mosqueInfo.address + ' ' + mosqueInfo.eircode)}`;

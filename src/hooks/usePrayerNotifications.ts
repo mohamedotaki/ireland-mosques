@@ -1,6 +1,5 @@
 import { useEffect, useRef } from 'react';
 import { showPrayerNotification, getTimeUntilPrayer } from '../utils/notifications';
-import { getFromLocalDB, LocalStorageKeys } from '../utils/localDB';
 
 type PrayerTimes = {
     [key: string]: string;

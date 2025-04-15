@@ -60,9 +60,7 @@ const SettingsPage: React.FC = () => {
 
   };
 
-  function valuetext(value: number) {
-    return `${value}°C`;
-  }
+
 
   return (
     <>

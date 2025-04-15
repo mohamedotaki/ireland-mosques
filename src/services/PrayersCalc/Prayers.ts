@@ -179,8 +179,8 @@ const prayersCalc = (
   city: string = "Europe/Dublin", // user Current location
 ): PrayersCalcType => {
   const todaysDate = new Date();
-  const { hijrioffset, jamaahmethods, jamaahoffsets } = settings;
-  const { now, month, date, start, hijri, dstAdjust } = dayCalc(
+  const { hijrioffset } = settings;
+  const { now, month, date, dstAdjust } = dayCalc(
     0,
     0,
     0,
@@ -213,11 +213,6 @@ const prayersCalc = (
   /* SET PRAYERS             */
   /* *********************** */
 
-  type TimetableProbes = {
-    [month: string]: {
-      [date: string]: number[][];
-    };
-  };
 
   const prayersTable = mosque.time_table
 

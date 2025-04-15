@@ -41,8 +41,8 @@ const MyEditor = ({ editorContent, setEditorContent }: EditorProps) => {
       const format = quill.getFormat(0, 1);
       // If it's not already Heading 1, apply it
       if (format['header'] !== 1) {
-        const range = quill.getSelection();
-        quill.format('header', 1); // Set first line to Heading 1
+/*         const range = quill.getSelection();
+ */        quill.format('header', 1); // Set first line to Heading 1
       }
     }
   };
@@ -52,9 +52,9 @@ const MyEditor = ({ editorContent, setEditorContent }: EditorProps) => {
   }, []);
 
   // Handle form submission
-  const handleSubmit = () => {
-    console.log('Editor Content:', editorContent);
-  };
+  /*   const handleSubmit = () => {
+      console.log('Editor Content:', editorContent);
+    }; */
 
   return (
     <div style={{ width: '100%', marginTop: '10px' }}>

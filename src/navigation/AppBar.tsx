@@ -16,39 +16,39 @@ const pages = ['Products', 'Pricing', 'Blog'];
 
 
 function CustomAppBar() {
-  const [anchorElNav, setAnchorElNav] = React.useState<null | HTMLElement>(null);
-  const [anchorElUser, setAnchorElUser] = React.useState<null | HTMLElement>(null);
-  const navigate = useNavigate();  // <-- hook for navigation
-  const { user, signout } = useAuth()
-  const settings = [
-    { name: 'Account', function: signout },
-    { name: 'Logout', function: signout }
-  ];
+/*   const [anchorElNav, setAnchorElNav] = React.useState<null | HTMLElement>(null);
+ *//*   const [anchorElUser, setAnchorElUser] = React.useState<null | HTMLElement>(null);
+ */  const navigate = useNavigate();  // <-- hook for navigation
+  const { user/* , signout */ } = useAuth()
+  /*   const settings = [
+      { name: 'Account', function: signout },
+      { name: 'Logout', function: signout }
+    ]; */
 
 
-  const handleOpenNavMenu = (event: React.MouseEvent<HTMLElement>) => {
-    setAnchorElNav(event.currentTarget);
-  };
-  const handleOpenUserMenu = (event: React.MouseEvent<HTMLElement>) => {
-    setAnchorElUser(event.currentTarget);
-  };
-
+  /*   const handleOpenNavMenu = (event: React.MouseEvent<HTMLElement>) => {
+      setAnchorElNav(event.currentTarget);
+    };
+    const handleOpenUserMenu = (event: React.MouseEvent<HTMLElement>) => {
+      setAnchorElUser(event.currentTarget);
+    };
+   */
   const handleSignin = (event: React.MouseEvent<HTMLElement>) => {
     navigate('/account');
   };
 
-  const handleCloseNavMenu = () => {
-    setAnchorElNav(null);
-  };
+  /*   const handleCloseNavMenu = () => {
+      setAnchorElNav(null);
+    }; */
 
-  const handleCloseUserMenu = () => {
-    setAnchorElUser(null);
-  };
+  /*   const handleCloseUserMenu = () => {
+      setAnchorElUser(null);
+    }; */
 
-  const handleMenuItemClick = (fun: () => void) => {
-    fun();
-    setAnchorElUser(null);
-  };
+  /*   const handleMenuItemClick = (fun: () => void) => {
+      fun();
+      setAnchorElUser(null);
+    }; */
 
   return (
     <AppBar position="sticky">
@@ -81,8 +81,8 @@ function CustomAppBar() {
             {pages.map((page) => (
               <Button
                 key={page}
-                onClick={handleCloseNavMenu}
-                sx={{ my: 2, color: 'white', display: 'block' }}
+/*                 onClick={handleCloseNavMenu}
+ */                sx={{ my: 2, color: 'white', display: 'block' }}
               >
                 {page}
               </Button>

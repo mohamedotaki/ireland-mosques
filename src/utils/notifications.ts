@@ -1,4 +1,4 @@
-import { setMinutes, differenceInMilliseconds, parseISO } from 'date-fns';
+import { differenceInMilliseconds, parseISO } from 'date-fns';
 
 
 export const showPrayerNotification = (title: string, body: string) => {

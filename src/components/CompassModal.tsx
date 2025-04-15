@@ -199,21 +199,7 @@ export default function CompassModal({ openModal, handleClose }: PrayerModalProp
   );
 }
 
-interface InfoItemType {
-  itemName: string;
-  value: string | React.ReactNode;
-}
 
-const InfoItem = ({ itemName, value }: InfoItemType) => {
-  return (
-    <Grid container size={12} my={2.5}>
-      <Grid size={4}>
-        <Typography>{itemName}</Typography>
-      </Grid>
-      <Grid size={8}>
-        <Typography>{value}</Typography>
-      </Grid>
-    </Grid>
-  );
-}
+
+
 

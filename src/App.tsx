@@ -48,7 +48,7 @@ export default function App() {
 
     return () => window.removeEventListener('beforeinstallprompt', handler);
 
-  }, [])
+  })
 
 
   const handleInstallClick = async () => {

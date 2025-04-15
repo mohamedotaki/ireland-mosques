@@ -51,7 +51,7 @@ export default function Prayers() {
     return () => {
       clearInterval(timer);
     };
-  }, [prayersData]);
+  }, [prayersData, mosque, prayersDate]);
 
 
   useEffect(() => {
@@ -136,7 +136,6 @@ export default function Prayers() {
 
   );
 }
-
 ;
 
 
