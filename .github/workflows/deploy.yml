@@ -16,10 +16,11 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v2
         with:
-          node-version: '22'  # Use Node.js v22 to match your local setup, or change to v16 or v18 for compatibility
+          node-version: '16'  # Use Node.js v22 to match your local setup, or change to v16 or v18 for compatibility
 
       - name: Install dependencies
         run: |
+          npm cache clean --force
           npm install
           npm run build
 
