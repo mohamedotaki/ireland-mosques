@@ -16,12 +16,18 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v2
         with:
-          node-version: '22'  # Use Node.js v22 to match your local setup, or change to v16 or v18 for compatibility
+          node-version: '16'  # You can use v22 or v16, depending on your server and compatibility
+
+      - name: Verify Node.js version
+        run: |
+          node -v
+          npm -v
 
       - name: Install dependencies
         run: |
-          npm install
-          npm run build
+          npm cache clean --force   # Clear npm cache
+          npm install               # Install dependencies
+          npm run build             # Build the React app
 
       - name: Deploy to cPanel
         env:
