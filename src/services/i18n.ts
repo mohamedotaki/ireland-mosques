@@ -1,6 +1,5 @@
 import i18n from "i18next";
 import { initReactI18next } from "react-i18next";
-import LanguageDetector from "i18next-browser-languagedetector";
 import en from "../assets/translation/en.json"
 import ar from "../assets/translation/ar.json"
 import { getFromLocalDB, LocalStorageKeys } from "../utils/localDB";

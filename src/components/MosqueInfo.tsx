@@ -1,10 +1,6 @@
-import { Card, Container, IconButton, Typography } from '@mui/material';
-import ArrowRightIcon from '@mui/icons-material/ArrowRight';
-import ArrowLeftIcon from '@mui/icons-material/ArrowLeft';
-import { addDays, formatDate } from "date-fns";
-import moment from 'moment-hijri';
+import { Card, IconButton, Typography } from '@mui/material';
 import { memo } from 'react';
-import { MosqueInfoType, mosquesDatabaseType } from '../types';
+import { mosquesDatabaseType } from '../types';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import ExploreOutlinedIcon from '@mui/icons-material/ExploreOutlined';
 interface PrayerDateType {

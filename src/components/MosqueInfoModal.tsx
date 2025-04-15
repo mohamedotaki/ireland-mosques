@@ -2,10 +2,10 @@ import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
 import Modal from '@mui/material/Modal';
-import { MosqueInfoType, mosquesDatabaseType, PrayerType } from '../types';
+import { mosquesDatabaseType } from '../types';
 import Grid from '@mui/material/Grid2';
 import Divider from '@mui/material/Divider';
-import { Container, TextField } from '@mui/material';
+import { TextField } from '@mui/material';
 
 const style = {
   position: 'absolute',

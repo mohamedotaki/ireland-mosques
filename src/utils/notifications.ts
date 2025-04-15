@@ -1,5 +1,4 @@
-import { formatISO, setHours, setMinutes, differenceInMilliseconds, parseISO } from 'date-fns';
-import { PrayerType } from '../types';
+import { setMinutes, differenceInMilliseconds, parseISO } from 'date-fns';
 
 
 export const showPrayerNotification = (title: string, body: string) => {

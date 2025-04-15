@@ -1,8 +1,5 @@
 import { Container, IconButton, Typography } from "@mui/material";
-import PrayerTable from "../components/PrayerTable";
-import PrayerDate from "../components/PrayerDate";
 import CustomCard from "../components/CustomCard";
-import ToolsBar from "../components/ToolsBar";
 import AddIcon from '@mui/icons-material/Add';
 import { useEffect, useState } from "react";
 import Editor from "../components/text editor/Editor";

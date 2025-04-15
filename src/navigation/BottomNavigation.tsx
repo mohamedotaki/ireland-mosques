@@ -4,8 +4,6 @@ import BottomNavigation from '@mui/material/BottomNavigation';
 import BottomNavigationAction from '@mui/material/BottomNavigationAction';
 import FeedIcon from '@mui/icons-material/Feed';
 import WatchLaterIcon from '@mui/icons-material/WatchLater';
-import PersonIcon from '@mui/icons-material/Person';
-import AutoStoriesIcon from '@mui/icons-material/AutoStories';
 import SettingsIcon from '@mui/icons-material/Settings';
 import { useNavigate } from 'react-router-dom';
 

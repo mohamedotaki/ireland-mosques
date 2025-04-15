@@ -1,7 +1,6 @@
 import { Button, Container, Typography } from "@mui/material";
 import SignInSignUp from "../components/SignInSignUp";
 import { useAuth } from "../hooks/AuthContext";
-import { Outlet } from "react-router-dom";
 
 
 

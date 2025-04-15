@@ -23,7 +23,6 @@ const PrayerDate = memo(({ date, updateDate }: PrayerDateType) => {
 
         <Typography
           noWrap
-          component="text"
           sx={{
 
 
@@ -33,7 +32,6 @@ const PrayerDate = memo(({ date, updateDate }: PrayerDateType) => {
         </Typography>
         <Typography
           noWrap
-          component="text"
           sx={{
             direction: 'rtl',  // Set text direction to RTL for Arabic
           }}

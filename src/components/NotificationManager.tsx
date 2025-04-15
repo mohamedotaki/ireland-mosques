@@ -1,7 +1,6 @@
 // components/NotificationManager.tsx
 import { useEffect, useState } from 'react';
 import { usePrayerNotifications } from '../hooks/usePrayerNotifications';
-import { useDailyRescheduler } from '../hooks/useDailyRescheduler';
 import { PrayerType } from '../types';
 
 // Make sure this matches your prayer data

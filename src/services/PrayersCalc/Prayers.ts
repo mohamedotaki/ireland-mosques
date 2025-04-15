@@ -8,13 +8,11 @@ import {
   getDate,
   startOfDay,
   endOfDay,
-  isBefore,
   isAfter,
   isWithinInterval,
   differenceInSeconds,
   format, addSeconds
 } from "date-fns";
-import timetable from "./TimeTable.json";
 import settings from "./Settings.json";
 import { mosquesDatabaseType, prayerDatabaseType, PrayersCalcType, PrayerType } from "../../types/index";
 
