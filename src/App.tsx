@@ -32,7 +32,7 @@ export default function App() {
       checkForUpdate()
     }
 
-    // Handle Android install prompt
+    // Handle Android install promptj
     const handler = (e: any) => {
       e.preventDefault();
       deferredPrompt = e;
