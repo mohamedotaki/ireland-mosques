@@ -16,7 +16,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v2
         with:
-          node-version: '18'  # You can use v22 or v16, depending on your server and compatibility
+          node-version: '20'  # You can use v22 or v16, depending on your server and compatibility
 
       - name: Verify Node.js version
         run: |
