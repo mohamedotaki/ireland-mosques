@@ -8,7 +8,7 @@ export interface ApiResponse<T> {
 }
 
 const apiClient = axios.create({
-  baseURL: process.env.REACT_APP_API_LINK || 'http://localhost:3001/api', // Default API base URL (can be modified)
+  baseURL: process.env.REACT_APP_API_URL || 'http://localhost:3001/api', // Default API base URL (can be modified)
   headers: {
     'Content-Type': 'application/json',
   },

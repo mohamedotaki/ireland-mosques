@@ -65,13 +65,13 @@ const SettingsPage: React.FC = () => {
   return (
     <>
       <Card sx={{ maxWidth: 600, margin: 'auto', padding: 2, mt: 2, direction: isArabic ? "rtl" : "ltr" }}>
-        <Typography variant="h6" textAlign="center" sx={{ mb: 2 }} >
+        <Typography variant="h6" textAlign="center" sx={{ mb: 2 }}>
           General
         </Typography>
 
-
         <Grid container spacing={3}>
-          <Grid item xs={12} container >
+          {/* Language Selection */}
+          <Grid item xs={12} container>
             <Grid item xs={6}>
               <Typography variant="body1">{t("Language")}</Typography>
             </Grid>
@@ -80,13 +80,13 @@ const SettingsPage: React.FC = () => {
                 <Select value={language} onChange={handleLanguageChange}>
                   <MenuItem value="en">English</MenuItem>
                   <MenuItem value="ar">العربية</MenuItem>
-
                 </Select>
               </FormControl>
             </Grid>
           </Grid>
 
-          <Grid item xs={12} container alignItems="center" >
+          {/* Theme Selection */}
+          <Grid item xs={12} container alignItems="center">
             <Grid item xs={6}>
               <Typography variant="body1">{t("Theme")}</Typography>
             </Grid>
@@ -96,13 +96,13 @@ const SettingsPage: React.FC = () => {
                   <MenuItem value="system_default">{t("System Default")}</MenuItem>
                   <MenuItem value="dark">{t("Dark")}</MenuItem>
                   <MenuItem value="light">{t("Light")}</MenuItem>
-
                 </Select>
               </FormControl>
             </Grid>
           </Grid>
 
-          <Grid item xs={12} container alignItems="center" >
+          {/* Time Format Selection */}
+          <Grid item xs={12} container alignItems="center">
             <Grid item xs={6}>
               <Typography variant="body1">{t("Time Format")}</Typography>
             </Grid>
@@ -115,7 +115,9 @@ const SettingsPage: React.FC = () => {
               </FormControl>
             </Grid>
           </Grid>
-          <Grid item xs={12} container alignItems="center" >
+
+          {/* Font Size Slider */}
+          <Grid item xs={12} container alignItems="center">
             <Grid item xs={6}>
               <Typography variant="body1">{t("Font Size")}</Typography>
             </Grid>
@@ -132,29 +134,24 @@ const SettingsPage: React.FC = () => {
                   max={20}
                   onChange={handleFontSizeChange}
                   sx={{
-
                     '& .MuiSlider-thumb': {
                       marginRight: "-10%"
                     },
                     '& .MuiSlider-track': {
-                      // Flip the track in RTL mode
-                      direction: 'ltr',
+                      direction: 'ltr', // Flip the track in RTL mode
                     },
                   }}
                 />
               </FormControl>
             </Grid>
           </Grid>
-
-
-
-
         </Grid>
+
+        {/* Display App Version at the bottom */}
+        <Typography variant="body2" color="textSecondary" textAlign="center" sx={{ mt: 4 }}>
+          Version: {process.env.REACT_APP_VERSION} {/* Access the version from .env */}
+        </Typography>
       </Card>
-
-
-
-
     </>
   );
 };

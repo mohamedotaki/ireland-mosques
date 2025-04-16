@@ -3,6 +3,7 @@ import { Typography } from '@mui/material';
 import { keyframes } from '@mui/system';
 import logo from "../assets/logo.png";
 
+
 // Define animations
 const fadeIn = keyframes`
   from {
@@ -27,6 +28,7 @@ const pulse = keyframes`
 
 export default function AppLoading({ error }: { error: string }) {
   return (
+    <>
     <Box sx={{
       position: "fixed",
       top: "50%",
@@ -49,13 +51,26 @@ export default function AppLoading({ error }: { error: string }) {
           textAlign: "center",
           fontSize: "26px",
           fontWeight: 600,
-        }}>Muslims Ireland 1</Typography>
+        }}>{process.env.REACT_APP_NAME}</Typography>
       </Box>
       {error !== "" && <Typography sx={{
         pt: 3,
         textAlign: "center",
         color: "red",
       }}>{error}</Typography>}
+
     </Box>
+    <Box sx={{
+  position: "fixed",
+  left: 0,
+  display:"flex",
+  justifyContent:"center",
+  width:"100%",
+  bottom:10,
+  
+}}>
+ <Typography>{process.env.REACT_APP_VERSION}</Typography>
+</Box>
+    </>
   );
 }

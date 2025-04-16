@@ -73,7 +73,7 @@ function CustomAppBar() {
               textDecoration: 'none',
             }}
           >
-            Muslims Ireland
+            {process.env.REACT_APP_NAME}
           </Typography>
 
 
