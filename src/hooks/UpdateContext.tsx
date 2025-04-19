@@ -97,7 +97,6 @@ export const UpdateProvider: React.FC<{ children: React.ReactNode }> = ({ childr
                     setMosques(localDBMosques)
                     saveToLocalDB(LocalStorageKeys.MosquesData, localDBMosques)
                 }
-                saveToLocalDB(LocalStorageKeys.LastDataUpdate, data.newUpdateDate)
 
             } else {
                 const todaysDate = new Date()
