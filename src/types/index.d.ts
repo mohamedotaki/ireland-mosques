@@ -9,6 +9,8 @@ export type PrayerType = {
   trueAdhan: Date;
   adhan: Date;
   iqamah: Date | null;
+  iqamahOffset: number | null;
+  iqamahMode: "fixed" | "offset" | null;
 }
 
 export type PrayerTimeUpdate = {

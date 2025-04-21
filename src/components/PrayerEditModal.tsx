@@ -45,7 +45,7 @@ export default function PrayerEditModal({ prayer, mosqueID, openModal, handleClo
   const { showPopup } = usePopup()
   const [prayerToEdit, setPrayerToEdit] = useState<any>(prayer)
   const [loading, setLoading] = useState<boolean>(false)
-  const [isFixed, setIsFixed] = useState<"fixed" | "offset">("fixed")
+  const [isFixed, setIsFixed] = useState<"fixed" | "offset">(prayer.iqamahMode || "fixed")
   const { t } = useTranslation();
   const { checkForUpdate } = useUpdate();
 
@@ -102,6 +102,7 @@ export default function PrayerEditModal({ prayer, mosqueID, openModal, handleClo
             id="outlined-number"
             label="Number"
             type="number"
+            value={prayerToEdit?.iqamahOffset}
             onChange={(e) => {
               setPrayerToEdit({ ...prayerToEdit, newPrayerTime: null, iqamahOffset: Number(e.target.value) })
             }}

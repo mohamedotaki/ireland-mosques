@@ -95,6 +95,8 @@ const prayerCalc = (
   let onlineHourIqamah = null
   let onlineMinIqamah = null
   let iqamah = null;
+  let iqamahOffset = null;
+  let iqamahMode = null;
   let prayerID = 0;
   const todaysDate = new Date();
   const names = ["Fajr", "Shurooq", "Dhuhr", "Asr", "Maghrib", "Isha"];
@@ -151,15 +153,22 @@ const prayerCalc = (
             toDate(new Date(getYear(now), getMonth(now), getDate(now), onlineHourIqamah, onlineMinIqamah)),
             isDST(iqamahModifiedDate) ? 0 : dstAdjust
           );
+          iqamahMode = "fixed"
 
           if (isAfter(adhan, iqamah) ||
             !isWithinInterval(now, { start: addDays(todaysDate, -3), end: addDays(todaysDate, 5) }) ||
             isAfter(iqamah, nextAdhan)) {
             iqamah = null
+            iqamahMode = null
+
           }
         } else if (prayer.iquamh_offset && isWithinInterval(todaysDate, { start: iqamahModifiedDate, end: addDays(iqamahModifiedDate, 15) })) {
           iqamah = addMinutes(adhan, prayer.iquamh_offset)
+          iqamahMode = "offset"
+          iqamahOffset = prayer.iquamh_offset
+
         } else {
+          iqamahMode = null
           iqamah = null
         }
       }
@@ -171,6 +180,8 @@ const prayerCalc = (
     trueAdhan,
     iqamah,
     name,
+    iqamahMode,
+    iqamahOffset,
   };
   return result;
 };
