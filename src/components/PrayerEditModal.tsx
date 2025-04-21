@@ -58,14 +58,15 @@ export default function PrayerEditModal({ prayer, mosqueID, openModal, handleClo
 
 
   const onPrayerUpdate = async (e: PrayerTimeUpdate) => {
+    console.log(e)
     setLoading(true)
     const { data, error } = await apiPost<PrayerTimeUpdate, { message: string }>("prayers/prayertime", e)
     if (data) {
       checkForUpdate()
-      setLoading(false)
       handleClose()
     }
     showPopup({ message: data ? data.message : error || "Error during updating prayer time", type: data ? "success" : "error" })
+    setLoading(false)
 
   }
 
@@ -102,7 +103,7 @@ export default function PrayerEditModal({ prayer, mosqueID, openModal, handleClo
             label="Number"
             type="number"
             onChange={(e) => {
-              setPrayerToEdit({ ...prayerToEdit, iqamahOffset: Number(e.target.value) })
+              setPrayerToEdit({ ...prayerToEdit, newPrayerTime: null, iqamahOffset: Number(e.target.value) })
             }}
             slotProps={{
               inputLabel: {
