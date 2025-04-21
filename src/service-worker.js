@@ -48,7 +48,7 @@ registerRoute(
   createHandlerBoundToURL(process.env.REACT_APP_API_URL + "/index.html")
 );
 
-// Cache API responses
+/* // Cache API responses
 registerRoute(
   ({ url }) =>
     url.origin === self.location.origin && url.pathname.startsWith("/api/"),
@@ -61,7 +61,7 @@ registerRoute(
       }),
     ],
   })
-);
+); */
 
 // Cache images
 registerRoute(
