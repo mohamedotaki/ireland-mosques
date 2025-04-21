@@ -85,9 +85,13 @@ export default function CompassModal({ openModal, handleClose }: PrayerModalProp
   // Handle device orientation for compass
   useEffect(() => {
     const handleOrientation = (event: DeviceOrientationEvent) => {
-      if (event.alpha !== null) {
-        // Alpha is the compass direction the device is facing in degrees
-        setCurrentDirection(event.alpha);
+      const heading =
+        (event as any).webkitCompassHeading !== undefined
+          ? (event as any).webkitCompassHeading
+          : event.alpha;
+
+      if (heading !== null) {
+        setCurrentDirection(heading);
       }
     };
 
