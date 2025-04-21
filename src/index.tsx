@@ -12,6 +12,8 @@ import { PopupProviderWrapper } from './hooks/PopupContext';
 import "./services/i18n"
 import { AuthProvider } from './hooks/AuthContext';
 import { UpdateProvider } from './hooks/UpdateContext';
+import * as serviceWorkerRegistration from './serviceWorkerRegistration';
+
 
 import 'react-quill/dist/quill.snow.css'; // Import styles for Quill
 
@@ -22,14 +24,12 @@ root.render(
   <React.StrictMode>
     <ThemeProviderWrapper>
       <AuthProvider>
-
         <PopupProviderWrapper>
           <UpdateProvider>
             <App />
           </UpdateProvider>
         </PopupProviderWrapper>
       </AuthProvider>
-
     </ThemeProviderWrapper>
   </React.StrictMode>
 );
@@ -37,4 +37,7 @@ root.render(
 // If you want to start measuring performance in your app, pass a function
 // to log results (for example: reportWebVitals(console.log))
 // or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
+serviceWorkerRegistration.register();
+
+
 reportWebVitals();
