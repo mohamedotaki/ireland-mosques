@@ -1,0 +1,15 @@
+/* Remove bottom border from toolbar */
+.no-borders .ql-toolbar.ql-snow {
+  border-bottom: none !important;
+}
+
+/* Clean up editor container */
+.no-borders .ql-container.ql-snow {
+  border-top: none !important;
+  border-bottom: none !important;
+}
+
+/* Optional: cleaner button hover styles */
+.no-borders .ql-toolbar button:hover {
+  background: none !important;
+}

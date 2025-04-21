@@ -7,6 +7,7 @@ import Typography from '@mui/material/Typography';
 import en from "../assets/eng-bukhari.json";
 import ar from "../assets/ara-bukhari.json";
 import { useTranslation } from 'react-i18next';
+import { getFromLocalDB, LocalStorageKeys, saveToLocalDB } from '../utils/localDB';
 
 
 interface HadithData {
@@ -26,17 +27,17 @@ const HadithCard = memo(() => {
   const hadiths: HadithData = i18n.language === "ar" ? ar : en
   // Initialize the hadithIndex from localStorage, defaulting to 0 if not found
   const [hadithIndex, setHadithIndex] = useState<number>(
-    () => Number(localStorage.getItem('hadith-index')) || 0
+    () => Number(getFromLocalDB(LocalStorageKeys.HadithIndex)) || 0
   );
 
   // Update localStorage only when the state changes
   const handleHadithRed = useCallback(() => {
     const newIndex = hadithIndex + 1;
-    localStorage.setItem('hadith-index', newIndex.toString());
+    saveToLocalDB(LocalStorageKeys.HadithIndex, newIndex);
     setHadithIndex(newIndex);
   }, [hadithIndex]);
 
-  return (
+  return hadiths.hadiths[hadithIndex] ? (
     <Card sx={{ minWidth: 275, my: 1, direction: isArabic ? "rtl" : "ltr" }}>
       <CardContent>
         <Typography gutterBottom sx={{ color: 'text.secondary', fontSize: 14 }}>
@@ -50,7 +51,7 @@ const HadithCard = memo(() => {
         <Button onClick={handleHadithRed} size="small">{t("Mark As Read")}</Button>
       </CardActions>
     </Card>
-  );
+  ) : <Typography variant="body2" textAlign={"center"} sx={{ my: 3 }}>You have reached the last hadith. New hadith will be added soon</Typography>;
 });
 
 export default HadithCard;

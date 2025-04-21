@@ -101,3 +101,13 @@ export type MosqueInfoType = {
   longitude: number;
   iban: string;
 }
+
+
+export type PostType = {
+  postID?: number;
+  mosqueID?: number;
+  time?: Date;
+  createdBy?: number;
+  updatedBy?: number;
+  contant: string;
+}

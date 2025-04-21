@@ -1,75 +1,97 @@
-import { Button } from '@mui/material';
+import { Button, useTheme } from '@mui/material';
 import React, { useRef, useEffect } from 'react';
 import ReactQuill from 'react-quill';
-import 'react-quill/dist/quill.snow.css'; // Import Quill styles
+import 'react-quill/dist/quill.snow.css';
+import "./editor.css"
 
 type EditorProps = {
   editorContent: string;
-  setEditorContent: React.Dispatch<React.SetStateAction<string>>;
+  setEditorContent: (contant: string) => void;
+
 };
 
 const MyEditor = ({ editorContent, setEditorContent }: EditorProps) => {
   const quillRef = useRef<ReactQuill>(null);
+  const theme = useTheme();
 
-  // Define modules (custom toolbar configuration)
   const modules = {
-    toolbar: [
-      [{ 'header': '1' }, { 'header': '2' }/* , { 'font': [] } */],
-      [{ 'list': 'ordered' }, { 'list': 'bullet' }],
-      [{ 'align': [] }],
-      ['bold', 'italic', 'underline'],
-      ['link'/* , 'image' */],
-      [{ 'color': ["#d50000", "#00e676", "#82b1ff"] }, { 'background': [] }],
-      ['blockquote'/* , 'code-block' */],
-    ],
+    toolbar: '#custom-toolbar',
   };
 
-  // Handle content changes
   const handleEditorChange = (value: string) => {
     setEditorContent(value);
     enforceHeading1OnFirstLine();
   };
 
-  // Ensure the first line is always Heading 1
   const enforceHeading1OnFirstLine = () => {
     const quill = quillRef.current?.getEditor();
     if (!quill) return;
 
-    // Get the first block element (first line or paragraph)
-    const firstLine = quill.getLines(0, 1); // Get the first line/paragraph
+    const firstLine = quill.getLines(0, 1);
     if (firstLine && firstLine[0]) {
       const format = quill.getFormat(0, 1);
-      // If it's not already Heading 1, apply it
       if (format['header'] !== 1) {
-/*         const range = quill.getSelection();
- */        quill.format('header', 1); // Set first line to Heading 1
+        quill.format('header', 1);
       }
     }
   };
-  // Ensure the first line is Heading 1 when the component loads
+
   useEffect(() => {
     enforceHeading1OnFirstLine();
   }, []);
 
-  // Handle form submission
-  /*   const handleSubmit = () => {
-      console.log('Editor Content:', editorContent);
-    }; */
-
   return (
-    <div style={{ width: '100%', marginTop: '10px' }}>
-      <ReactQuill
-        ref={quillRef}
-        value={editorContent}
-        onChange={handleEditorChange}
-        theme="snow"
-        modules={modules}
-      />
-      <div style={{ display: "flex", justifyContent: "flex-end", width: "100%" }}>
-        <Button variant="contained" sx={{ mt: 1 }}>Post</Button>
 
+    <div style={{
+      width: '100%', maxHeight: '500px', marginTop: '10px',
+      borderBottom: '1px solid #ccc',
+
+    }}>
+      <div
+        id="custom-toolbar"
+        style={{
+          position: 'sticky',
+          top: 0,
+          zIndex: 10,
+          border: '1px solid #ccc',
+
+          backgroundColor: theme.palette.background.paper,
+          padding: '8px',
+        }}
+      >
+        <select className="ql-header">
+          <option value="1">Heading 1</option>
+          <option value="2">Heading 2</option>
+          <option value="">Normal</option>
+        </select>
+        <button className="ql-bold" />
+        <button className="ql-italic" />
+        <button className="ql-underline" />
+        <button className="ql-blockquote" />
+        <button className="ql-link" />
+        <select className="ql-align" />
+        <select className="ql-color">
+          <option value="#d50000" />
+          <option value="#00e676" />
+          <option value="#82b1ff" />
+          <option value="" />
+        </select>
       </div>
+
+      <div style={{ maxHeight: '400px', overflowY: 'auto' }} className="no-borders">
+        <ReactQuill
+          ref={quillRef}
+          value={editorContent}
+          onChange={handleEditorChange}
+          theme="snow"
+          modules={modules}
+        />
+      </div>
+
+
     </div>
+
+
   );
 };
 

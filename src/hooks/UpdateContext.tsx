@@ -5,11 +5,12 @@ import { apiGet } from '../utils/api';
 import { mosquesDatabaseType } from '../types';
 import { addDays, isWithinInterval } from 'date-fns';
 import { useAuth } from './AuthContext';
-import { UserType } from '../types/authTyps';
+import { settingsType, UserType } from '../types/authTyps';
 import { usePopup } from './PopupContext';
 import { v4 as uuidv4 } from 'uuid';
 import findClosestMosque from '../utils/findClosestMosque';
 import { requestNotificationPermission } from '../utils/permissions';
+import { time } from 'console';
 
 const UpdateContext = createContext<{
     checkForUpdate: () => Promise<void>;
@@ -42,7 +43,14 @@ export const UpdateProvider: React.FC<{ children: React.ReactNode }> = ({ childr
 
 
     const appFirstLaunch = async () => {
-        saveToLocalDB(LocalStorageKeys.TimeFormatIs24H, true)
+        let settings: settingsType = {
+            theme: "system_default",
+            language: "en",
+            fontSize: 14,
+            timeFormatIs24H: true,
+            defaultMosque: null,
+
+        }
         saveToLocalDB(LocalStorageKeys.UUID, uuidv4())
         saveToLocalDB(LocalStorageKeys.PrayerNotifications, { "Fajr": true, "Shurooq": false, "Dhuhr": true, "Asr": true, "Maghrib": true, "Isha": true })
 
@@ -60,6 +68,7 @@ export const UpdateProvider: React.FC<{ children: React.ReactNode }> = ({ childr
             setMosques(data.mosques)
             try {
                 const closestMosque = await findClosestMosque(arrayOfMosques)
+                settings = { ...settings, defaultMosque: closestMosque?.id || null }
                 saveToLocalDB(LocalStorageKeys.DefaultMosque, closestMosque || arrayOfMosques[0])
                 setDefaultMosque(closestMosque || arrayOfMosques[0])
             } catch (error) {
@@ -70,6 +79,8 @@ export const UpdateProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         } else {
             setError("Unable to get mosques and prayers data. please connect to internet and try later")
         }
+        saveToLocalDB(LocalStorageKeys.AppSettings, settings)
+
     }
 
 
@@ -79,6 +90,9 @@ export const UpdateProvider: React.FC<{ children: React.ReactNode }> = ({ childr
             const userLastUpdate = getDateTimeString(new Date(lastUpdate))
             const { data } = await apiGet<{ mosques: { [key: string]: mosquesDatabaseType }, newUpdateDate: Date, user: UserType }>(`app/checkForNewData`, { userLastUpdate })
             if (data) {
+                console.log(data)
+                data.newUpdateDate && saveToLocalDB(LocalStorageKeys.LastDataUpdate, data.newUpdateDate)
+
                 if (data.user) {
                     updateUser(data.user)
                 }
@@ -88,10 +102,12 @@ export const UpdateProvider: React.FC<{ children: React.ReactNode }> = ({ childr
                     const localDBDefaultMosques = getFromLocalDB(LocalStorageKeys.DefaultMosque)
                     updatedMosquesIDs.forEach((mosqueID) => {
                         if (localDBDefaultMosques.id === mosqueID) {
-                            saveToLocalDB(LocalStorageKeys.DefaultMosque, data.mosques[mosqueID])
-                            setDefaultMosque(data.mosques[mosqueID])
+                            const updatedMosque = data.mosques[mosqueID].time_table ? data.mosques[mosqueID] : { ...data.mosques[mosqueID], time_table: localDBDefaultMosques.time_table }
+                            console.log(updatedMosque)
+                            saveToLocalDB(LocalStorageKeys.DefaultMosque, updatedMosque)
+                            setDefaultMosque(updatedMosque)
                         }
-                        const updatedMosque = data.mosques[mosqueID]
+                        const updatedMosque = data.mosques[mosqueID].time_table ? data.mosques[mosqueID] : { ...data.mosques[mosqueID], time_table: localDBDefaultMosques.time_table }
                         localDBMosques[mosqueID] = updatedMosque
                     })
                     setMosques(localDBMosques)

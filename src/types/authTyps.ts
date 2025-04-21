@@ -6,6 +6,7 @@ export type UserType = {
   account_status: "Active" | "Inactive" | "Pending";
   userType: "User" | "Admin" | "Owner" | undefined;
   createdAt: Date;
+  settings: settingsType
 };
 
 export type SigninType = {
@@ -20,6 +21,15 @@ export type SignupType = {
   password: string;
   confirmPassword: string;
   phoneNumber: string;
+  settings: settingsType
 
+}
+
+export type settingsType = {
+  language: "en" | "ar";
+  theme: 'light' | 'dark' | 'system_default';
+  fontSize: number;
+  timeFormatIs24H: boolean;
+  defaultMosque: number | null,
 
 }

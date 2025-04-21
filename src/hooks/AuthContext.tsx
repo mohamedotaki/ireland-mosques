@@ -1,7 +1,9 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { getFromLocalDB, LocalStorageKeys, removeFromLocalDB, saveToLocalDB } from '../utils/localDB';
 import { apiGet, apiPost } from '../utils/api';
-import { SigninType, SignupType, UserType } from '../types/authTyps';
+import { settingsType, SigninType, SignupType, UserType } from '../types/authTyps';
+import i18n from '../services/i18n';
+import { useTheme } from './ThemeContext';
 
 // Define types for our auth state
 
@@ -22,6 +24,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 // Create the provider component with proper typing
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<UserType | null>(getFromLocalDB(LocalStorageKeys.user || null));
+  const { toggleTheme, changeFontSize } = useTheme();
 
   // Use effect to check for saved login status in localStorage
   useEffect(() => {
@@ -45,6 +48,10 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     const { data, error } = await apiPost<{ user: SigninType, UUID: string }, { user: UserType }>('auth/signin', { user, UUID })
     if (data) {
       saveToLocalDB(LocalStorageKeys.user, data.user);
+      saveToLocalDB(LocalStorageKeys.AppSettings, data.user.settings)
+      i18n.changeLanguage(data.user.settings.language); // Change language dynamically    
+      toggleTheme(data.user.settings.theme)
+      changeFontSize(data.user.settings.fontSize)
       setUser(data.user);
     } else {
       return error
@@ -55,8 +62,12 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     saveToLocalDB(LocalStorageKeys.user, user);
     setUser(user);
   }
+
+
   const signup = async (user: SignupType) => {
-    const { data, error } = await apiPost<{ user: SignupType }, { user: UserType }>('auth/signup', { user })
+    const settings: settingsType = getFromLocalDB(LocalStorageKeys.AppSettings)
+
+    const { data, error } = await apiPost<{ user: SignupType }, { user: UserType }>('auth/signup', { user: { ...user, settings } })
     if (data) {
       saveToLocalDB(LocalStorageKeys.user, data.user);
       setUser(data.user);
@@ -81,16 +92,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       return error as string
     }
   }
-
-
-  /*   const signup =async (user:)=>{
-       const { data, error } = await apiPost('auth/signup', { user })
-       if (data) {
-         setVerification(true)
-       } else {
-         setError(error || "")
-       }
-    } */
 
 
   return (

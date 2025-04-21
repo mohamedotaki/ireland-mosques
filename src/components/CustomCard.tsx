@@ -3,11 +3,14 @@ import CardActions from '@mui/material/CardActions';
 import CardContent from '@mui/material/CardContent';
 import Button from '@mui/material/Button';
 import { useEffect, useRef, useState } from 'react';
+import DOMPurify from 'dompurify'; // For sanitization
 
 export default function CustomCard({ content }: { content: string }) {
   const [isExpanded, setIsExpanded] = useState(false);
   const [shouldShowButton, setShouldShowButton] = useState(false);
   const contentRef = useRef<HTMLDivElement>(null);
+  const sanitizedContent = DOMPurify.sanitize(content);
+
 
   // Function to handle "Read More" toggle
   const handleToggle = () => {
@@ -40,12 +43,12 @@ export default function CustomCard({ content }: { content: string }) {
   }, [content]);
 
   return (
-    <Card sx={{ minWidth: 275, my: 2 }}>
+    <Card sx={{ minWidth: 275, my: 2, width: "100%", maxWidth: "600px" }}>
       <CardContent>
         <div
           ref={contentRef} // Reference the content element for height checking
           style={contentStyle} // Apply truncation style
-          dangerouslySetInnerHTML={{ __html: content }} // Render sanitized raw HTML
+          dangerouslySetInnerHTML={{ __html: sanitizedContent }} // Render sanitized raw HTML
         />
       </CardContent>
       {shouldShowButton && (

@@ -1,21 +1,33 @@
-import React, { useState } from 'react';
-import { Typography, FormControl, Select, MenuItem, Grid, Card } from '@mui/material';
-import { SelectChangeEvent } from '@mui/material/Select';
+import React, { useEffect, useState } from 'react';
+import { Typography, FormControl, Select, MenuItem, Grid2 as Grid, Card, TextField, Button } from '@mui/material';
 import { useTheme } from '../hooks/ThemeContext';
 import { getFromLocalDB, LocalStorageKeys, saveToLocalDB } from '../utils/localDB';
 import { useTranslation } from 'react-i18next';
 import Slider from '@mui/material/Slider';
-
-// Define types for the state
-type Language = 'en' | 'ar';
-type Theme = 'light' | 'dark' | 'system_default';
-type TimeFormat = '12-h' | '24-h';
-type FontSize = number;
+import { settingsType } from '../types/authTyps';
+import debounce from 'lodash/debounce';
+import { apiPut } from '../utils/api';
+import isEqual from 'lodash/isEqual';
+import { useAuth } from '../hooks/AuthContext';
+import { mosquesDatabaseType } from '../types';
 
 
 const SettingsPage: React.FC = () => {
-  const { selectedTheme, toggleTheme, changeFontSize } = useTheme();
+
+  const hasMounted = React.useRef(false);
+  const { theme, toggleTheme, changeFontSize } = useTheme();
+  const { user } = useAuth();
   const { t, i18n } = useTranslation();
+  const [settings, setSettings] = useState<settingsType>(getFromLocalDB(LocalStorageKeys.AppSettings) || {
+    theme: 'system_default',
+    language: i18n.language,
+    fontSize: 14,
+    timeFormatIs24H: true,
+    defaultMosque: null,
+
+  });
+
+  const prevSettings = React.useRef(settings);
   const marks = [
     {
       value: 10,
@@ -29,38 +41,56 @@ const SettingsPage: React.FC = () => {
 
   ];
 
+
+
   const isArabic = i18n.language === "ar" ? true : false;
-  const [language, setLanguage] = useState<Language>(i18n.language as Language);
-  const [fontSize, setFontSize] = useState<FontSize>(getFromLocalDB(LocalStorageKeys.FontSize) || 14);
 
-  const [timeFormat, setTimeFormat] = useState<TimeFormat>(getFromLocalDB(LocalStorageKeys.TimeFormatIs24H) ? '24-h' : '12-h');
+  const handleSettingsChange = (event: any) => {
+    console.log("handleSettingsChange")
+    setSettings((oldSettings) => {
+      const newSettings = { ...oldSettings, [event.target.name]: event.target.value }
+      saveToLocalDB(LocalStorageKeys.AppSettings, newSettings)
+      return newSettings
+    });
 
-  const handleLanguageChange = (event: SelectChangeEvent<Language>) => {
-    setLanguage(event.target.value as Language);
-    saveToLocalDB(LocalStorageKeys.AppLanguage, event.target.value)
-    i18n.changeLanguage(event.target.value); // Change language dynamically
   };
 
-  const handleThemeChange = (event: SelectChangeEvent<Theme>) => {
-    toggleTheme(event.target.value as Theme)
-  };
+  // Optional: debounce the API call so it's not sent every keystroke
+  const saveSettings = debounce(async (updatedSettings: settingsType) => {
+    const { data, error } = await apiPut('/auth/settings', { updatedSettings })
+    console.log("saveSettings", data, error)
+  }, 1000); // 1-second delay
 
-  const handleFontSizeChange = (event: Event, newValue: number | number[]) => {
-    setFontSize(newValue as number); // Update font size
-    changeFontSize(newValue as number)
-    saveToLocalDB(LocalStorageKeys.FontSize, newValue);
-  };
-
-  const handleTimeFormatChange = (event: SelectChangeEvent<TimeFormat>) => {
-    const newFormat = event.target.value
-    if (timeFormat !== newFormat) {
-      saveToLocalDB(LocalStorageKeys.TimeFormatIs24H, newFormat === '24-h' ? true : false)
-      setTimeFormat(newFormat as TimeFormat);
+  // Watch for changes in settings and trigger save
+  useEffect(() => {
+    if (!hasMounted.current) {
+      hasMounted.current = true;
+      prevSettings.current = settings;
+      return; // skip first run
     }
+    if (!isEqual(prevSettings.current, settings)) {
+      if (settings.theme !== prevSettings.current.theme) {
+        toggleTheme(settings.theme)
+      }
+      if (settings.fontSize !== prevSettings.current.fontSize) {
+        changeFontSize(settings.fontSize)
+      }
+      if (settings.language !== prevSettings.current.language) {
+        i18n.changeLanguage(settings.language)
+      }
+      prevSettings.current = settings;
+      if (user) {
+        saveSettings(settings);
+      }
+    }
+    // Cleanup: cancel debounce on unmount
+    return () => {
+      saveSettings.cancel();
+    };
 
-  };
 
 
+  }, [settings]);
 
   return (
     <>
@@ -71,13 +101,13 @@ const SettingsPage: React.FC = () => {
 
         <Grid container spacing={3}>
           {/* Language Selection */}
-          <Grid item xs={12} container>
-            <Grid item xs={6}>
+          <Grid size={12} container>
+            <Grid size={6}>
               <Typography variant="body1">{t("Language")}</Typography>
             </Grid>
-            <Grid item xs={6}>
+            <Grid size={6}>
               <FormControl fullWidth>
-                <Select value={language} onChange={handleLanguageChange}>
+                <Select name='language' value={settings.language} onChange={handleSettingsChange}>
                   <MenuItem value="en">English</MenuItem>
                   <MenuItem value="ar">العربية</MenuItem>
                 </Select>
@@ -86,13 +116,13 @@ const SettingsPage: React.FC = () => {
           </Grid>
 
           {/* Theme Selection */}
-          <Grid item xs={12} container alignItems="center">
-            <Grid item xs={6}>
+          <Grid size={12} container alignItems="center">
+            <Grid size={6}>
               <Typography variant="body1">{t("Theme")}</Typography>
             </Grid>
-            <Grid item xs={6}>
+            <Grid size={6}>
               <FormControl fullWidth>
-                <Select value={selectedTheme} onChange={handleThemeChange}>
+                <Select value={theme} name='theme' onChange={handleSettingsChange}>
                   <MenuItem value="system_default">{t("System Default")}</MenuItem>
                   <MenuItem value="dark">{t("Dark")}</MenuItem>
                   <MenuItem value="light">{t("Light")}</MenuItem>
@@ -102,13 +132,13 @@ const SettingsPage: React.FC = () => {
           </Grid>
 
           {/* Time Format Selection */}
-          <Grid item xs={12} container alignItems="center">
-            <Grid item xs={6}>
+          <Grid size={12} container alignItems="center">
+            <Grid size={6}>
               <Typography variant="body1">{t("Time Format")}</Typography>
             </Grid>
-            <Grid item xs={6}>
+            <Grid size={6}>
               <FormControl fullWidth>
-                <Select value={timeFormat} onChange={handleTimeFormatChange}>
+                <Select value={settings.timeFormatIs24H ? "24-h" : "12-h"} name='timeFormatIs24H' onChange={(e) => handleSettingsChange({ ...e, target: { name: 'timeFormatIs24H', value: e.target.value === "24-h" ? true : false } })}>
                   <MenuItem value="12-h">{t("12-hour")}</MenuItem>
                   <MenuItem value="24-h">{t("24-hour")}</MenuItem>
                 </Select>
@@ -117,22 +147,23 @@ const SettingsPage: React.FC = () => {
           </Grid>
 
           {/* Font Size Slider */}
-          <Grid item xs={12} container alignItems="center">
-            <Grid item xs={6}>
+          <Grid size={12} container alignItems="center">
+            <Grid size={6}>
               <Typography variant="body1">{t("Font Size")}</Typography>
             </Grid>
-            <Grid item xs={6}>
+            <Grid size={6}>
               <FormControl fullWidth>
                 <Slider
+                  name='fontSize'
                   aria-label="Font Size"
                   defaultValue={14}
+                  value={settings.fontSize}
                   valueLabelDisplay="auto"
-                  value={fontSize}
                   step={1}
                   marks={marks}
                   min={10}
                   max={20}
-                  onChange={handleFontSizeChange}
+                  onChange={handleSettingsChange}
                   sx={{
                     '& .MuiSlider-thumb': {
                       marginRight: "-10%"
@@ -147,11 +178,44 @@ const SettingsPage: React.FC = () => {
           </Grid>
         </Grid>
 
-        {/* Display App Version at the bottom */}
-        <Typography variant="body2" color="textSecondary" textAlign="center" sx={{ mt: 4 }}>
-          Version: {process.env.REACT_APP_VERSION} {/* Access the version from .env */}
-        </Typography>
+
       </Card>
+
+
+
+
+
+      {/*     <Card sx={{ maxWidth: 600, margin: 'auto', padding: 2, mt: 2, direction: isArabic ? "rtl" : "ltr" }}>
+        <Typography variant="h6" textAlign="center" sx={{ mb: 2 }}>
+          Contact Us
+        </Typography>
+
+        <Grid size={12} container alignItems="center">
+          <Grid size={6}>
+            <Typography variant="body1">{t("Rate us")}</Typography>
+          </Grid>
+          <Grid size={6}>
+
+          </Grid>
+        </Grid>
+
+        <Grid container spacing={3}>
+      <Grid size={12} container justifyContent="center">
+        <Grid size={12} >
+          <Typography variant="body1" textAlign={"center"}>{t("Leave us a feedback")}</Typography>
+          <TextField fullWidth label="Feedback" id="fullWidth" rows={2} multiline />
+          <Button variant="text">Send Feedback</Button>
+
+        </Grid>
+      </Grid>
+    </Grid >
+
+
+      </Card > */}
+      {/* Display App Version at the bottom */}
+      <Typography variant="body2" color="textSecondary" textAlign="center" sx={{ mt: 4 }}>
+        Version: {process.env.REACT_APP_VERSION} {/* Access the version from .env */}
+      </Typography>
     </>
   );
 };

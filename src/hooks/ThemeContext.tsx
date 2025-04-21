@@ -2,10 +2,11 @@ import React, { createContext, useContext, useState, ReactNode } from 'react';
 import { createTheme, ThemeProvider as MUIThemeProvider } from '@mui/material/styles';
 import { getFromLocalDB, isKeyInLocalDB, LocalStorageKeys, removeFromLocalDB, saveToLocalDB } from '../utils/localDB';
 import { useTranslation } from 'react-i18next';
+import { settingsType } from '../types/authTyps';
 
 // Define the types for the context value
 interface ThemeContextType {
-  theme: 'light' | 'dark';
+  theme: 'light' | 'dark' | 'system_default';
   selectedTheme: 'light' | 'dark' | 'system_default';
   fontSize: number;
   toggleTheme: (theme: 'light' | 'dark' | 'system_default') => void;
@@ -28,32 +29,29 @@ const getSystemDefaultTheme = (): 'light' | 'dark' => {
 // Provide the context to the app
 export const ThemeProviderWrapper: React.FC<ThemeProviderProps> = ({ children }) => {
   const { i18n } = useTranslation();
-  const savedTheme = getFromLocalDB(LocalStorageKeys.AppTheme);
-  const [theme, setTheme] = useState<'light' | 'dark'>(savedTheme || getSystemDefaultTheme()); // Default theme is light
-  const [selectedTheme, setSelectedTheme] = useState<'light' | 'dark' | 'system_default'>(isKeyInLocalDB(LocalStorageKeys.AppTheme) ? savedTheme : 'system_default'); // Default theme is light
-  const [fontSize, SetFontSize] = useState<number>(getFromLocalDB(LocalStorageKeys.FontSize) || 14); // Default font size
+  const savedSettings: settingsType = getFromLocalDB(LocalStorageKeys.AppSettings);
+  const [theme, setTheme] = useState<'light' | 'dark' | 'system_default'>(savedSettings?.theme || getSystemDefaultTheme()); // Default theme is light
+  const [selectedTheme, setSelectedTheme] = useState<'light' | 'dark' | 'system_default'>(savedSettings?.theme || 'system_default'); // Default theme is light
+  const [fontSize, SetFontSize] = useState<number>(savedSettings?.fontSize || 14); // Default font size
 
   const toggleTheme = (theme: 'light' | 'dark' | 'system_default') => {
     if (theme === "system_default") {
       setTheme(getSystemDefaultTheme());
-      removeFromLocalDB(LocalStorageKeys.AppTheme);
       setSelectedTheme('system_default');
     } else {
       setTheme(theme);
-      saveToLocalDB(LocalStorageKeys.AppTheme, theme);
       setSelectedTheme(theme);
     }
   };
 
   const changeFontSize = (fontSize: number) => {
     SetFontSize(fontSize);
-    saveToLocalDB(LocalStorageKeys.FontSize, fontSize); // Save the updated font size
   };
 
   // Create a theme object with the dynamic font size
   const themeObject = createTheme({
     palette: {
-      mode: theme, // Use the theme mode (light/dark)
+      mode: theme === "system_default" ? getSystemDefaultTheme() : theme, // Use the theme mode (light/dark)
     },
     direction: i18n.language === "ar" ? "rtl" : "ltr",
     typography: {

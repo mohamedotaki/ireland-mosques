@@ -12,7 +12,7 @@ i18n
       en: { translation: en },
       ar: { translation: ar },
     },
-    lng: getFromLocalDB(LocalStorageKeys.AppLanguage),
+    lng: getFromLocalDB(LocalStorageKeys.AppSettings)?.language || "en",  // User's language
     fallbackLng: 'en',  // Default language if user language is not found
     interpolation: {
       escapeValue: false, // React already escapes values

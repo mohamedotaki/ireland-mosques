@@ -1,16 +1,15 @@
 // Enum for the valid keys
 export enum LocalStorageKeys {
   FirstLaunch = "firstLaunch",
-  AppTheme = "AppTheme",
   MosquesData = "MosquesData",
-  TimeFormatIs24H = "TimeFormatIs24H",
   DefaultMosque = "DefaultMosque",
-  FontSize = "FontSize",
-  AppLanguage = "AppLanguage",
+  HadithIndex = "hadith-index",
   user = "User",
   LastDataUpdate = "LastDataUpdate",
   UUID = "UUID",
   PrayerNotifications = "PrayerNotifications",
+  AppSettings = "AppSettings",
+
 
 }
 

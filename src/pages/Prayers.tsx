@@ -92,8 +92,8 @@ export default function Prayers() {
 
   return (
     <>
-      <NotificationManager todaysPrayers={prayersData.prayers.today} notificationsSettings={prayerNotification} />
-      <PrayerDate date={prayersDate} updateDate={setPrayerDate} />
+      {/*       <NotificationManager todaysPrayers={prayersData.prayers.today} notificationsSettings={prayerNotification} />
+ */}      <PrayerDate date={prayersDate} updateDate={setPrayerDate} />
       <MosqueInfo mosqueDetails={mosque} handleInfoModalOpen={handleInfoModalOpen} handleCompassOpen={handleCompassOpen} />
       <ProgressBar progress={progress} time={timeLeftToNextPrayer} />
       <PrayerTable
