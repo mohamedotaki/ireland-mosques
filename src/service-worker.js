@@ -52,7 +52,7 @@ registerRoute(
 registerRoute(
   ({ url }) =>
     url.origin === self.location.origin && url.pathname.startsWith("/api/"),
-  new StaleWhileRevalidate({
+  new NetworkFirst({
     cacheName: "api-cache",
     plugins: [
       new ExpirationPlugin({
