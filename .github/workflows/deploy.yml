@@ -29,6 +29,7 @@ jobs:
       - name: Create .env file
         run: |
           echo "REACT_APP_API_URL=${{ secrets.REACT_APP_API_URL }}" >> .env
+          echo "REACT_APP_API_URL=${{ secrets.REACT_APP_NODE_ENV }}" >> .env
 
       - name: Build React App
         run: npm run build
