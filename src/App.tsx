@@ -19,15 +19,7 @@ let deferredPrompt: any;
 
 
 
-const handleUpdate = () => {
-  // Send a message to the service worker to skip waiting and activate the new version
-  if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
-    navigator.serviceWorker.controller.postMessage({ type: 'SKIP_WAITING' });
 
-    // Reload the page to load the new version
-    window.location.reload();
-  }
-}
 
 
 
@@ -62,6 +54,17 @@ export default function App() {
     return () => window.removeEventListener('beforeinstallprompt', handler);
 
   }, [])
+
+
+  const handleUpdate = () => {
+    // Send a message to the service worker to skip waiting and activate the new version
+    if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
+      navigator.serviceWorker.controller.postMessage({ type: 'SKIP_WAITING' });
+
+      // Reload the page to load the new version
+      window.location.reload();
+    }
+  }
 
 
   const handleInstallClick = async () => {

@@ -13,13 +13,12 @@ import "./services/i18n"
 import { AuthProvider } from './hooks/AuthContext';
 import { UpdateProvider } from './hooks/UpdateContext';
 import * as serviceWorkerRegistration from './serviceWorkerRegistration';
-
-
 import 'react-quill/dist/quill.snow.css'; // Import styles for Quill
 
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
 );
+
 root.render(
   <React.StrictMode>
     <ThemeProviderWrapper>
