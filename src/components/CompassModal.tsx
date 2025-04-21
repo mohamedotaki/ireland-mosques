@@ -84,7 +84,7 @@ export default function CompassModal({ openModal, handleClose }: PrayerModalProp
 
   // Handle device orientation for compass
   useEffect(() => {
-    const handleOrientation = (event: DeviceOrientationEvent) => {
+    const handleOrientation = (event: any) => {
       const heading =
         (event as any).webkitCompassHeading !== undefined
           ? (event as any).webkitCompassHeading
@@ -97,14 +97,14 @@ export default function CompassModal({ openModal, handleClose }: PrayerModalProp
 
     if (openModal) {
       if (window.DeviceOrientationEvent) {
-        window.addEventListener('deviceorientation', handleOrientation);
+        window.addEventListener('deviceorientationabsolute', handleOrientation, true);
       } else {
         setError(t('Device orientation is not supported by your browser'));
       }
     }
 
     return () => {
-      window.removeEventListener('deviceorientation', handleOrientation);
+      window.removeEventListener('deviceorientationabsolute', handleOrientation);
     };
   }, [openModal, t]);
 
