@@ -31,6 +31,8 @@ export default function App() {
 
   useEffect(() => {
 
+    console.log(process.env.REACT_APP_NODE_ENV, process.env.PUBLIC_URL);
+
     if (!isKeyInLocalDB(LocalStorageKeys.FirstLaunch)) {
       appFirstLaunch()
     } else {
