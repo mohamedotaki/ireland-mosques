@@ -26,10 +26,6 @@ jobs:
       - name: Install dependencies
         run: npm install # Install dependencies
 
-      - name: Create ..env.production file
-        run: |
-          echo "REACT_APP_API_URL=${{ secrets.REACT_APP_API_URL }}" >> ..env.production
-
       - name: Build React App
         run: npm run build
         continue-on-error: true # This ensures the build continues even with warnings

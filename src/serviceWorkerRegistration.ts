@@ -23,11 +23,7 @@ type Config = {
 export function register(config?: Config) {
     console.log('Registering service worker...');
     console.log(process.env);
-
-    console.log(process.env.REACT_APP_NODE_ENV === 'production', 'serviceWorker' in navigator);
-
     if (process.env.REACT_APP_NODE_ENV === 'production' && 'serviceWorker' in navigator) {
-        console.log('Service worker enabled production');
 
         // The URL constructor is available in all browsers that support SW.
         const publicUrl = new URL(process.env.REACT_APP_API_URL || '', window.location.href);
