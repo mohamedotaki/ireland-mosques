@@ -52,7 +52,7 @@ export const UpdateProvider: React.FC<{ children: React.ReactNode }> = ({ childr
 
         }
         saveToLocalDB(LocalStorageKeys.UUID, uuidv4())
-        saveToLocalDB(LocalStorageKeys.PrayerNotifications, { "Fajr": true, "Shurooq": false, "Dhuhr": true, "Asr": true, "Maghrib": true, "Isha": true })
+        saveToLocalDB(LocalStorageKeys.PrayerNotifications, { "Fajr": false, "Shurooq": false, "Dhuhr": false, "Asr": false, "Maghrib": false, "Isha": false })
 
         requestNotificationPermission()
         const { data } = await apiGet<appFirstLunchType>("app")

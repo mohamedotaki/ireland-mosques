@@ -6,6 +6,7 @@ export interface ApiResponse<T> {
 export type PrayerType = {
   prayerID: number;
   name: string;
+  trueAdhan: Date;
   adhan: Date;
   iqamah: Date | null;
 }

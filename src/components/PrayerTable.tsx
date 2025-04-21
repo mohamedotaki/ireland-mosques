@@ -49,7 +49,7 @@ const PrayerTable = memo(({ prayersToShow, onPrayerTimeClick, mosqueID, prayersN
   const allowedUserTypes: UserType["userType"][] = ["Owner", "Admin"];
   const { t, i18n } = useTranslation();
   const isArabic = i18n.language === "ar"
-  const is24hFormat = getFromLocalDB(LocalStorageKeys.AppSettings).timeFormatIs24H ? "HH:mm" : "hh:mm"
+  const is24hFormat = getFromLocalDB(LocalStorageKeys.AppSettings)?.timeFormatIs24H ? "HH:mm" : "hh:mm"
 
 
   const isClickable = allowedUserTypes.includes(user?.userType) && user?.mosqueID === mosqueID

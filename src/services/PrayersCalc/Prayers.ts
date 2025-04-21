@@ -104,6 +104,7 @@ const prayerCalc = (
     toDate(new Date(getYear(now), getMonth(now), getDate(now), hour, minute)),
     dstAdjust
   );
+  const trueAdhan = adhan
 
   let nextAdhan = addHours(
     toDate(new Date(getYear(now), getMonth(now), getDate(now), hourNext, minuteNext)),
@@ -167,6 +168,7 @@ const prayerCalc = (
   const result = {
     prayerID,
     adhan,
+    trueAdhan,
     iqamah,
     name,
   };

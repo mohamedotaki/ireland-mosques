@@ -13,7 +13,7 @@ import ToggleButton from '@mui/material/ToggleButton';
 import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
 import TextField from '@mui/material/TextField';
 import { apiPost } from '../utils/api';
-import { format } from 'date-fns';
+import { addHours, format } from 'date-fns';
 import { usePopup } from '../hooks/PopupContext';
 import { useUpdate } from '../hooks/UpdateContext';
 
@@ -62,10 +62,10 @@ export default function PrayerEditModal({ prayer, mosqueID, openModal, handleClo
     const { data, error } = await apiPost<PrayerTimeUpdate, { message: string }>("prayers/prayertime", e)
     if (data) {
       checkForUpdate()
+      setLoading(false)
+      handleClose()
     }
-
     showPopup({ message: data ? data.message : error || "Error during updating prayer time", type: data ? "success" : "error" })
-    setLoading(false)
 
   }
 
@@ -123,7 +123,8 @@ export default function PrayerEditModal({ prayer, mosqueID, openModal, handleClo
                     textAlign: 'center'  // Centers the text inside the input field
                   }
                 }}
-                minTime={isIqamahClicked ? prayer?.adhan : new Date()}
+                minTime={isIqamahClicked ? prayer?.adhan : addHours(prayer?.trueAdhan, -1.5)}
+                maxTime={isIqamahClicked ? addHours(prayer?.adhan, 2) : addHours(prayer?.trueAdhan, 1.5)}
               />
             </LocalizationProvider>}
         </Container>
