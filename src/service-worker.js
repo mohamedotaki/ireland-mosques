@@ -9,7 +9,7 @@ import { clientsClaim } from "workbox-core";
 import { ExpirationPlugin } from "workbox-expiration";
 import { precacheAndRoute, createHandlerBoundToURL } from "workbox-precaching";
 import { registerRoute } from "workbox-routing";
-import { StaleWhileRevalidate, CacheFirst } from "workbox-strategies";
+import { CacheFirst } from "workbox-strategies";
 
 clientsClaim();
 
@@ -19,51 +19,16 @@ clientsClaim();
 // even if you decide not to use precaching. See https://cra.link/PWA
 precacheAndRoute(self.__WB_MANIFEST);
 
-// Set up App Shell-style routing, so that all navigation requests
-// are fulfilled with your index.html shell. Learn more at
-// https://developers.google.com/web/fundamentals/architecture/app-shell
+// Set up App Shell-style routing for the index.html shell
 const fileExtensionRegexp = new RegExp("/[^/?]+\\.[^/]+$");
-registerRoute(
-  // Return false to exempt requests from being fulfilled by index.html.
-  ({ request, url }) => {
-    // If this isn't a navigation, skip.
-    if (request.mode !== "navigate") {
-      return false;
-    }
+registerRoute(({ request, url }) => {
+  if (request.mode !== "navigate") return false;
+  if (url.pathname.startsWith("/_")) return false;
+  if (fileExtensionRegexp.test(url.pathname)) return false;
+  return true;
+}, createHandlerBoundToURL(process.env.REACT_APP_API_URL + "/index.html"));
 
-    // If this is a URL that starts with /_, skip.
-    if (url.pathname.startsWith("/_")) {
-      return false;
-    }
-
-    // If this looks like a URL for a resource, because it contains
-    // a file extension, skip.
-    if (fileExtensionRegexp.test(url.pathname)) {
-      return false;
-    }
-
-    // Return true to signal that we want to use the handler.
-    return true;
-  },
-  createHandlerBoundToURL(process.env.REACT_APP_API_URL + "/index.html")
-);
-
-/* // Cache API responses
-registerRoute(
-  ({ url }) =>
-    url.origin === self.location.origin && url.pathname.startsWith("/api/"),
-  new NetworkFirst({
-    cacheName: "api-cache",
-    plugins: [
-      new ExpirationPlugin({
-        maxEntries: 50,
-        maxAgeSeconds: 60 * 60 * 24, // 1 day
-      }),
-    ],
-  })
-); */
-
-// Cache images
+// Cache images only using CacheFirst strategy
 registerRoute(
   ({ request }) => request.destination === "image",
   new CacheFirst({
@@ -77,8 +42,22 @@ registerRoute(
   })
 );
 
-// This allows the web app to trigger skipWaiting via
-// registration.waiting.postMessage({type: 'SKIP_WAITING'})
+// Prevent caching of any API requests and always fetch from the network
+self.addEventListener("fetch", (event) => {
+  // Skip API requests - Always fetch from the network
+  if (event.request.url.startsWith(self.location.origin + "/api/")) {
+    event.respondWith(fetch(event.request));
+  } else {
+    // Handle other requests (e.g., images, scripts) with cache-first strategy
+    event.respondWith(
+      caches.match(event.request).then((cachedResponse) => {
+        return cachedResponse || fetch(event.request);
+      })
+    );
+  }
+});
+
+// This allows the web app to trigger skipWaiting via registration.waiting.postMessage({ type: 'SKIP_WAITING' })
 self.addEventListener("message", (event) => {
   if (event.data && event.data.type === "SKIP_WAITING") {
     self.skipWaiting();
