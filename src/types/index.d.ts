@@ -112,5 +112,5 @@ export type PostType = {
   time?: Date;
   created_by?: number;
   updated_by?: number;
-  contant: string;
+  content: string;
 }

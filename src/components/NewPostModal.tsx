@@ -33,12 +33,12 @@ interface NewPostModalProps {
 
 export default function NewPostModal({ openModal, handleSubmit, handleClose, postToEdit = null }: NewPostModalProps) {
   const { showPopup } = usePopup()
-  const [post, setPost] = useState<PostType>(postToEdit || { contant: "" });
+  const [post, setPost] = useState<PostType>(postToEdit || { content: "" });
 
 
 
-  const handleChange = (contant: string) => {
-    setPost({ ...post, contant })
+  const handleChange = (content: string) => {
+    setPost({ ...post, content })
   }
 
 
@@ -56,7 +56,7 @@ export default function NewPostModal({ openModal, handleSubmit, handleClose, pos
         </Typography>
 
         <Editor
-          editorContent={post.contant}
+          editorContent={post.content}
           setEditorContent={handleChange}
 
         />

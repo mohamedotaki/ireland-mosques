@@ -21,7 +21,7 @@ export default function CustomCard({ post, handlePostChange }: PostProps) {
   const [isExpanded, setIsExpanded] = useState(false);
   const [shouldShowButton, setShouldShowButton] = useState(false);
   const contentRef = useRef<HTMLDivElement>(null);
-  const sanitizedContent = DOMPurify.sanitize(post.contant);
+  const sanitizedContent = DOMPurify.sanitize(post.content);
 
 
   // Function to handle "Read More" toggle

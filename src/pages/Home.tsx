@@ -63,6 +63,8 @@ export default function Home() {
     }
 
     if (response) {
+      postToEdit&& setPostToEdit(null)
+      postToEdit&&setShowNewPostModal(false)
       response?.data && getPosts()
       showPopup({ message: response?.data?.message || response?.error || "Unknown error. Please try again", type: response?.data ? "success" : "error" })
     }
