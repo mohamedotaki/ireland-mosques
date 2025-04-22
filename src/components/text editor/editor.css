@@ -13,3 +13,7 @@
 .no-borders .ql-toolbar button:hover {
   background: none !important;
 }
+
+.post_view h1 h2 p {
+  margin: 0 !important;
+}

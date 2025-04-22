@@ -4,12 +4,24 @@ import CardContent from '@mui/material/CardContent';
 import Button from '@mui/material/Button';
 import { useEffect, useRef, useState } from 'react';
 import DOMPurify from 'dompurify'; // For sanitization
+import { PostType } from '../../types';
+import "./editor.css"
+import MoreVertIcon from '@mui/icons-material/MoreVert';
+import { IconButton, Menu, MenuItem } from '@mui/material';
 
-export default function CustomCard({ content }: { content: string }) {
+
+interface PostProps {
+  post: PostType;
+/*   handlePostDelete: (post:PostType) => void;
+ */  handlePostChange: (post: PostType, action: "toEdit" | "delete") => void;
+
+}
+
+export default function CustomCard({ post, handlePostChange }: PostProps) {
   const [isExpanded, setIsExpanded] = useState(false);
   const [shouldShowButton, setShouldShowButton] = useState(false);
   const contentRef = useRef<HTMLDivElement>(null);
-  const sanitizedContent = DOMPurify.sanitize(content);
+  const sanitizedContent = DOMPurify.sanitize(post.contant);
 
 
   // Function to handle "Read More" toggle
@@ -26,6 +38,18 @@ export default function CustomCard({ content }: { content: string }) {
     }
   };
 
+
+  const [anchorEl, setAnchorEl] = useState(null);
+  const open = Boolean(anchorEl);
+
+  const handleClick = (event: any) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
+
   // Limit content to a specific height (approx. 7 lines) when collapsed
   const contentStyle = {
     display: '-webkit-box',
@@ -37,15 +61,33 @@ export default function CustomCard({ content }: { content: string }) {
     maxHeight: isExpanded ? 'none' : '250px', // Apply maxHeight when collapsed
   };
 
+
   useEffect(() => {
-    // Check if the "Show More" button should be visible whenever the content changes
     checkIfShouldShowButton();
-  }, [content]);
+  }, [sanitizedContent]);
 
   return (
     <Card sx={{ minWidth: 275, my: 2, width: "100%", maxWidth: "600px" }}>
+      <IconButton id="menu-button"
+        aria-controls={open ? 'basic-menu' : undefined}
+        aria-haspopup="true"
+        aria-expanded={open ? 'true' : undefined}
+        onClick={handleClick}  ><MoreVertIcon /></IconButton>
+      <Menu
+        id="basic-menu"
+        anchorEl={anchorEl}
+        open={open}
+        onClose={handleClose}
+        MenuListProps={{
+          'aria-labelledby': 'menu-button',
+        }}
+      >
+        <MenuItem onClick={() => handlePostChange(post, "toEdit")}>Edit Post</MenuItem>
+        <MenuItem onClick={() => handlePostChange(post, "delete")}>Delete</MenuItem>
+      </Menu>
       <CardContent>
         <div
+          className='post_view'
           ref={contentRef} // Reference the content element for height checking
           style={contentStyle} // Apply truncation style
           dangerouslySetInnerHTML={{ __html: sanitizedContent }} // Render sanitized raw HTML

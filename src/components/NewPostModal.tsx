@@ -24,36 +24,17 @@ interface NewPostModalProps {
   openModal: boolean;
   handleClose: () => void;
   postToEdit?: PostType | null;
+  handleSubmit: (post: PostType, action: "new" | "edit") => void;
+
 }
 
 
 
 
-export default function NewPostModal({ openModal, handleClose, postToEdit = null }: NewPostModalProps) {
+export default function NewPostModal({ openModal, handleSubmit, handleClose, postToEdit = null }: NewPostModalProps) {
   const { showPopup } = usePopup()
   const [post, setPost] = useState<PostType>(postToEdit || { contant: "" });
 
-
-  const handleSubmit = async () => {
-    if (postToEdit) {
-      const { data, error } = await apiPut("posts", { post })
-      if (data) {
-        showPopup({ message: "Post updated successfully", type: "success" })
-        handleClose()
-      } else {
-        showPopup({ message: error || "Unknown error. Please try again", type: "error" })
-      }
-    } else {
-      const { data, error } = await apiPost("posts", { post })
-      if (data) {
-        showPopup({ message: "Post created successfully", type: "success" })
-        handleClose()
-      } else {
-        showPopup({ message: error || "Unknown error. Please try again", type: "error" })
-      }
-    }
-
-  }
 
 
   const handleChange = (contant: string) => {
@@ -80,7 +61,7 @@ export default function NewPostModal({ openModal, handleClose, postToEdit = null
 
         />
         <div style={{ display: 'flex', justifyContent: 'center', paddingTop: '10px' }}>
-          <Button onClick={handleSubmit} variant="contained">Post</Button>
+          <Button onClick={() => handleSubmit(post, postToEdit ? "edit" : "new")} variant="contained">Post</Button>
         </div>
 
       </Box>

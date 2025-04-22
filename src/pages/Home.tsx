@@ -1,15 +1,18 @@
 import { Box, Button, Container, Typography } from "@mui/material";
-import CustomCard from "../components/CustomCard";
+import CustomCard from "../components/text editor/CustomCard";
 import AddIcon from '@mui/icons-material/Add';
 import { useEffect, useState } from "react";
 import { useAuth } from "../hooks/AuthContext";
 import NewPostModal from "../components/NewPostModal";
-import { apiGet } from "../utils/api";
+import { apiDelete, apiGet, apiPost, apiPut } from "../utils/api";
 import { PostType } from "../types";
 import CircularProgress from '@mui/material/CircularProgress';
 import Pagination from '@mui/material/Pagination';
+import { usePopup } from "../hooks/PopupContext";
 
 export default function Home() {
+  const { showPopup } = usePopup()
+
   const [posts, setPosts] = useState<PostType[]>([]);
   const [postToEdit, setPostToEdit] = useState<PostType | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -18,23 +21,53 @@ export default function Home() {
   const [showNewPostModal, setShowNewPostModal] = useState<boolean>(false)
 
 
-  console.log(posts)
-  useEffect(() => {
-    const getPosts = async () => {
-      setLoading(true)
-      const { data, error } = await apiGet<{ posts: PostType[] }>("posts")
-      if (data) {
-        setPosts(data.posts)
-        setLoading(false)
-      } else {
-        setError(error)
-        setLoading(false)
-      }
+  const getPosts = async () => {
+    setLoading(true)
+    const { data, error } = await apiGet<{ posts: PostType[] }>("posts")
+    if (data) {
+      setPosts(data.posts)
+      setLoading(false)
+    } else {
+      setError(error)
+      setLoading(false)
     }
+  }
+
+  useEffect(() => {
+
 
     getPosts()
 
   }, [])
+
+
+  const handlePostChange = async (post: PostType, action: "edit" | "delete" | "new" | "toEdit") => {
+    let response = null;
+    switch (action) {
+      case "toEdit":
+        setPostToEdit(post)
+        setShowNewPostModal(true)
+        break;
+      case "edit":
+        response = await apiPut<{ post: PostType }, { message: string }>("posts", { post })
+        break;
+      case "delete":
+        response = await apiDelete<{ message: string }>(`posts/${post.post_id}`)
+        break;
+      case "new":
+        response = await apiPost<{ post: PostType }, { message: string }>("posts", { post })
+        response?.data && setShowNewPostModal(false)
+        break;
+      default:
+        break;
+    }
+
+    if (response) {
+      response?.data && getPosts()
+      showPopup({ message: response?.data?.message || response?.error || "Unknown error. Please try again", type: response?.data ? "success" : "error" })
+    }
+  }
+
 
 
   return (
@@ -58,7 +91,7 @@ export default function Home() {
                 : (
                   <>
                     {posts.map((post) => (
-                      <CustomCard key={post.postID} content={post.contant} />
+                      <CustomCard handlePostChange={handlePostChange} key={post.post_id} post={post} />
                     ))}
                     {/*                     < Pagination count={3} color="primary" />
  */}                  </>
@@ -68,7 +101,7 @@ export default function Home() {
 
       </Box>
 
-      {showNewPostModal && <NewPostModal openModal={showNewPostModal} handleClose={() => setShowNewPostModal(false)} postToEdit={postToEdit} />}
+      {showNewPostModal && <NewPostModal handleSubmit={handlePostChange} openModal={showNewPostModal} handleClose={() => setShowNewPostModal(false)} postToEdit={postToEdit} />}
 
 
     </>
