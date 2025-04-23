@@ -45,7 +45,7 @@ export default function PrayerEditModal({ prayer, mosqueID, openModal, handleClo
   const { showPopup } = usePopup()
   const [prayerToEdit, setPrayerToEdit] = useState<any>(prayer)
   const [loading, setLoading] = useState<boolean>(false)
-  const [isFixed, setIsFixed] = useState<"fixed" | "offset">(prayer.iqamahMode || "fixed")
+  const [isFixed, setIsFixed] = useState<"fixed" | "offset">(isIqamahClicked ? prayer.iqamahMode || "fixed" : "fixed")
   const { t } = useTranslation();
   const { checkForUpdate } = useUpdate();
 
