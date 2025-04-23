@@ -7,7 +7,7 @@ import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
 import { styled } from '@mui/material/styles';
 import { PrayerType } from '../types';
-import { format } from 'date-fns';
+import { format, isEqual } from 'date-fns';
 import { useTranslation } from 'react-i18next';
 import { memo } from 'react';
 import { getFromLocalDB, LocalStorageKeys } from '../utils/localDB';
@@ -15,6 +15,7 @@ import { useAuth } from '../hooks/AuthContext';
 import { UserType } from '../types/authTyps';
 import NotificationsIcon from '@mui/icons-material/Notifications';
 import NotificationsOffIcon from '@mui/icons-material/NotificationsOff';
+import Tooltip from '@mui/material/Tooltip';
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
   [`&.${tableCellClasses.head}`]: {
@@ -75,7 +76,16 @@ const PrayerTable = memo(({ prayersToShow, onPrayerTimeClick, mosqueID, prayersN
                 <StyledTableCell component="th" scope="row" align={isArabic ? "right" : "left"}>
                   {t(prayer.name)}
                 </StyledTableCell>
-                <StyledTableCell onClick={() => isClickable ? onPrayerTimeClick(prayer, false) : undefined} align="center">{format(prayer.adhan, is24hFormat)} </StyledTableCell >
+                {!isEqual(prayer.adhan,prayer.trueAdhan)?
+                <Tooltip placement="top" title={format(prayer.trueAdhan, is24hFormat)} arrow>
+                <StyledTableCell sx={{color:(theme)=>theme.palette.warning.main}} onClick={() => isClickable ? onPrayerTimeClick(prayer, false) : undefined} align="center" >{format(prayer.adhan, is24hFormat)} </StyledTableCell >
+          </Tooltip>:
+
+                <StyledTableCell  onClick={() => isClickable ? onPrayerTimeClick(prayer, false) : undefined} align="center" >{format(prayer.adhan, is24hFormat)} </StyledTableCell >
+
+
+                }
+
                 <StyledTableCell onClick={() => isClickable ? onPrayerTimeClick(prayer, true) : undefined} align="center">{prayer.iqamah ? format(prayer.iqamah, is24hFormat) : '-'}</StyledTableCell >
                 {/*  <StyledTableCell style={{ padding: "1px" }} onClick={() => handleNotificationToggle(prayer.name)} align="center">
                   {prayersNotifications[prayer.name] ?

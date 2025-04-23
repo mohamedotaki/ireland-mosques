@@ -13,7 +13,7 @@ import ToggleButton from '@mui/material/ToggleButton';
 import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
 import TextField from '@mui/material/TextField';
 import { apiPost } from '../utils/api';
-import { addHours, format } from 'date-fns';
+import { addHours, endOfDay, endOfToday, format, isToday } from 'date-fns';
 import { usePopup } from '../hooks/PopupContext';
 import { useUpdate } from '../hooks/UpdateContext';
 
@@ -70,7 +70,6 @@ export default function PrayerEditModal({ prayer, mosqueID, openModal, handleClo
 
   }
 
-
   return (
     <Modal
       open={openModal}
@@ -126,7 +125,7 @@ export default function PrayerEditModal({ prayer, mosqueID, openModal, handleClo
                   }
                 }}
                 minTime={isIqamahClicked ? prayer?.adhan : addHours(prayer?.trueAdhan, -1.5)}
-                maxTime={isIqamahClicked ? addHours(prayer?.adhan, 2) : addHours(prayer?.trueAdhan, 1.5)}
+                maxTime={isIqamahClicked ? addHours(prayer?.adhan, 2) :isToday(addHours(prayer?.trueAdhan, 1.5))?addHours(prayer?.trueAdhan, 1.5):endOfToday() }
               />
             </LocalizationProvider>}
         </Container>
