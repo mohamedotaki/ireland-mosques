@@ -77,7 +77,7 @@ const PrayerTable = memo(({ prayersToShow, onPrayerTimeClick, mosqueID, prayersN
                   {t(prayer.name)}
                 </StyledTableCell>
                 {!isEqual(prayer.adhan,prayer.trueAdhan)?
-                <Tooltip placement="top" title={format(prayer.trueAdhan, is24hFormat)} arrow>
+                <Tooltip disableFocusListener  placement="top" title={format(prayer.trueAdhan, is24hFormat)} arrow>
                 <StyledTableCell sx={{color:(theme)=>theme.palette.warning.main}} onClick={() => isClickable ? onPrayerTimeClick(prayer, false) : undefined} align="center" >{format(prayer.adhan, is24hFormat)} </StyledTableCell >
           </Tooltip>:
 
