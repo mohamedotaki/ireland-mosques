@@ -7,22 +7,26 @@ import DOMPurify from 'dompurify'; // For sanitization
 import { PostType } from '../../types';
 import "./editor.css"
 import MoreVertIcon from '@mui/icons-material/MoreVert';
-import { IconButton, Menu, MenuItem } from '@mui/material';
+import { IconButton, Menu, MenuItem, Typography } from '@mui/material';
+import moment from 'moment';
+import { settingsType } from '../../types/authTyps';
+import { getFromLocalDB, LocalStorageKeys } from '../../utils/localDB';
 
 
 interface PostProps {
   post: PostType;
-/*   handlePostDelete: (post:PostType) => void;
- */  handlePostChange: (post: PostType, action: "toEdit" | "delete") => void;
+  handlePostChange: (post: PostType, action: "toEdit" | "delete") => void;
+  isAdmin: boolean;
 
 }
 
-export default function CustomCard({ post, handlePostChange }: PostProps) {
+export default function CustomCard({ post, handlePostChange, isAdmin = false }: PostProps) {
   const [isExpanded, setIsExpanded] = useState(false);
   const [shouldShowButton, setShouldShowButton] = useState(false);
   const contentRef = useRef<HTMLDivElement>(null);
   const sanitizedContent = DOMPurify.sanitize(post.content);
-
+  const settings: settingsType = getFromLocalDB(LocalStorageKeys.AppSettings)
+  const timeFormat = settings.timeFormatIs24H ? "HH:mm" : "h:mm A"
 
   // Function to handle "Read More" toggle
   const handleToggle = () => {
@@ -67,24 +71,35 @@ export default function CustomCard({ post, handlePostChange }: PostProps) {
   }, [sanitizedContent]);
 
   return (
-    <Card sx={{ minWidth: 275, my: 2, width: "100%", maxWidth: "600px" }}>
-      <IconButton id="menu-button"
-        aria-controls={open ? 'basic-menu' : undefined}
-        aria-haspopup="true"
-        aria-expanded={open ? 'true' : undefined}
-        onClick={handleClick}  ><MoreVertIcon /></IconButton>
-      <Menu
-        id="basic-menu"
-        anchorEl={anchorEl}
-        open={open}
-        onClose={handleClose}
-        MenuListProps={{
-          'aria-labelledby': 'menu-button',
-        }}
-      >
-        <MenuItem onClick={() => handlePostChange(post, "toEdit")}>Edit Post</MenuItem>
-        <MenuItem onClick={() => handlePostChange(post, "delete")}>Delete</MenuItem>
-      </Menu>
+    <Card sx={{ minWidth: 275, my: 2, width: "100%", maxWidth: "600px", position: 'relative' }}>
+      {isAdmin && <>
+
+        <IconButton
+          id="menu-button"
+          sx={{ position: "absolute", top: 8, right: 8 }}
+          aria-controls={open ? 'basic-menu' : undefined}
+          aria-haspopup="true"
+          aria-expanded={open ? 'true' : undefined}
+          onClick={handleClick}
+        >
+          <MoreVertIcon />
+        </IconButton>
+        <Menu
+          id="basic-menu"
+          anchorEl={anchorEl}
+          open={open}
+          onClose={handleClose}
+          MenuListProps={{
+            'aria-labelledby': 'menu-button',
+          }}
+        >
+          <MenuItem onClick={() => handlePostChange(post, "toEdit")}>Edit Post</MenuItem>
+          <MenuItem onClick={() => handlePostChange(post, "delete")}>Delete</MenuItem>
+        </Menu>
+
+      </>
+      }
+
       <CardContent>
         <div
           className='post_view'
@@ -93,6 +108,15 @@ export default function CustomCard({ post, handlePostChange }: PostProps) {
           dangerouslySetInnerHTML={{ __html: sanitizedContent }} // Render sanitized raw HTML
         />
       </CardContent>
+      <Typography
+        variant="body2"
+        color="text.secondary"
+        sx={{ position: "absolute", bottom: 8, right: 8 }}
+      >
+        {moment(post.create_time).format(`${timeFormat} - DD/MM/yy`)}
+        {!post.mosque_id && <br />}
+        {!post.mosque_id && "By " + process.env.REACT_APP_NAME}
+      </Typography>
       {shouldShowButton && (
         <CardActions>
           {/* Toggle "Read More" text based on expansion state */}

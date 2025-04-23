@@ -1,7 +1,7 @@
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import Modal from '@mui/material/Modal';
-import { useState } from 'react';
+import { use, useEffect, useState } from 'react';
 import { usePopup } from '../hooks/PopupContext';
 import Editor from './text editor/Editor';
 import { apiPost, apiPut } from '../utils/api';
@@ -34,6 +34,8 @@ interface NewPostModalProps {
 export default function NewPostModal({ openModal, handleSubmit, handleClose, postToEdit = null }: NewPostModalProps) {
   const { showPopup } = usePopup()
   const [post, setPost] = useState<PostType>(postToEdit || { content: "" });
+  const [wordCount, setWordCount] = useState<number>(0);
+
 
 
 
@@ -41,7 +43,16 @@ export default function NewPostModal({ openModal, handleSubmit, handleClose, pos
     setPost({ ...post, content })
   }
 
+  const countWords = (text: string): number => {
+    // Strip HTML tags if the Editor content is rich text
+    const plainText = text.replace(/<[^>]*>/g, ' ').trim();
+    if (!plainText) return 0;
+    return plainText.split(/\s+/).length;
+  };
 
+  useEffect(() => {
+    setWordCount(countWords(post.content))
+  }, [post])
 
   return (
     <Modal
@@ -60,9 +71,15 @@ export default function NewPostModal({ openModal, handleSubmit, handleClose, pos
           setEditorContent={handleChange}
 
         />
+        <Typography variant="body2" color={wordCount < 15 ? "error" : "text.secondary"} textAlign="right" pr={2} pt={1}>
+          Word Count: {wordCount}
+        </Typography>
+
         <div style={{ display: 'flex', justifyContent: 'center', paddingTop: '10px' }}>
-          <Button onClick={() => handleSubmit(post, postToEdit ? "edit" : "new")} variant="contained">Post</Button>
+          <Button onClick={() => wordCount >= 15 ? handleSubmit(post, postToEdit ? "edit" : "new") : showPopup({ message: "You need to write atleast 15 words", type: "error" })} variant="contained">Post</Button>
         </div>
+
+
 
       </Box>
     </Modal>

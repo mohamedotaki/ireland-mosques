@@ -109,8 +109,9 @@ export type MosqueInfoType = {
 export type PostType = {
   post_id?: number;
   mosque_id?: number;
-  time?: Date;
+  create_time?: Date;
   created_by?: number;
   updated_by?: number;
   content: string;
+  updated_time?: Date;
 }

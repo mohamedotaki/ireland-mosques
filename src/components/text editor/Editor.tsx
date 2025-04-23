@@ -76,6 +76,8 @@ const MyEditor = ({ editorContent, setEditorContent }: EditorProps) => {
           <option value="#82b1ff" />
           <option value="" />
         </select>
+        <button className="ql-list" value="ordered" />
+        <button className="ql-list" value="bullet" />
       </div>
 
       <div style={{ maxHeight: '400px', overflowY: 'auto' }} className="no-borders">

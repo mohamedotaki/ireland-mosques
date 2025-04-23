@@ -9,23 +9,31 @@ import { PostType } from "../types";
 import CircularProgress from '@mui/material/CircularProgress';
 import Pagination from '@mui/material/Pagination';
 import { usePopup } from "../hooks/PopupContext";
+import { useUpdate } from "../hooks/UpdateContext";
+import { set } from "lodash";
+import { getFromLocalDB, LocalStorageKeys } from "../utils/localDB";
+import { settingsType } from "../types/authTyps";
 
 export default function Home() {
   const { showPopup } = usePopup()
-
+  const { defaultMosque } = useUpdate()
   const [posts, setPosts] = useState<PostType[]>([]);
   const [postToEdit, setPostToEdit] = useState<PostType | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const { user } = useAuth()
   const [showNewPostModal, setShowNewPostModal] = useState<boolean>(false)
+  const [totalPages, setTotalPages] = useState<number>(0)
+  const [currentPage, setCurrentPage] = useState<number>(1)
+  const settings: settingsType = getFromLocalDB(LocalStorageKeys.AppSettings)
 
 
-  const getPosts = async () => {
+  const getPosts = async (page: number) => {
     setLoading(true)
-    const { data, error } = await apiGet<{ posts: PostType[] }>("posts")
+    const { data, error } = await apiGet<{ posts: PostType[], totalPages: number }>("posts", { mosqueID: defaultMosque.id, page })
     if (data) {
       setPosts(data.posts)
+      setTotalPages(data.totalPages)
       setLoading(false)
     } else {
       setError(error)
@@ -36,9 +44,9 @@ export default function Home() {
   useEffect(() => {
 
 
-    getPosts()
+    getPosts(currentPage)
 
-  }, [])
+  }, [currentPage])
 
 
   const handlePostChange = async (post: PostType, action: "edit" | "delete" | "new" | "toEdit") => {
@@ -50,22 +58,32 @@ export default function Home() {
         break;
       case "edit":
         response = await apiPut<{ post: PostType }, { message: string }>("posts", { post })
+        if (response?.data) {
+          setPosts(posts.map(p => p.post_id === post.post_id ? post : p))
+          setPostToEdit(null)
+          setShowNewPostModal(false)
+        }
         break;
       case "delete":
         response = await apiDelete<{ message: string }>(`posts/${post.post_id}`)
+        if (response?.data) {
+          posts.length === 1 ? setCurrentPage(currentPage - 1) : setPosts(posts.filter(p => p.post_id !== post.post_id))
+        }
         break;
       case "new":
-        response = await apiPost<{ post: PostType }, { message: string }>("posts", { post })
-        response?.data && setShowNewPostModal(false)
+        console.log(post.content)
+        post.content === "" ? response = { error: "Post content is required" } :
+          response = await apiPost<{ post: PostType }, { message: string }>("posts", { post })
+        if (response?.data) {
+          setShowNewPostModal(false);
+          getPosts(1);
+        }
         break;
       default:
         break;
     }
 
     if (response) {
-      postToEdit&& setPostToEdit(null)
-      postToEdit&&setShowNewPostModal(false)
-      response?.data && getPosts()
       showPopup({ message: response?.data?.message || response?.error || "Unknown error. Please try again", type: response?.data ? "success" : "error" })
     }
   }
@@ -82,7 +100,7 @@ export default function Home() {
           Add Post
         </Button>}
       </Container>
-      <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", flexDirection: "column", gap: 2, mt: 3, flex: 1 }}>
+      <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", flexDirection: "column", mt: 3, flex: 1 }}>
 
 
         {
@@ -93,10 +111,10 @@ export default function Home() {
                 : (
                   <>
                     {posts.map((post) => (
-                      <CustomCard handlePostChange={handlePostChange} key={post.post_id} post={post} />
+                      <CustomCard isAdmin={(user?.userType === "Admin" && post.mosque_id === user.mosqueID) || user?.userType === "Owner"} handlePostChange={handlePostChange} key={post.post_id} post={post} />
                     ))}
-                    {/*                     < Pagination count={3} color="primary" />
- */}                  </>
+                    {< Pagination sx={{ direction: settings.language === "ar" ? "rtl" : "ltr" }} count={totalPages} page={currentPage} color="primary" onChange={(e, page) => setCurrentPage(page)} />}
+                  </>
 
                 )
         }
