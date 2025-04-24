@@ -43,7 +43,7 @@ export default function CompassModal({ openModal, handleClose }: PrayerModalProp
   const [CurrentPos, setCurrentPos] = useState<number>(0);
   const [myPointStyle, setMypointStyle] = useState(0);
   const [error, setError] = useState<string | null>(null);
-  const [loading, setLoading] = useState<boolean>(true);
+  const [loading, setLoading] = useState<boolean>(false);
 
   const locationHandler = (coords: any) => {
     const { latitude, longitude } = coords;

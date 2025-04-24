@@ -99,6 +99,18 @@ const PrayerTable = memo(({ prayersToShow, onPrayerTimeClick, mosqueID, prayersN
                 {!isEqual(prayer.adhan, prayer.trueAdhan) ?
                   <Tooltip
                     open={tooltip === prayer.prayerID}
+                    slotProps={{
+                      popper: {
+                        modifiers: [
+                          {
+                            name: 'offset',
+                            options: {
+                              offset: [0, -25],
+                            },
+                          },
+                        ],
+                      },
+                    }}
                     slots={{
                       transition: Zoom,
                     }} placement="top" title={format(prayer.trueAdhan, is24hFormat)} arrow>
