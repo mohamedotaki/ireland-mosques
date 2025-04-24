@@ -12,6 +12,7 @@ export type PrayerType = {
   adhan_offset: number | null;
   iqamah_offset: number | null;
   iqamahMode: "fixed" | "offset" | null;
+  adhan_locked: boolean;
 }
 
 

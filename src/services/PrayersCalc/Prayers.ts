@@ -100,6 +100,7 @@ const prayerCalc = (
   let iqamah = null;
   let iqamah_offset = null;
   let adhan_offset = null;
+  let adhan_locked = true;
   let iqamahMode = null;
   let prayerID = 0;
   const todaysDate = new Date();
@@ -187,6 +188,7 @@ const prayerCalc = (
           iqamahMode = null
           iqamah = null
         }
+        adhan_locked = prayer.adhan_locked
       }
     })
   }
@@ -195,6 +197,7 @@ const prayerCalc = (
     adhan,
     trueAdhan,
     iqamah,
+    adhan_locked,
     name,
     iqamahMode,
     iqamah_offset,
