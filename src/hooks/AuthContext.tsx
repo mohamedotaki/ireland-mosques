@@ -14,6 +14,7 @@ interface AuthContextType {
   signup: (user: SignupType) => void;
   verify: (code: string) => void;
   updateUser: (user: UserType) => void;
+  resendVerificationCode: () => void;
 
 
 }
@@ -94,8 +95,23 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   }
 
 
+  const resendVerificationCode = async () => {
+    const { data, error } = await apiPost<{ user: UserType | null }, { message: string }>('auth/resend-verification', { user })
+    if (data) {
+    } else {
+
+    }
+  }
+
+
+
+
+
+
+
+
   return (
-    <AuthContext.Provider value={{ user, signout, signin, signup, verify, updateUser }}>
+    <AuthContext.Provider value={{ user, signout, signin, signup, verify, updateUser, resendVerificationCode }}>
       {children}
     </AuthContext.Provider>
   );

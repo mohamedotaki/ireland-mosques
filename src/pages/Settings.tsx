@@ -43,7 +43,7 @@ const SettingsPage: React.FC = () => {
 
 
 
-  const isArabic = i18n.language === "ar" ? true : false;
+  const isArabic = i18n.language === "ar" || i18n.language === "ud"
 
   const handleSettingsChange = (event: any) => {
     console.log("handleSettingsChange")
@@ -110,6 +110,9 @@ const SettingsPage: React.FC = () => {
                 <Select name='language' value={settings.language} onChange={handleSettingsChange}>
                   <MenuItem value="en">English</MenuItem>
                   <MenuItem value="ar">العربية</MenuItem>
+                  <MenuItem value="ud">اردو</MenuItem>
+
+
                 </Select>
               </FormControl>
             </Grid>

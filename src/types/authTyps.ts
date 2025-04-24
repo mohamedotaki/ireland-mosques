@@ -26,7 +26,7 @@ export type SignupType = {
 }
 
 export type settingsType = {
-  language: "en" | "ar";
+  language: "en" | "ar" | "ud";
   theme: 'light' | 'dark' | 'system_default';
   fontSize: number;
   timeFormatIs24H: boolean;

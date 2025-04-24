@@ -9,13 +9,14 @@ import { styled } from '@mui/material/styles';
 import { PrayerType } from '../types';
 import { format, isEqual } from 'date-fns';
 import { useTranslation } from 'react-i18next';
-import { memo } from 'react';
+import { memo, useEffect, useRef, useState } from 'react';
 import { getFromLocalDB, LocalStorageKeys } from '../utils/localDB';
 import { useAuth } from '../hooks/AuthContext';
 import { UserType } from '../types/authTyps';
 import NotificationsIcon from '@mui/icons-material/Notifications';
 import NotificationsOffIcon from '@mui/icons-material/NotificationsOff';
 import Tooltip from '@mui/material/Tooltip';
+import Zoom from '@mui/material/Zoom';
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
   [`&.${tableCellClasses.head}`]: {
@@ -49,11 +50,30 @@ const PrayerTable = memo(({ prayersToShow, onPrayerTimeClick, mosqueID, prayersN
   const { user } = useAuth()
   const allowedUserTypes: UserType["userType"][] = ["Owner", "Admin"];
   const { t, i18n } = useTranslation();
-  const isArabic = i18n.language === "ar"
+  const isArabic = i18n.language === "ar" || i18n.language === "ud"
   const is24hFormat = getFromLocalDB(LocalStorageKeys.AppSettings)?.timeFormatIs24H ? "HH:mm" : "hh:mm"
-
-
+  const [tooltip, setTooltip] = useState<number | null>(null)
   const isClickable = allowedUserTypes.includes(user?.userType) && user?.mosqueID === mosqueID
+  const tooltipRef = useRef<HTMLTableCellElement | null>(null);
+
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (tooltipRef.current && !tooltipRef.current.contains(event.target as Node)) {
+        setTooltip(null);
+      }
+    };
+
+    if (tooltip !== null) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [tooltip]);
+
+
 
   console.log("Prayer Table")
   return (
@@ -76,14 +96,18 @@ const PrayerTable = memo(({ prayersToShow, onPrayerTimeClick, mosqueID, prayersN
                 <StyledTableCell component="th" scope="row" align={isArabic ? "right" : "left"}>
                   {t(prayer.name)}
                 </StyledTableCell>
-                {!isEqual(prayer.adhan,prayer.trueAdhan)?
-                <Tooltip disableFocusListener  placement="top" title={format(prayer.trueAdhan, is24hFormat)} arrow>
-                <StyledTableCell sx={{color:(theme)=>theme.palette.warning.main}} onClick={() => isClickable ? onPrayerTimeClick(prayer, false) : undefined} align="center" >{format(prayer.adhan, is24hFormat)} </StyledTableCell >
-          </Tooltip>:
+                {!isEqual(prayer.adhan, prayer.trueAdhan) ?
+                  <Tooltip
+                    open={tooltip === prayer.prayerID}
+                    slots={{
+                      transition: Zoom,
+                    }} placement="top" title={format(prayer.trueAdhan, is24hFormat)} arrow>
+                    <StyledTableCell
+                      ref={tooltip === prayer.prayerID ? tooltipRef : null}
+                      sx={{ color: (theme) => theme.palette.warning.main }} onClick={() => isClickable ? onPrayerTimeClick(prayer, false) : setTooltip(prayer.prayerID)} align="center" >{format(prayer.adhan, is24hFormat)} </StyledTableCell >
+                  </Tooltip> :
 
-                <StyledTableCell  onClick={() => isClickable ? onPrayerTimeClick(prayer, false) : undefined} align="center" >{format(prayer.adhan, is24hFormat)} </StyledTableCell >
-
-
+                  <StyledTableCell onClick={() => isClickable ? onPrayerTimeClick(prayer, false) : undefined} align="center" >{format(prayer.adhan, is24hFormat)} </StyledTableCell >
                 }
 
                 <StyledTableCell onClick={() => isClickable ? onPrayerTimeClick(prayer, true) : undefined} align="center">{prayer.iqamah ? format(prayer.iqamah, is24hFormat) : '-'}</StyledTableCell >

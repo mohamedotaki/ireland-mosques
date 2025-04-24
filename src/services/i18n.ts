@@ -2,6 +2,8 @@ import i18n from "i18next";
 import { initReactI18next } from "react-i18next";
 import en from "../assets/translation/en.json"
 import ar from "../assets/translation/ar.json"
+import ud from "../assets/translation/ud.json"
+
 import { getFromLocalDB, LocalStorageKeys } from "../utils/localDB";
 
 i18n
@@ -11,6 +13,7 @@ i18n
     resources: {
       en: { translation: en },
       ar: { translation: ar },
+      ud: { translation: ud },
     },
     lng: getFromLocalDB(LocalStorageKeys.AppSettings)?.language || "en",  // User's language
     fallbackLng: 'en',  // Default language if user language is not found

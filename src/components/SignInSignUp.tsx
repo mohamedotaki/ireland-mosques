@@ -2,10 +2,12 @@ import React, { useState } from 'react';
 import { Container, TextField, Button, Typography, Box } from '@mui/material';
 import { useAuth } from '../hooks/AuthContext';
 import { SigninType, SignupType } from '../types/authTyps';
+import { useTranslation } from 'react-i18next';
 
 
 const SignInSignUp = () => {
-  const { user, signup, signin, verify } = useAuth()
+  const { t } = useTranslation()
+  const { user, signup, signin, verify, resendVerificationCode, signout } = useAuth()
   const [isSignUp, setIsSignUp] = useState(false);
   const [message, setMessage] = useState<string>();
   const [loading, setLoading] = useState(false);
@@ -82,7 +84,9 @@ const SignInSignUp = () => {
                 value={verificationCode}
                 onChange={(e) => setVerificationCode(e.target.value)}
               />
+              <Button onClick={resendVerificationCode} variant="text">{t("ResendVerificationCode")}</Button>
               <Typography variant="body2" sx={{ mt: 2, textAlign: "center" }}>{message}</Typography>
+
 
             </>
           ) : (
@@ -163,6 +167,9 @@ const SignInSignUp = () => {
           <Button loading={loading} type="submit" variant="contained" color="primary" fullWidth>
             {user?.account_status === "Pending" ? "Verify" : isSignUp ? 'Sign Up' : 'Sign In'}
           </Button>
+
+          {user?.account_status === "Pending" && <Button sx={{ mt: 4 }} variant="text" color="error" size="small" onClick={signout}>Logout</Button>}
+
           {user?.account_status !== "Pending" && <Typography variant="body2" sx={{ mt: 2 }}>
             {isSignUp ? 'Already have an account?' : "Don't have an account?"}{' '}
             <Button onClick={() => setIsSignUp(!isSignUp)} color="primary">

@@ -4,7 +4,8 @@ import Typography from '@mui/material/Typography';
 import Modal from '@mui/material/Modal';
 import { CircularProgress } from '@mui/material';
 import { useEffect, useState } from 'react';
-import { useTranslation } from 'react-i18next';
+import { useGeolocated } from "react-geolocated";
+
 
 const style = {
   position: 'absolute',
@@ -28,88 +29,116 @@ const KAABA_LATITUDE = 21.4225;
 const KAABA_LONGITUDE = 39.8262;
 
 export default function CompassModal({ openModal, handleClose }: PrayerModalProps) {
-  const { t } = useTranslation();
-  const [qiblaDirection, setQiblaDirection] = useState<number | null>(null);
-  const [currentDirection, setCurrentDirection] = useState<number>(0);
-  const [loading, setLoading] = useState<boolean>(true);
+  const { coords, isGeolocationAvailable, isGeolocationEnabled } =
+    useGeolocated({
+      positionOptions: {
+        enableHighAccuracy: false,
+      },
+      userDecisionTimeout: 5000,
+    });
+
+  const [pointDegree, setPointDegree] = useState(0);
+  const [accuracy, setAccuracy] = useState(0);
+
+  const [CurrentPos, setCurrentPos] = useState<number>(0);
+  const [myPointStyle, setMypointStyle] = useState(0);
   const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState<boolean>(true);
 
-  // Calculate qibla direction
-  const calculateQiblaDirection = (userLat: number, userLng: number): number => {
-    // Convert to radians
-    const userLatRad = userLat * (Math.PI / 180);
-    const userLngRad = userLng * (Math.PI / 180);
-    const kaabaLatRad = KAABA_LATITUDE * (Math.PI / 180);
-    const kaabaLngRad = KAABA_LONGITUDE * (Math.PI / 180);
-
-    // Calculate qibla direction
-    const y = Math.sin(kaabaLngRad - userLngRad);
-    const x = Math.cos(userLatRad) * Math.tan(kaabaLatRad) - Math.sin(userLatRad) * Math.cos(kaabaLngRad - userLngRad);
-    let qiblaAngle = Math.atan2(y, x) * (180 / Math.PI);
-
-    // Normalize to 0-360 degrees
-    qiblaAngle = (qiblaAngle + 360) % 360;
-
-    return qiblaAngle;
+  const locationHandler = (coords: any) => {
+    const { latitude, longitude } = coords;
+    const resP = calcDegreeToPoint(latitude, longitude);
+    console.log("resP", resP);
+    if (resP < 0) {
+      setPointDegree(resP + 360);
+    } else {
+      setPointDegree(resP);
+    }
   };
 
-  // Get user's location and calculate qibla direction
+
   useEffect(() => {
-    if (openModal) {
-      setLoading(true);
-      setError(null);
-
-      if (!navigator.geolocation) {
-        setError(t('Geolocation is not supported by your browser'));
-        setLoading(false);
-        return;
-      }
-
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          const userLat = position.coords.latitude;
-          const userLng = position.coords.longitude;
-          const qiblaAngle = calculateQiblaDirection(userLat, userLng);
-          setQiblaDirection(qiblaAngle);
-          setLoading(false);
-        },
-        (error) => {
-          setError(t('Unable to retrieve your location') + ': ' + error.message);
-          setLoading(false);
-        },
-        { enableHighAccuracy: true }
+    if (!isGeolocationAvailable) {
+      setError("Your browser does not support Geolocation");
+    } else if (!isGeolocationEnabled) {
+      setError(
+        "Geolocation is not enabled, Please allow the location check your setting"
       );
+    } else if (coords) {
+      locationHandler(coords);
     }
-  }, [openModal, t]);
+  }, [coords, isGeolocationAvailable, isGeolocationEnabled]);
+  const isIOS = () => {
+    return (
+      navigator.userAgent.match(/(iPod|iPhone|iPad)/) &&
+      navigator.userAgent.match(/AppleWebKit/)
+    );
+  };
+
+
+  const calcDegreeToPoint = (latitude: number, longitude: number) => {
+    // Qibla geolocation
+    const point = {
+      lat: 21.422487,
+      lng: 39.826206,
+    };
+
+    const phiK = (point.lat * Math.PI) / 180.0;
+    const lambdaK = (point.lng * Math.PI) / 180.0;
+    const phi = (latitude * Math.PI) / 180.0;
+    const lambda = (longitude * Math.PI) / 180.0;
+    const psi =
+      (180.0 / Math.PI) *
+      Math.atan2(
+        Math.sin(lambdaK - lambda),
+        Math.cos(phi) * Math.tan(phiK) -
+        Math.sin(phi) * Math.cos(lambdaK - lambda)
+      );
+    return Math.round(psi);
+  };
+
+  const startCompass = async () => {
+    const checkIos = isIOS();
+    if (checkIos) {
+      // Cast DeviceOrientationEvent to any to access requestPermission
+      const DeviceOrientationEventAny = DeviceOrientationEvent as any;
+      DeviceOrientationEventAny.requestPermission()
+        .then((response: any) => {
+          if (response === "granted") {
+            window.addEventListener("deviceorientation", handler, true);
+          } else {
+            setError("has to be allowed!");
+          }
+        })
+        .catch(() => setError("not supported"));
+    } else {
+      window.addEventListener("deviceorientationabsolute", handler, true);
+    }
+  };
+
+  const handler = (e: any) => {
+    const compass = e.webkitCompassHeading || Math.abs(e.alpha - 360);
+    setCurrentPos(Math.round(Math.abs(compass)));
+    setAccuracy(e.webkitCompassAccuracy);
+
+    if (
+      pointDegree < Math.abs(compass + 2) &&
+      pointDegree > Math.abs(compass - 2)
+    ) {
+      setMypointStyle(1);
+    } else {
+      setMypointStyle(0);
+    }
+  };
 
   // Handle device orientation for compass
   useEffect(() => {
-    const handleOrientation = (event: DeviceOrientationEvent) => {
-      const heading =
-        (event as any).webkitCompassHeading !== undefined
-          ? (event as any).webkitCompassHeading
-          : event.alpha;
+    startCompass();
+  }, []);
 
-      if (heading !== null) {
-        setCurrentDirection(heading);
-      }
-    };
 
-    if (openModal) {
-      if (window.DeviceOrientationEvent) {
-        window.addEventListener('deviceorientation', handleOrientation);
-      } else {
-        setError(t('Device orientation is not supported by your browser'));
-      }
-    }
-
-    return () => {
-      window.removeEventListener('deviceorientation', handleOrientation);
-    };
-  }, [openModal, t]);
 
   // Calculate the rotation angle for the compass
-  const compassRotation = qiblaDirection !== null ? qiblaDirection - currentDirection : 0;
 
   return (
     <Modal
@@ -120,7 +149,7 @@ export default function CompassModal({ openModal, handleClose }: PrayerModalProp
     >
       <Box borderRadius={5} width={"100%"} maxWidth={500} maxHeight={"80%"} overflow={"auto"} sx={style}>
         <Typography variant="h5" align="center" gutterBottom>
-          {t('Qibla Direction')}
+          {'Qibla Direction'}
         </Typography>
 
         {loading ? (
@@ -134,12 +163,12 @@ export default function CompassModal({ openModal, handleClose }: PrayerModalProp
         ) : (
           <>
             <Typography align="center" gutterBottom>
-              {t('Point your device towards the arrow to face the Qibla')}
+              {'Point your device towards the arrow to face the Qibla'}
             </Typography>
 
             <Box textAlign="center" my={2}>
               <Typography variant="body1">
-                {t('Qibla is')} {qiblaDirection?.toFixed(1)}° {t('from North')}
+                {'Qibla is'} {1/* qiblaDirection?.toFixed(1) */}° {'from North'}
               </Typography>
             </Box>
 
@@ -155,7 +184,7 @@ export default function CompassModal({ openModal, handleClose }: PrayerModalProp
               stroke="#000000"
               strokeWidth="0.0033860500000000003"
               style={{
-                transform: `rotate(${compassRotation}deg)`,
+                transform: `rotate(${pointDegree - CurrentPos}deg)`,
                 transition: 'transform 0.3s ease-out'
               }}
             >
@@ -186,7 +215,7 @@ export default function CompassModal({ openModal, handleClose }: PrayerModalProp
 
             <Box display="flex" justifyContent="center" my={2}>
               <Typography variant="body2" color="textSecondary">
-                {t('Current device heading')}: {currentDirection.toFixed(1)}°
+                {'Current device heading'}: {CurrentPos.toFixed(1)}°
               </Typography>
             </Box>
           </>
@@ -194,7 +223,7 @@ export default function CompassModal({ openModal, handleClose }: PrayerModalProp
 
         <Box display="flex" justifyContent="center" mt={3}>
           <Button variant="contained" onClick={handleClose}>
-            {t('Close')}
+            {'Close'}
           </Button>
         </Box>
       </Box>

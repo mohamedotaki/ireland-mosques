@@ -70,6 +70,7 @@ export default function PrayerEditModal({ prayer, mosqueID, openModal, handleClo
 
   }
 
+
   return (
     <Modal
       open={openModal}
@@ -78,9 +79,10 @@ export default function PrayerEditModal({ prayer, mosqueID, openModal, handleClo
       aria-describedby="modal-modal-description"
     >
       <Box borderRadius={5} maxWidth={"90%"} sx={style}>
-        <Typography id="modal-modal-title" variant="h6" component="h3" textAlign={"center"} mb={1}>
+        <Typography id="modal-modal-title" variant="h6" component="h6" textAlign={"center"} mb={1.2}>
           {`${t('PrayerEditModalTitle', { prayer: t(prayerToEdit?.name), time: isIqamahClicked ? t('Iqamah') : t('Adhan') })}`}
         </Typography>
+
 
         {isIqamahClicked && <Container sx={{ display: "flex", justifyContent: "space-evenly", mb: 1 }}>
 
@@ -92,14 +94,14 @@ export default function PrayerEditModal({ prayer, mosqueID, openModal, handleClo
             value={isFixed}
 
           >
-            <ToggleButton value="fixed">Fixed</ToggleButton>
-            <ToggleButton value="offset">Offset</ToggleButton>
+            <ToggleButton value="fixed">{t("Fixed")}</ToggleButton>
+            <ToggleButton value="offset">{t("Offset")}</ToggleButton>
           </ToggleButtonGroup>
         </Container>}
-        <Container sx={{ display: "flex", justifyContent: "center", mb: 3, textAlign: "center" }}>
+        <Container sx={{ display: "flex", flexDirection: "column", justifyContent: "center", textAlign: "center" }}>
           {isFixed === "offset" ? <TextField
             id="outlined-number"
-            label="Number"
+            label={t("Minutes")}
             type="number"
             value={prayerToEdit?.iqamahOffset}
             onChange={(e) => {
@@ -115,6 +117,7 @@ export default function PrayerEditModal({ prayer, mosqueID, openModal, handleClo
               <MobileTimePicker
                 value={isIqamahClicked ? prayerToEdit?.iqamah : prayerToEdit?.adhan}
                 ampm={false}
+
                 label={isIqamahClicked ? t("Iqamah Time") : t("Adhan Time")}
                 onChange={(newValue) => {
                   setPrayerToEdit({ ...prayerToEdit, [isIqamahClicked ? "iqamah" : "adhan"]: newValue })
@@ -125,12 +128,28 @@ export default function PrayerEditModal({ prayer, mosqueID, openModal, handleClo
                   }
                 }}
                 minTime={isIqamahClicked ? prayer?.adhan : addHours(prayer?.trueAdhan, -1.5)}
-                maxTime={isIqamahClicked ? addHours(prayer?.adhan, 2) :isToday(addHours(prayer?.trueAdhan, 1.5))?addHours(prayer?.trueAdhan, 1.5):endOfToday() }
+                maxTime={isIqamahClicked ? addHours(prayer?.adhan, 2) : isToday(addHours(prayer?.trueAdhan, 1.5)) ? addHours(prayer?.trueAdhan, 1.5) : endOfToday()}
               />
             </LocalizationProvider>}
+
+          {<Button onClick={e => onPrayerUpdate({ mosqueID, prayerID: prayer.prayerID, newPrayerTime: null, offset: null, isIqamah: isIqamahClicked })} sx={{ mt: 1 }} size="small" variant="text">{isIqamahClicked ? t("DeleteIqamahTime") : t("ResetAdhanBackToOriginalTime")}</Button>}
+
         </Container>
 
-        <Container sx={{ display: "flex", justifyContent: "space-evenly" }}>
+        {isIqamahClicked ? isFixed === "offset" ?
+          <Typography textAlign={"center"} my={1} color='text.secondary'>
+            {`${t("TheNewIqamahTimeWillAddMinutesFromAdhanTimeAuto")}`}
+          </Typography> :
+          <Typography textAlign={"center"} my={1} color='text.secondary'>
+            {`${t("FixedIqamahTimeWillFixedTheTimeUntilChange")}`}
+          </Typography>
+          : <Typography textAlign={"center"} my={1} color='text.secondary'>
+            {`${t("ActualAdhanTime")}: ${format(prayer.trueAdhan, "HH:mm")}`}
+          </Typography>
+
+        }
+
+        <Container sx={{ display: "flex", justifyContent: "space-evenly", mt: 2 }}>
           <Button variant="outlined" size="large" onClick={handleClose}>{t("Cancel")}</Button>
           <Button loading={loading} onClick={() => onPrayerUpdate({ mosqueID, prayerID: prayer.prayerID, newPrayerTime: isFixed === "fixed" ? isIqamahClicked ? format(prayerToEdit.iqamah, "HH:mm") : format(prayerToEdit.adhan, "HH:mm") : null, offset: isFixed === "fixed" ? null : prayerToEdit.iqamahOffset, isIqamah: isIqamahClicked })} variant="contained" size="large">{t("Update")}</Button>
         </Container>

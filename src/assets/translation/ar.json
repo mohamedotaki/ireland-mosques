@@ -30,5 +30,14 @@
   "Prayer": "صلاة",
   "Mark As Read": "تم القراءة",
   "Not Set": "غير محدد",
-  "Jummuah Iqamah Is Not Set": "إقامة الجمعة غير محددة"
+  "Jummuah Iqamah Is Not Set": "إقامة الجمعة غير محددة",
+  "Minutes": "دقائق",
+  "ActualAdhanTime": "وقت الأذان الفعلي",
+  "Offset": "التأخير",
+  "Fixed": "ثابت",
+  "TheNewIqamahTimeWillAddMinutesFromAdhanTimeAuto": "سيتم احتساب وقت الإقامة الجديد تلقائيًا بناءً على وقت الأذان",
+  "FixedIqamahTimeWillFixedTheTimeUntilChange": "وقت الإقامة الثابت سيبقى كما هو حتى يتم تغييره",
+  "DeleteIqamahTime": "حذف وقت الإقامة",
+  "ResetAdhanBackToOriginalTime": "إعادة وقت الأذان إلى الوضع الأصلي",
+  "ResendVerificationCode": "إعادة إرسال رمز التحقق"
 }
