@@ -39,6 +39,8 @@ export default function CompassModal({ openModal, handleClose }: PrayerModalProp
 
   const [pointDegree, setPointDegree] = useState(0);
   const [accuracy, setAccuracy] = useState(0);
+  const [qiblaDirection, setQiblaDirection] = useState(0);
+
 
   const [CurrentPos, setCurrentPos] = useState<number>(0);
   const [myPointStyle, setMypointStyle] = useState(0);
@@ -94,6 +96,8 @@ export default function CompassModal({ openModal, handleClose }: PrayerModalProp
         Math.cos(phi) * Math.tan(phiK) -
         Math.sin(phi) * Math.cos(lambdaK - lambda)
       );
+
+    setQiblaDirection(Math.round(psi))
     return Math.round(psi);
   };
 
@@ -146,8 +150,9 @@ export default function CompassModal({ openModal, handleClose }: PrayerModalProp
       onClose={handleClose}
       aria-labelledby="modal-modal-title"
       aria-describedby="modal-modal-description"
+      sx={{ px: 2 }}
     >
-      <Box borderRadius={5} width={"100%"} maxWidth={500} maxHeight={"80%"} overflow={"auto"} sx={style}>
+      <Box borderRadius={5} width={"100%"} maxWidth={500} maxHeight={"80%"} overflow={"hidden"} sx={style}>
         <Typography variant="h5" align="center" gutterBottom>
           {'Qibla Direction'}
         </Typography>
@@ -168,7 +173,7 @@ export default function CompassModal({ openModal, handleClose }: PrayerModalProp
 
             <Box textAlign="center" my={2}>
               <Typography variant="body1">
-                {'Qibla is'} {1/* qiblaDirection?.toFixed(1) */}° {'from North'}
+                {'Qibla is'} {qiblaDirection?.toFixed(1)}° {'from North'}
               </Typography>
             </Box>
 
