@@ -9,17 +9,12 @@ export type PrayerType = {
   trueAdhan: Date;
   adhan: Date;
   iqamah: Date | null;
-  iqamahOffset: number | null;
+  adhan_offset: number | null;
+  iqamah_offset: number | null;
   iqamahMode: "fixed" | "offset" | null;
 }
 
-export type PrayerTimeUpdate = {
-  mosqueID: number;
-  prayerID: number;
-  newPrayerTime: string | null;
-  offset: number | null;
-  isIqamah: boolean;
-}
+
 
 
 export type prayerDatabaseType = {
@@ -28,6 +23,7 @@ export type prayerDatabaseType = {
   adhan_time: string;
   adhan_locked: boolean;
   iquamh_time: string;
+  adhan_offset: number;
   iquamh_offset: number;
   adhan_modified_on: string;
   iquamh_modified_on: string;

@@ -2,12 +2,12 @@ import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
 import Modal from '@mui/material/Modal';
-import { PrayerTimeUpdate, PrayerType } from '../types';
+import { PrayerType } from '../types';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFnsV3'
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { MobileTimePicker } from '@mui/x-date-pickers/MobileTimePicker';
 import { Container } from '@mui/material';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import ToggleButton from '@mui/material/ToggleButton';
 import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
@@ -16,6 +16,7 @@ import { apiPost } from '../utils/api';
 import { addHours, endOfDay, endOfToday, format, isToday } from 'date-fns';
 import { usePopup } from '../hooks/PopupContext';
 import { useUpdate } from '../hooks/UpdateContext';
+import { min } from 'lodash';
 
 const style = {
   position: 'absolute',
@@ -38,6 +39,13 @@ interface PrayerModalProps {
   handleClose: () => void;
 }
 
+type PrayerTimeUpdate = {
+  mosqueID: number;
+  prayerID: number;
+  newPrayerTime: string | null;
+  offset: number | null;
+  isIqamah: boolean;
+}
 
 
 
@@ -48,6 +56,7 @@ export default function PrayerEditModal({ prayer, mosqueID, openModal, handleClo
   const [isFixed, setIsFixed] = useState<"fixed" | "offset">(isIqamahClicked ? prayer.iqamahMode || "fixed" : "fixed")
   const { t } = useTranslation();
   const { checkForUpdate } = useUpdate();
+  const [minMaxTime, setMinMaxTime] = useState<{ [key: string]: number }>({ hourMin: 0, hourMax: 24 })
 
   const handleChange = (
     event: React.MouseEvent<HTMLElement>,
@@ -55,6 +64,25 @@ export default function PrayerEditModal({ prayer, mosqueID, openModal, handleClo
   ) => {
     setIsFixed(iqamahMethod);
   };
+
+  useEffect(() => {
+    setPrayerToEdit(prayer)
+
+    if (isIqamahClicked) {
+      setMinMaxTime({
+        hourMin: prayer.adhan.getHours(),
+        hourMax: addHours(prayer.adhan, 2).getHours()
+      })
+    } else {
+      setMinMaxTime({
+        hourMin: addHours(prayer.trueAdhan, -2).getHours(),
+        hourMax: addHours(prayer.trueAdhan, 2).getHours()
+      })
+
+    }
+
+  }, [prayer])
+
 
 
   const onPrayerUpdate = async (e: PrayerTimeUpdate) => {
@@ -71,6 +99,13 @@ export default function PrayerEditModal({ prayer, mosqueID, openModal, handleClo
   }
 
 
+  const handleTimeUpdate = () => {
+
+
+
+  }
+
+
   return (
     <Modal
       open={openModal}
@@ -83,27 +118,25 @@ export default function PrayerEditModal({ prayer, mosqueID, openModal, handleClo
           {`${t('PrayerEditModalTitle', { prayer: t(prayerToEdit?.name), time: isIqamahClicked ? t('Iqamah') : t('Adhan') })}`}
         </Typography>
 
-
-        {isIqamahClicked && <Container sx={{ display: "flex", justifyContent: "space-evenly", mb: 1 }}>
-
+        <Container sx={{ display: "flex", justifyContent: "space-evenly", mb: 1 }}>
           <ToggleButtonGroup
             color="primary"
             exclusive
             aria-label="Platform"
             onChange={handleChange}
             value={isFixed}
-
           >
             <ToggleButton value="fixed">{t("Fixed")}</ToggleButton>
-            <ToggleButton value="offset">{t("Offset")}</ToggleButton>
+            <ToggleButton disabled={!isIqamahClicked && prayer.name !== "Isha"} value="offset">{t("Offset")}</ToggleButton>
           </ToggleButtonGroup>
-        </Container>}
+        </Container>
+
         <Container sx={{ display: "flex", flexDirection: "column", justifyContent: "center", textAlign: "center" }}>
           {isFixed === "offset" ? <TextField
             id="outlined-number"
             label={t("Minutes")}
             type="number"
-            value={prayerToEdit?.iqamahOffset}
+            value={isIqamahClicked ? prayerToEdit.iqamah_offset : prayerToEdit.adhan_offset}
             onChange={(e) => {
               setPrayerToEdit({ ...prayerToEdit, newPrayerTime: null, iqamahOffset: Number(e.target.value) })
             }}
@@ -127,8 +160,25 @@ export default function PrayerEditModal({ prayer, mosqueID, openModal, handleClo
                     textAlign: 'center'  // Centers the text inside the input field
                   }
                 }}
-                minTime={isIqamahClicked ? prayer?.adhan : addHours(prayer?.trueAdhan, -1.5)}
-                maxTime={isIqamahClicked ? addHours(prayer?.adhan, 2) : isToday(addHours(prayer?.trueAdhan, 1.5)) ? addHours(prayer?.trueAdhan, 1.5) : endOfToday()}
+
+                // This disables hours outside of 9PM (21) to 2:59AM (2)
+                shouldDisableTime={(timeValue, clockType) => {
+                  if (clockType === 'hours') {
+                    const hour = timeValue.getHours();
+                    if (minMaxTime.hourMin > minMaxTime.hourMax) {
+                      return hour >= minMaxTime.hourMin || hour <= minMaxTime.hourMax ? false : true;
+                    } else if (minMaxTime.hourMin < minMaxTime.hourMax) {
+                      return hour >= minMaxTime.hourMin && hour <= minMaxTime.hourMax ? false : true;
+                    }
+                  } else if (clockType === 'minutes') {
+                    const minute = timeValue.getMinutes();
+                    return minute < minMaxTime.minutesMin || minute > minMaxTime.minutesMax ? true : false;
+                  }
+                  return false;
+                }}
+
+
+
               />
             </LocalizationProvider>}
 

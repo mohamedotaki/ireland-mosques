@@ -17,6 +17,7 @@ import NotificationsIcon from '@mui/icons-material/Notifications';
 import NotificationsOffIcon from '@mui/icons-material/NotificationsOff';
 import Tooltip from '@mui/material/Tooltip';
 import Zoom from '@mui/material/Zoom';
+import { usePopup } from '../hooks/PopupContext';
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
   [`&.${tableCellClasses.head}`]: {
@@ -55,6 +56,7 @@ const PrayerTable = memo(({ prayersToShow, onPrayerTimeClick, mosqueID, prayersN
   const [tooltip, setTooltip] = useState<number | null>(null)
   const isClickable = allowedUserTypes.includes(user?.userType) && user?.mosqueID === mosqueID
   const tooltipRef = useRef<HTMLTableCellElement | null>(null);
+  const { showPopup } = usePopup()
 
 
   useEffect(() => {
@@ -72,6 +74,14 @@ const PrayerTable = memo(({ prayersToShow, onPrayerTimeClick, mosqueID, prayersN
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, [tooltip]);
+
+  const handlePrayerTimeClick = (prayer: PrayerType, isIqamahClicked: boolean) => {
+    if (isClickable) {
+      onPrayerTimeClick(prayer, isIqamahClicked);
+    } else {
+      setTooltip(prayer.prayerID)
+    }
+  };
 
 
 
@@ -116,13 +126,13 @@ const PrayerTable = memo(({ prayersToShow, onPrayerTimeClick, mosqueID, prayersN
                     }} placement="top" title={format(prayer.trueAdhan, is24hFormat)} arrow>
                     <StyledTableCell
                       ref={tooltip === prayer.prayerID ? tooltipRef : null}
-                      sx={{ color: (theme) => theme.palette.warning.main }} onClick={() => isClickable ? onPrayerTimeClick(prayer, false) : setTooltip(prayer.prayerID)} align="center" >{format(prayer.adhan, is24hFormat)} </StyledTableCell >
+                      sx={{ color: (theme) => theme.palette.warning.main }} onClick={() => handlePrayerTimeClick(prayer, false)} align="center" >{format(prayer.adhan, is24hFormat)} </StyledTableCell >
                   </Tooltip> :
 
-                  <StyledTableCell onClick={() => isClickable ? onPrayerTimeClick(prayer, false) : undefined} align="center" >{format(prayer.adhan, is24hFormat)} </StyledTableCell >
+                  <StyledTableCell onClick={() => handlePrayerTimeClick(prayer, false)} align="center" >{format(prayer.adhan, is24hFormat)} </StyledTableCell >
                 }
 
-                <StyledTableCell onClick={() => isClickable ? onPrayerTimeClick(prayer, true) : undefined} align="center">{prayer.iqamah ? format(prayer.iqamah, is24hFormat) : '-'}</StyledTableCell >
+                <StyledTableCell onClick={() => handlePrayerTimeClick(prayer, true)} align="center">{prayer.iqamah ? format(prayer.iqamah, is24hFormat) : '-'}</StyledTableCell >
                 {/*  <StyledTableCell style={{ padding: "1px" }} onClick={() => handleNotificationToggle(prayer.name)} align="center">
                   {prayersNotifications[prayer.name] ?
                     <NotificationsIcon sx={{ fontSize: "20px" }} /> :

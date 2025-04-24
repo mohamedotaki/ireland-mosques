@@ -84,8 +84,11 @@ const prayerCalc = (
   onlineData: prayerDatabaseType[] | undefined,
   index: number,
   now: Date,
-  dstAdjust: number
+  dstAdjust: number,
+  hourMinutePrevious: Array<number> = [24, 0]
+
 ): PrayerType => {
+  let [hourBefore, minuteBefore] = hourMinutePrevious;
   let [hour, minute] = hourMinute;
   let [hourNext, minuteNext] = hourMinuteNext;
   let onlineHourAdhan = null
@@ -95,12 +98,19 @@ const prayerCalc = (
   let onlineHourIqamah = null
   let onlineMinIqamah = null
   let iqamah = null;
-  let iqamahOffset = null;
+  let iqamah_offset = null;
+  let adhan_offset = null;
   let iqamahMode = null;
   let prayerID = 0;
   const todaysDate = new Date();
   const names = ["Fajr", "Shurooq", "Dhuhr", "Asr", "Maghrib", "Isha"];
   const name = names[index];
+
+
+  let adhanBefore = name === "Isha" ? addHours(
+    toDate(new Date(getYear(now), getMonth(now), getDate(now), hourBefore, minuteBefore)),
+    dstAdjust
+  ) : null;
 
   let adhan = addHours(
     toDate(new Date(getYear(now), getMonth(now), getDate(now), hour, minute)),
@@ -132,17 +142,23 @@ const prayerCalc = (
         }
       }
 
+
       if (prayer.prayer_name === name) {
         prayerID = prayer.id
         const modifiedDate = new Date(prayer.adhan_modified_on);
-        if (prayer.adhan_time && !prayer.adhan_locked && isWithinInterval(todaysDate, { start: modifiedDate, end: addDays(modifiedDate, 15) })) {
-          const onlineAdhan = prayer.adhan_time.split(":")
-          onlineHourAdhan = Number(onlineAdhan[0])
-          onlineMinAdhan = Number(onlineAdhan[1])
-          adhan = addHours(
-            toDate(new Date(getYear(now), getMonth(now), getDate(now), onlineHourAdhan, onlineMinAdhan)),
-            isDST(modifiedDate) ? 0 : dstAdjust
-          );
+        if (prayer.adhan_time || prayer.adhan_offset && !prayer.adhan_locked && isWithinInterval(todaysDate, { start: modifiedDate, end: addDays(modifiedDate, 15) })) {
+          if (prayer.adhan_time) {
+            const onlineAdhan = prayer.adhan_time.split(":")
+            onlineHourAdhan = Number(onlineAdhan[0])
+            onlineMinAdhan = Number(onlineAdhan[1])
+            adhan = addHours(
+              toDate(new Date(getYear(now), getMonth(now), getDate(now), onlineHourAdhan, onlineMinAdhan)),
+              isDST(modifiedDate) ? 0 : dstAdjust
+            );
+          } else if (prayer.adhan_offset && adhanBefore) {
+            adhan = addMinutes(adhanBefore, prayer.adhan_offset)
+
+          }
         }
         const iqamahModifiedDate = new Date(prayer.iquamh_modified_on);
         if (prayer.iquamh_time && isWithinInterval(todaysDate, { start: iqamahModifiedDate, end: addDays(iqamahModifiedDate, 15) })) {
@@ -165,7 +181,7 @@ const prayerCalc = (
         } else if (prayer.iquamh_offset && isWithinInterval(todaysDate, { start: iqamahModifiedDate, end: addDays(iqamahModifiedDate, 15) })) {
           iqamah = addMinutes(adhan, prayer.iquamh_offset)
           iqamahMode = "offset"
-          iqamahOffset = prayer.iquamh_offset
+          iqamah_offset = prayer.iquamh_offset
 
         } else {
           iqamahMode = null
@@ -181,7 +197,9 @@ const prayerCalc = (
     iqamah,
     name,
     iqamahMode,
-    iqamahOffset,
+    iqamah_offset,
+    adhan_offset
+
   };
   return result;
 };
@@ -232,7 +250,8 @@ const prayersCalc = (
   const userPrayerDate = prayersTable[(month + 1).toString()][date.toString()].map((hourMinute: Array<number>, index: number) => {
     const hourMinuteNext =
       index < 5 ? prayersTable[(month + 1).toString()][date.toString()][index + 1] : [24, 0];
-
+    const hourMinutePrevious =
+      index === 5 ? prayersTable[(month + 1).toString()][date.toString()][index - 1] : [24, 0];
 
     return prayerCalc(
       hourMinute,
@@ -240,7 +259,9 @@ const prayersCalc = (
       mosque?.prayers,
       index,
       now,
-      dstAdjust
+      dstAdjust,
+      hourMinutePrevious
+
     );
   });
 
@@ -254,7 +275,8 @@ const prayersCalc = (
   const prayersToday = prayersTable[(monthToday + 1).toString()][dateToday.toString()].map((hourMinute: Array<number>, index: number) => {
     const hourMinuteNext =
       index < 5 ? prayersTable[(monthToday + 1).toString()][dateToday.toString()][index + 1] : [24, 0];
-
+    const hourMinutePrevious =
+      index < 5 && index > 0 ? prayersTable[(month + 1).toString()][date.toString()][index - 1] : [24, 0];
 
     return prayerCalc(
       hourMinute,
@@ -262,7 +284,8 @@ const prayersCalc = (
       mosque?.prayers,
       index,
       nowToday,
-      dstAdjustToday
+      dstAdjustToday,
+      hourMinutePrevious
     );
   });
 
