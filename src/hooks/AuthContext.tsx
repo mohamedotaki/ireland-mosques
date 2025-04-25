@@ -4,6 +4,7 @@ import { apiGet, apiPost } from '../utils/api';
 import { settingsType, SigninType, SignupType, UserType } from '../types/authTyps';
 import i18n from '../services/i18n';
 import { useTheme } from './ThemeContext';
+import { usePopup } from './PopupContext';
 
 // Define types for our auth state
 
@@ -28,12 +29,10 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [user, setUser] = useState<UserType | null>(getFromLocalDB(LocalStorageKeys.user || null));
   const { toggleTheme, changeFontSize } = useTheme();
   const [loading, setLoading] = useState(false);
+  const { showPopup } = usePopup()
 
 
-  // Use effect to check for saved login status in localStorage
-  useEffect(() => {
 
-  }, []);
 
 
 
@@ -55,8 +54,9 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const signin = async (user: SigninType) => {
     setLoading(true)
     const UUID = getFromLocalDB(LocalStorageKeys.UUID)
-    const { data, error } = await apiPost<{ user: SigninType, UUID: string }, { user: UserType }>('auth/signin', { user, UUID })
+    const { data, error } = await apiPost<{ user: SigninType, UUID: string }, { message: string, user: UserType }>('auth/signin', { user, UUID })
     if (data) {
+      showPopup({ message: data.message, type: "success" })
       saveToLocalDB(LocalStorageKeys.user, data.user);
       saveToLocalDB(LocalStorageKeys.AppSettings, data.user.settings)
       i18n.changeLanguage(data.user.settings.language); // Change language dynamically    
@@ -67,6 +67,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       return undefined;
 
     } else {
+      showPopup({ message: error || "Error during signin. Please try again later.", type: "error" })
+
       setLoading(false)
     }
   }
@@ -82,14 +84,16 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
     const settings: settingsType = getFromLocalDB(LocalStorageKeys.AppSettings)
 
-    const { data, error } = await apiPost<{ user: SignupType }, { user: UserType }>('auth/signup', { user: { ...user, settings } })
+    const { data, error } = await apiPost<{ user: SignupType }, { message: string, user: UserType }>('auth/signup', { user: { ...user, settings } })
     if (data) {
+      showPopup({ message: data.message, type: "success" })
       saveToLocalDB(LocalStorageKeys.user, data.user);
       setUser(data.user);
       setLoading(false)
       return undefined;
 
     } else {
+      showPopup({ message: error || "Error during signup. Please try again later.", type: "error" })
       setLoading(false)
 
 
@@ -101,14 +105,18 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     setLoading(true)
 
     const UUID = getFromLocalDB(LocalStorageKeys.UUID)
-    const { data, error } = await apiPost<{ user: UserType | null, code: string, UUID: string }, { user: UserType | null }>('auth/verify', { user, code, UUID })
+    const { data, error } = await apiPost<{ user: UserType | null, code: string, UUID: string }, { message: string, user: UserType | null }>('auth/verify', { user, code, UUID })
     if (data) {
+      showPopup({ message: data.message, type: "success" })
+
       saveToLocalDB(LocalStorageKeys.user, data.user);
       setUser(data.user);
       setLoading(false)
 
       return undefined
     } else {
+      showPopup({ message: error || "Error during email verification. Please try again later.", type: "error" })
+
       setLoading(false)
 
       if (error === "Too many attempts") {

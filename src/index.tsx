@@ -22,13 +22,15 @@ const root = ReactDOM.createRoot(
 root.render(
   <React.StrictMode>
     <ThemeProviderWrapper>
-      <AuthProvider>
-        <PopupProviderWrapper>
+      <PopupProviderWrapper>
+
+        <AuthProvider>
           <UpdateProvider>
             <App />
           </UpdateProvider>
-        </PopupProviderWrapper>
-      </AuthProvider>
+        </AuthProvider>
+      </PopupProviderWrapper>
+
     </ThemeProviderWrapper>
   </React.StrictMode>
 );

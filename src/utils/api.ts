@@ -33,7 +33,7 @@ const handleError = <T>(error: any): ApiResponse<T> => {
     errorMessage = error.response.data?.message || error.response.statusText;
   } else if (error.request) {
     // The request was made but no response was received
-    errorMessage = 'No response from server';
+    errorMessage = "Couldn't connect to the server, please try again later.";
   } else {
     // Something else happened during the request setup
     errorMessage = error.message;
