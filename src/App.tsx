@@ -79,7 +79,7 @@ export default function App() {
   return (
     <Router>
       <UpdateNotification />
-      <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', pb: 'env(safe-area-inset-bottom)' }}>
+      <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
         <CssBaseline /> {/* This will apply global CSS resets */}
 
         {!loading ?
@@ -90,7 +90,8 @@ export default function App() {
             <Box
               component="main"
               sx={{
-                flexGrow: 1, paddingBottom: '60px',  // Adjust based on the height of your BottomNavigation
+                flexGrow: 1, paddingBottom: 'calc(60px + env(safe-area-inset-bottom))',
+                // Adjust based on the height of your BottomNavigation
               }}
             >
               <Container maxWidth="lg">
