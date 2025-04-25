@@ -16,8 +16,8 @@ const MosqueInfo = memo(({ mosqueDetails, handleInfoModalOpen, handleCompassOpen
 
     <Card sx={{ display: "flex", alignItems: "center", justifyContent: "space-around", width: "100%", py: 1, borderRadius: "5px 5px 0 0" }}>
       <IconButton onClick={undefined}>
-        {/*         <InfoOutlinedIcon />
- */}      </IconButton>
+        <InfoOutlinedIcon />
+      </IconButton>
 
       <Typography >
         {`${mosqueDetails.name} - ${mosqueDetails.location}`}
