@@ -1,25 +1,21 @@
 import React, { useEffect, useState } from 'react';
-import { Button, Snackbar, Alert } from '@mui/material';
+import { Snackbar, Alert } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 
 const UpdateNotification: React.FC = () => {
     const [showUpdateNotification, setShowUpdateNotification] = useState(false);
     const { t } = useTranslation();
 
-
-
     const onUpdate = () => {
         navigator.serviceWorker.getRegistration().then((registration) => {
-            if (registration && registration.waiting) {
-                const waitingServiceWorker = registration.waiting;
+            if (registration?.waiting) {
+                const waitingSW = registration.waiting;
 
-                // Reload when the new SW takes control
                 navigator.serviceWorker.addEventListener('controllerchange', () => {
                     window.location.reload();
                 });
 
-                // Tell the new SW to activate immediately
-                waitingServiceWorker.postMessage({ type: 'SKIP_WAITING' });
+                waitingSW.postMessage({ type: 'SKIP_WAITING' });
             }
         });
     };
@@ -29,17 +25,14 @@ const UpdateNotification: React.FC = () => {
             navigator.serviceWorker.getRegistration().then((registration) => {
                 if (!registration) return;
 
-                // Force check for update
                 registration.update();
 
-                // If a new SW is already waiting
                 if (registration.waiting) {
                     setShowUpdateNotification(true);
-                    onUpdate();
+                    onUpdate(); // Immediately update without asking the user
                     return;
                 }
 
-                // Listen for a new SW being found
                 registration.addEventListener('updatefound', () => {
                     const newWorker = registration.installing;
                     if (newWorker) {
@@ -49,6 +42,7 @@ const UpdateNotification: React.FC = () => {
                                 navigator.serviceWorker.controller
                             ) {
                                 setShowUpdateNotification(true);
+                                onUpdate(); // Automatically update on install
                             }
                         });
                     }
@@ -60,7 +54,6 @@ const UpdateNotification: React.FC = () => {
     useEffect(() => {
         checkForUpdates();
 
-        // Re-check when tab becomes visible
         const handleVisibilityChange = () => {
             if (document.visibilityState === 'visible') {
                 checkForUpdates();
@@ -74,20 +67,15 @@ const UpdateNotification: React.FC = () => {
         };
     }, []);
 
-
-
-    const handleUpdate = () => {
-        setShowUpdateNotification(false);
-        onUpdate();
-    };
-
     return (
         <Snackbar
             open={showUpdateNotification}
             anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
-            message={t('Updating to the latest version...')}
-        />
-
+        >
+            <Alert severity="info" sx={{ width: '100%' }}>
+                {t('Updating to the latest version...')}
+            </Alert>
+        </Snackbar>
     );
 };
 
