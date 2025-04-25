@@ -137,6 +137,17 @@ export default function CompassModal({ openModal, handleClose }: PrayerModalProp
     };
   }, [openModal, handler, coords, locationHandler]);
 
+
+  const getSmoothRotation = (target: number, current: number) => {
+    let diff = target - current;
+
+    if (diff > 180) diff -= 360;
+    if (diff < -180) diff += 360;
+
+    return diff;
+  };
+
+
   return (
     <Modal
       open={openModal}
@@ -175,7 +186,7 @@ export default function CompassModal({ openModal, handleClose }: PrayerModalProp
               width="100%"
               viewBox="-33.86 -33.86 406.33 406.33"
               style={{
-                transform: `rotate(${pointDegree - currentPos}deg)`,
+                transform: `rotate(${getSmoothRotation(pointDegree, currentPos)}deg)`,
                 transition: 'transform 0.3s ease-out',
                 filter: myPointStyle ? 'drop-shadow(0 0 10px green)' : 'none',
               }}
