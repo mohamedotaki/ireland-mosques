@@ -59,11 +59,32 @@ export default function Prayers() {
   }, [mosque, prayersDate]); // ✅ Only depends on stable values
 
   useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === "visible") {
+        const today = new Date();
+        const isSameDay =
+          prayersDate.getDate() === today.getDate() &&
+          prayersDate.getMonth() === today.getMonth() &&
+          prayersDate.getFullYear() === today.getFullYear();
+
+        if (!isSameDay) {
+          setPrayerDate(today);
+        }
+      }
+    };
+
     const newData = prayersCalc(mosque, prayersDate);
     setPrayersData(newData);
     countUpRef.current = newData.countUp.duration;
     countDownRef.current = newData.countDown.duration;
+
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+
+    return () => {
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+    };
   }, [prayersDate, mosque]);
+
 
   const handleOpenModal = useCallback((prayer: PrayerType, isIqamahClicked: boolean) => {
     setModalData({ showModal: true, prayer, isIqamahClicked });
@@ -122,12 +143,12 @@ export default function Prayers() {
         />
       )}
 
-
-      <CompassModal
-        openModal={compassOpen}
-        handleClose={() => setCompassOpen(false)}
-      />
-
+      {compassOpen && (
+        <CompassModal
+          openModal={compassOpen}
+          handleClose={() => setCompassOpen(false)}
+        />
+      )}
     </>
   );
 }

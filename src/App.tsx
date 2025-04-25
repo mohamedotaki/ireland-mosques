@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import './App.css';
 import BottomNavigationBar from './navigation/BottomNavigation';
 import { CssBaseline, Box, Container } from '@mui/material';
@@ -15,57 +15,61 @@ import InstallDialog from './components/InstallDialog';
 import { useUpdate } from './hooks/UpdateContext';
 import UpdateNotification from './components/UpdateNotification';
 
-let deferredPrompt: any;
-
-
-
-
-
-
+interface BeforeInstallPromptEvent extends Event {
+  prompt: () => Promise<void>;
+  userChoice: Promise<{ outcome: 'accepted' | 'dismissed'; platform: string }>;
+}
 
 export default function App() {
   const { loading, error, appFirstLaunch, checkForUpdate } = useUpdate();
   const [showInstallPrompt, setShowInstallPrompt] = useState(false);
-
-
+  const deferredPromptRef = useRef<BeforeInstallPromptEvent | null>(null);
 
   useEffect(() => {
+    // First time app setup or update check
     if (!isKeyInLocalDB(LocalStorageKeys.FirstLaunch)) {
-      appFirstLaunch()
+      appFirstLaunch();
     } else {
-      checkForUpdate()
+      checkForUpdate();
     }
 
-    // Handle Android install prompt
-    const handler = (e: any) => {
+    // Android install prompt handler
+    const handleBeforeInstallPrompt = (e: Event) => {
       e.preventDefault();
-      deferredPrompt = e;
+      deferredPromptRef.current = e as BeforeInstallPromptEvent;
       setShowInstallPrompt(true);
     };
 
-    window.addEventListener('beforeinstallprompt', handler);
+    // Visibility change: check for updates when tab becomes visible
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        checkForUpdate();
+      }
+    };
 
-    // Show iOS install prompt manually
+    window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    // iOS install prompt
     if (isIOS() && !isInStandaloneMode()) {
       setShowInstallPrompt(true);
     }
 
-    return () => window.removeEventListener('beforeinstallprompt', handler);
-
-  }, [])
-
-
-
-
+    return () => {
+      window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, []);
 
   const handleInstallClick = async () => {
-    if (deferredPrompt) {
-      deferredPrompt.prompt();
-      const { outcome } = await deferredPrompt.userChoice;
+    const promptEvent = deferredPromptRef.current;
+    if (promptEvent) {
+      promptEvent.prompt();
+      const { outcome } = await promptEvent.userChoice;
       if (outcome === 'accepted') {
         console.log('User accepted the install prompt');
       }
-      deferredPrompt = null;
+      deferredPromptRef.current = null;
     }
     setShowInstallPrompt(false);
   };
@@ -74,15 +78,13 @@ export default function App() {
     setShowInstallPrompt(false);
   };
 
-
-
   return (
     <Router>
       <UpdateNotification />
       <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
-        <CssBaseline /> {/* This will apply global CSS resets */}
+        <CssBaseline />
 
-        {!loading ?
+        {!loading ? (
           <>
             <CustomAppBar />
             <InstallDialog open={showInstallPrompt} onInstall={handleInstallClick} onClose={handleClose} />
@@ -90,8 +92,8 @@ export default function App() {
             <Box
               component="main"
               sx={{
-                flexGrow: 1, paddingBottom: 'calc(60px + env(safe-area-inset-bottom))',
-                // Adjust based on the height of your BottomNavigation
+                flexGrow: 1,
+                paddingBottom: 'calc(60px + env(safe-area-inset-bottom))',
               }}
             >
               <Container maxWidth="lg">
@@ -105,13 +107,10 @@ export default function App() {
             </Box>
             <BottomNavigationBar />
           </>
-          : <AppLoading error={error} />}
+        ) : (
+          <AppLoading error={error} />
+        )}
       </Box>
     </Router>
-
   );
 }
-
-
-
-

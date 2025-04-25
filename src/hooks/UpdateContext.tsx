@@ -90,7 +90,6 @@ export const UpdateProvider: React.FC<{ children: React.ReactNode }> = ({ childr
             const userLastUpdate = getDateTimeString(new Date(lastUpdate))
             const { data } = await apiGet<{ mosques: { [key: string]: mosquesDatabaseType }, newUpdateDate: Date, user: UserType }>(`app/checkForNewData`, { userLastUpdate })
             if (data) {
-                console.log(data)
                 data.newUpdateDate && saveToLocalDB(LocalStorageKeys.LastDataUpdate, data.newUpdateDate)
 
                 if (data.user) {
@@ -103,7 +102,6 @@ export const UpdateProvider: React.FC<{ children: React.ReactNode }> = ({ childr
                     updatedMosquesIDs.forEach((mosqueID) => {
                         if (localDBDefaultMosques.id === mosqueID) {
                             const updatedMosque = data.mosques[mosqueID].time_table ? data.mosques[mosqueID] : { ...data.mosques[mosqueID], time_table: localDBDefaultMosques.time_table }
-                            console.log(updatedMosque)
                             saveToLocalDB(LocalStorageKeys.DefaultMosque, updatedMosque)
                             setDefaultMosque(updatedMosque)
                         }

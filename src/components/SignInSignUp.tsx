@@ -25,8 +25,8 @@ const SignInSignUp = () => {
   const [error, setError] = useState<string | undefined>("");
 
   const handleFormSubmit = async (event: React.FormEvent) => {
-    event.preventDefault();
     setLoading(true)
+    event.preventDefault();
     setError("")
     if (user?.account_status === "Pending") {
       verify(verificationCode)
@@ -168,7 +168,7 @@ const SignInSignUp = () => {
             {user?.account_status === "Pending" ? "Verify" : isSignUp ? 'Sign Up' : 'Sign In'}
           </Button>
 
-          {user?.account_status === "Pending" && <Button sx={{ mt: 4 }} variant="text" color="error" size="small" onClick={signout}>Logout</Button>}
+          {user?.account_status === "Pending" && <Button loading={loading} sx={{ mt: 4 }} variant="text" color="error" size="small" onClick={signout}>Logout</Button>}
 
           {user?.account_status !== "Pending" && <Typography variant="body2" sx={{ mt: 2 }}>
             {isSignUp ? 'Already have an account?' : "Don't have an account?"}{' '}

@@ -13,7 +13,6 @@ interface PrayerDateType {
 }
 
 const PrayerDate = memo(({ date, updateDate }: PrayerDateType) => {
-  console.log("date rendering")
   return (
     <Container sx={{ display: "flex", alignItems: "center", justifyContent: "space-evenly", mb: 1, mt: 1, width: "100%" }}>
       <IconButton onClick={() => updateDate(addDays(date, -1))}>

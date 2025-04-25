@@ -88,7 +88,6 @@ const PrayerTable = memo(({ prayersToShow, onPrayerTimeClick, mosqueID, prayersN
 
 
 
-  console.log("Prayer Table")
   return (
     <TableContainer component={Paper} sx={{ direction: isArabic ? "rtl" : "ltr", borderRadius: "0 0 5px 5px" }}>
       <Table sx={{ flex: 1 }} size="medium" aria-label="simple table">

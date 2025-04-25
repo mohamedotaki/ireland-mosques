@@ -24,7 +24,6 @@ type Config = {
 
 export function register(config?: Config) {
     console.log("Registering service worker...");
-    console.log(process.env);
 
     if (process.env.NODE_ENV === "production" && "serviceWorker" in navigator) {
         // The URL constructor is available in all browsers that support SW.
@@ -33,9 +32,7 @@ export function register(config?: Config) {
             // Our service worker won't work if PUBLIC_URL is on a different origin
             // from what our page is served on. This might happen if a CDN is used to
             // serve assets; see https://github.com/facebook/create-react-app/issues/2374
-            console.log(
-                `PUBLIC_URL is being set to "${process.env.PUBLIC_URL}" but this value must be equal to window.location.origin.`
-            );
+
             return;
         }
 
