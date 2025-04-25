@@ -78,7 +78,7 @@ const PrayerTable = memo(({ prayersToShow, onPrayerTimeClick, mosqueID, prayersN
   const handlePrayerTimeClick = (prayer: PrayerType, isIqamahClicked: boolean) => {
     if (isClickable) {
       if (prayer.adhan_locked && !isIqamahClicked) {
-        return showPopup({ message: "Only Isha adhan time can be modified", type: "info" })
+        return showPopup({ message: "You don't have permission to edit this adhan time.", type: "info" })
       }
       onPrayerTimeClick(prayer, isIqamahClicked);
     } else {
