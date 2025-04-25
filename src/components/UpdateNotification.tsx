@@ -88,11 +88,11 @@ const UpdateNotification: React.FC = () => {
         >
             <Alert
                 severity="info"
-                action={
-                    <Button color="inherit" size="small" onClick={handleUpdate}>
-                        {t('update')}
-                    </Button>
-                }
+            /*            action={
+                           <Button color="inherit" size="small" onClick={handleUpdate}>
+                               {t('update')}
+                           </Button>
+                       } */
             >
                 {t('Updating to the latest version...')}
             </Alert>
