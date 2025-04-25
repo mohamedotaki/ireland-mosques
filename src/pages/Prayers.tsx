@@ -122,12 +122,12 @@ export default function Prayers() {
         />
       )}
 
-      {compassOpen && (
-        <CompassModal
-          openModal={compassOpen}
-          handleClose={() => setCompassOpen(false)}
-        />
-      )}
+
+      <CompassModal
+        openModal={compassOpen}
+        handleClose={() => setCompassOpen(false)}
+      />
+
     </>
   );
 }
