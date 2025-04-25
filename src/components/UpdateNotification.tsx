@@ -85,18 +85,9 @@ const UpdateNotification: React.FC = () => {
         <Snackbar
             open={showUpdateNotification}
             anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
-        >
-            <Alert
-                severity="info"
-            /*            action={
-                           <Button color="inherit" size="small" onClick={handleUpdate}>
-                               {t('update')}
-                           </Button>
-                       } */
-            >
-                {t('Updating to the latest version...')}
-            </Alert>
-        </Snackbar>
+            message={t('Updating to the latest version...')}
+        />
+
     );
 };
 
