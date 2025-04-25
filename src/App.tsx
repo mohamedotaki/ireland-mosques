@@ -79,7 +79,7 @@ export default function App() {
   return (
     <Router>
       <UpdateNotification />
-      <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
+      <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', paddingBottom: 'env(safe-area-inset-bottom)' }}>
         <CssBaseline /> {/* This will apply global CSS resets */}
 
         {!loading ?
