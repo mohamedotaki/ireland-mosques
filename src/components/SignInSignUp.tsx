@@ -7,10 +7,9 @@ import { useTranslation } from 'react-i18next';
 
 const SignInSignUp = () => {
   const { t } = useTranslation()
-  const { user, signup, signin, verify, resendVerificationCode, signout } = useAuth()
+  const { user, signup, signin, verify, resendVerificationCode, signout, loading } = useAuth()
   const [isSignUp, setIsSignUp] = useState(false);
   const [message, setMessage] = useState<string>();
-  const [loading, setLoading] = useState(false);
   const [verificationCode, setVerificationCode] = useState("");
   const [inputData, setUser] = useState<SignupType | SigninType>({
     email: '',
@@ -25,7 +24,6 @@ const SignInSignUp = () => {
   const [error, setError] = useState<string | undefined>("");
 
   const handleFormSubmit = async (event: React.FormEvent) => {
-    setLoading(true)
     event.preventDefault();
     setError("")
     if (user?.account_status === "Pending") {
@@ -40,7 +38,6 @@ const SignInSignUp = () => {
         }
       }
     }
-    setLoading(false)
     setMessage("")
   };
   const handlePassCheck = (): boolean => {
@@ -176,15 +173,6 @@ const SignInSignUp = () => {
               {isSignUp ? 'Sign In' : 'Sign Up'}
             </Button>
           </Typography>}
-
-          {/* Social Login Buttons */}
-          {/*           <Box sx={{ mt: 3 }}>
-            <GoogleLogin
-              onSuccess={handleGoogleLogin}
-
-            />
-
-          </Box> */}
         </Box>
       </form>
     </Container>

@@ -1,5 +1,5 @@
-import { Button, useTheme } from '@mui/material';
-import React, { useRef, useEffect } from 'react';
+import { useTheme } from '@mui/material';
+import { useRef, useEffect } from 'react';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 import "./editor.css"

@@ -1,10 +1,9 @@
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import Modal from '@mui/material/Modal';
-import { use, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { usePopup } from '../hooks/PopupContext';
 import Editor from './text editor/Editor';
-import { apiPost, apiPut } from '../utils/api';
 import { Button } from '@mui/material';
 import { PostType } from '../types';
 

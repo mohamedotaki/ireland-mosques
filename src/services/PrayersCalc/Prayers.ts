@@ -147,7 +147,7 @@ const prayerCalc = (
       if (prayer.prayer_name === name) {
         prayerID = prayer.id
         const modifiedDate = new Date(prayer.adhan_modified_on);
-        if (prayer.adhan_time || prayer.adhan_offset && !prayer.adhan_locked && isWithinInterval(todaysDate, { start: modifiedDate, end: addDays(modifiedDate, 15) })) {
+        if ((prayer.adhan_time || prayer.adhan_offset) && !prayer.adhan_locked && isWithinInterval(todaysDate, { start: modifiedDate, end: addDays(modifiedDate, 15) })) {
           if (prayer.adhan_time) {
             const onlineAdhan = prayer.adhan_time.split(":")
             onlineHourAdhan = Number(onlineAdhan[0])

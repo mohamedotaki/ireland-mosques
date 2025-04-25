@@ -13,8 +13,8 @@ import { memo, useEffect, useRef, useState } from 'react';
 import { getFromLocalDB, LocalStorageKeys } from '../utils/localDB';
 import { useAuth } from '../hooks/AuthContext';
 import { UserType } from '../types/authTyps';
-import NotificationsIcon from '@mui/icons-material/Notifications';
-import NotificationsOffIcon from '@mui/icons-material/NotificationsOff';
+/* import NotificationsIcon from '@mui/icons-material/Notifications';
+import NotificationsOffIcon from '@mui/icons-material/NotificationsOff'; */
 import Tooltip from '@mui/material/Tooltip';
 import Zoom from '@mui/material/Zoom';
 import { usePopup } from '../hooks/PopupContext';

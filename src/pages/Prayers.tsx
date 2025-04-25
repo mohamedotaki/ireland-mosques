@@ -11,8 +11,8 @@ import MosqueInfo from "../components/MosqueInfo";
 import MosqueInfoModal from "../components/MosqueInfoModal";
 import CompassModal from "../components/CompassModal";
 import { useUpdate } from "../hooks/UpdateContext";
-import NotificationManager from "../components/NotificationManager";
-
+/* import NotificationManager from "../components/NotificationManager";
+ */
 interface ModalProps {
   showModal: boolean;
   prayer: PrayerType | undefined;

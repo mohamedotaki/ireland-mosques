@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, ReactNode } from 'react';
 import { createTheme, ThemeProvider as MUIThemeProvider } from '@mui/material/styles';
-import { getFromLocalDB, isKeyInLocalDB, LocalStorageKeys, removeFromLocalDB, saveToLocalDB } from '../utils/localDB';
+import { getFromLocalDB, LocalStorageKeys } from '../utils/localDB';
 import { useTranslation } from 'react-i18next';
 import { settingsType } from '../types/authTyps';
 

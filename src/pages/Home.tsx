@@ -10,7 +10,6 @@ import CircularProgress from '@mui/material/CircularProgress';
 import Pagination from '@mui/material/Pagination';
 import { usePopup } from "../hooks/PopupContext";
 import { useUpdate } from "../hooks/UpdateContext";
-import { set } from "lodash";
 import { getFromLocalDB, LocalStorageKeys } from "../utils/localDB";
 import { settingsType } from "../types/authTyps";
 

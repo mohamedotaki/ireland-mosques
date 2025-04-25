@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Typography, FormControl, Select, MenuItem, Grid2 as Grid, Card, TextField, Button } from '@mui/material';
+import { Typography, FormControl, Select, MenuItem, Grid2 as Grid, Card } from '@mui/material';
 import { useTheme } from '../hooks/ThemeContext';
 import { getFromLocalDB, LocalStorageKeys, saveToLocalDB } from '../utils/localDB';
 import { useTranslation } from 'react-i18next';
@@ -9,7 +9,6 @@ import debounce from 'lodash/debounce';
 import { apiPut } from '../utils/api';
 import isEqual from 'lodash/isEqual';
 import { useAuth } from '../hooks/AuthContext';
-import { mosquesDatabaseType } from '../types';
 
 
 const SettingsPage: React.FC = () => {

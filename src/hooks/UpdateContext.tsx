@@ -10,7 +10,6 @@ import { usePopup } from './PopupContext';
 import { v4 as uuidv4 } from 'uuid';
 import findClosestMosque from '../utils/findClosestMosque';
 import { requestNotificationPermission } from '../utils/permissions';
-import { time } from 'console';
 
 const UpdateContext = createContext<{
     checkForUpdate: () => Promise<void>;

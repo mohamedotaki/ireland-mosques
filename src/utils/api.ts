@@ -13,6 +13,8 @@ const apiClient = axios.create({
     'Content-Type': 'application/json',
   },
   withCredentials: true,
+  timeout: 10000, // 10 seconds
+
 });
 
 // Generic function to handle the Axios response
@@ -24,7 +26,9 @@ const handleResponse = <T>(response: AxiosResponse<T>): ApiResponse<T> => {
 const handleError = <T>(error: any): ApiResponse<T> => {
   let errorMessage = 'Network Error';
 
-  if (error.response) {
+  if (!navigator.onLine) {
+    errorMessage = 'You are offline. Please check your internet connection.';
+  } else if (error.response) {
     // The server responded with a status other than 2xx
     errorMessage = error.response.data?.message || error.response.statusText;
   } else if (error.request) {
