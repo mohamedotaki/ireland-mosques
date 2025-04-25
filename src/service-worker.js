@@ -26,7 +26,7 @@ registerRoute(({ request, url }) => {
   if (url.pathname.startsWith("/_")) return false;
   if (fileExtensionRegexp.test(url.pathname)) return false;
   return true;
-}, createHandlerBoundToURL(process.env.REACT_APP_API_URL + "/index.html"));
+}, createHandlerBoundToURL("/index.html"));
 
 // Cache images only using CacheFirst strategy
 registerRoute(
