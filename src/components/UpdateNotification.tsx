@@ -2,24 +2,33 @@ import React, { useEffect, useState } from 'react';
 import { Button, Snackbar, Alert } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 
-interface UpdateNotificationProps {
-    onUpdate: () => void;
-}
-
-const UpdateNotification: React.FC<UpdateNotificationProps> = ({ onUpdate }) => {
+const UpdateNotification: React.FC = () => {
     const [showUpdateNotification, setShowUpdateNotification] = useState(false);
     const { t } = useTranslation();
 
-    useEffect(() => {
-        // Listen for service worker update
+    const checkForUpdates = () => {
         if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.ready.then((registration) => {
+            navigator.serviceWorker.getRegistration().then((registration) => {
+                if (!registration) return;
+
+                // Force check for update
+                registration.update();
+
+                // If a new SW is already waiting
+                if (registration.waiting) {
+                    setShowUpdateNotification(true);
+                    return;
+                }
+
+                // Listen for a new SW being found
                 registration.addEventListener('updatefound', () => {
                     const newWorker = registration.installing;
                     if (newWorker) {
                         newWorker.addEventListener('statechange', () => {
-                            if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                                // New version available
+                            if (
+                                newWorker.state === 'installed' &&
+                                navigator.serviceWorker.controller
+                            ) {
                                 setShowUpdateNotification(true);
                             }
                         });
@@ -27,7 +36,40 @@ const UpdateNotification: React.FC<UpdateNotificationProps> = ({ onUpdate }) => 
                 });
             });
         }
+    };
+
+    useEffect(() => {
+        checkForUpdates();
+
+        // Re-check when tab becomes visible
+        const handleVisibilityChange = () => {
+            if (document.visibilityState === 'visible') {
+                checkForUpdates();
+            }
+        };
+
+        document.addEventListener('visibilitychange', handleVisibilityChange);
+
+        return () => {
+            document.removeEventListener('visibilitychange', handleVisibilityChange);
+        };
     }, []);
+
+    const onUpdate = () => {
+        navigator.serviceWorker.getRegistration().then((registration) => {
+            if (registration && registration.waiting) {
+                const waitingServiceWorker = registration.waiting;
+
+                // Reload when the new SW takes control
+                navigator.serviceWorker.addEventListener('controllerchange', () => {
+                    window.location.reload();
+                });
+
+                // Tell the new SW to activate immediately
+                waitingServiceWorker.postMessage({ type: 'SKIP_WAITING' });
+            }
+        });
+    };
 
     const handleUpdate = () => {
         setShowUpdateNotification(false);

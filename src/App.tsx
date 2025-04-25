@@ -55,15 +55,7 @@ export default function App() {
   }, [])
 
 
-  const handleUpdate = () => {
-    // Send a message to the service worker to skip waiting and activate the new version
-    if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
-      navigator.serviceWorker.controller.postMessage({ type: 'SKIP_WAITING' });
 
-      // Reload the page to load the new version
-      window.location.reload();
-    }
-  }
 
 
   const handleInstallClick = async () => {
@@ -86,7 +78,7 @@ export default function App() {
 
   return (
     <Router>
-      <UpdateNotification onUpdate={handleUpdate} />
+      <UpdateNotification />
       <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
         <CssBaseline /> {/* This will apply global CSS resets */}
 
