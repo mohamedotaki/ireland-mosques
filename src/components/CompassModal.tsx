@@ -74,7 +74,7 @@ export default function CompassModal({ openModal, handleClose }: PrayerModalProp
     }
     if (pointDegree < rounded + 2 && pointDegree > rounded - 2) {
       setMypointStyle(1);
-      if (navigator.vibrate) {
+      if (navigator.vibrate && openModal) {
         navigator.vibrate(200); // vibrate for 200ms
       }
     } else {
@@ -141,6 +141,7 @@ export default function CompassModal({ openModal, handleClose }: PrayerModalProp
   const getSmoothRotation = (target: number, current: number) => {
     let diff = target - current;
 
+    // Normalize to the range [-180, 180]
     if (diff > 180) diff -= 360;
     if (diff < -180) diff += 360;
 
