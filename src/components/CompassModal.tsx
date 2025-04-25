@@ -4,6 +4,8 @@ import Modal from '@mui/material/Modal';
 import { CircularProgress } from '@mui/material';
 import { useEffect, useState, useCallback } from 'react';
 import { useGeolocated } from "react-geolocated";
+import { useTheme } from '@mui/material/styles';
+
 
 const style = {
   position: 'absolute',
@@ -37,6 +39,8 @@ export default function CompassModal({ openModal, handleClose }: PrayerModalProp
   const [myPointStyle, setMypointStyle] = useState(0);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
+  const theme = useTheme();
+  const primaryColor = theme.palette.primary.main;
 
   const calcDegreeToPoint = (latitude: number, longitude: number) => {
     const phiK = (21.4225 * Math.PI) / 180.0;
@@ -61,10 +65,18 @@ export default function CompassModal({ openModal, handleClose }: PrayerModalProp
     const compass = e.webkitCompassHeading || Math.abs(e.alpha - 360);
     const rounded = Math.round(Math.abs(compass));
     setCurrentPos(rounded);
-    setAccuracy(e.webkitCompassAccuracy ?? 0);
+    const accuracyValue = e.webkitCompassAccuracy;
 
+    if (typeof accuracyValue === 'number') {
+      setAccuracy(Math.round(accuracyValue));
+    } else {
+      setAccuracy(-1); // -1 means unknown
+    }
     if (pointDegree < rounded + 2 && pointDegree > rounded - 2) {
       setMypointStyle(1);
+      if (navigator.vibrate) {
+        navigator.vibrate(200); // vibrate for 200ms
+      }
     } else {
       setMypointStyle(0);
     }
@@ -165,18 +177,10 @@ export default function CompassModal({ openModal, handleClose }: PrayerModalProp
               style={{
                 transform: `rotate(${pointDegree - currentPos}deg)`,
                 transition: 'transform 0.3s ease-out',
+                filter: myPointStyle ? 'drop-shadow(0 0 10px green)' : 'none',
               }}
             >
-
-              <g id="SVGRepo_bgCarrier" strokeWidth="0"></g>
-              <g
-                id="SVGRepo_tracerCarrier"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                stroke="#CCCCCC"
-                strokeWidth="12.18978"
-              ></g>
-              <g id="SVGRepo_iconCarrier">
+              <g id="SVGRepo_iconCarrier" fill={primaryColor}>
                 {" "}
                 <g>
                   {" "}
@@ -195,8 +199,13 @@ export default function CompassModal({ openModal, handleClose }: PrayerModalProp
 
             <Box display="flex" justifyContent="center" my={2}>
               <Typography variant="body2" color="textSecondary">
-                Current device heading: {currentPos.toFixed(1)}°. Accuracy: {accuracy}°.
+                Current device heading: {currentPos.toFixed(1)}°.{accuracy >= 0 ? ` Accuracy: ${accuracy}°.` : ' Accuracy unavailable.'}
               </Typography>
+              {accuracy < 0 && (
+                <Typography variant="caption" color="warning.main" align="center">
+                  Compass accuracy may be low. Try moving your device in a figure-eight motion.
+                </Typography>
+              )}
             </Box>
           </>
         )}
