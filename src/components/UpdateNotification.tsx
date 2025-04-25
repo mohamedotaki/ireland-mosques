@@ -6,6 +6,24 @@ const UpdateNotification: React.FC = () => {
     const [showUpdateNotification, setShowUpdateNotification] = useState(false);
     const { t } = useTranslation();
 
+
+
+    const onUpdate = () => {
+        navigator.serviceWorker.getRegistration().then((registration) => {
+            if (registration && registration.waiting) {
+                const waitingServiceWorker = registration.waiting;
+
+                // Reload when the new SW takes control
+                navigator.serviceWorker.addEventListener('controllerchange', () => {
+                    window.location.reload();
+                });
+
+                // Tell the new SW to activate immediately
+                waitingServiceWorker.postMessage({ type: 'SKIP_WAITING' });
+            }
+        });
+    };
+
     const checkForUpdates = () => {
         if ('serviceWorker' in navigator) {
             navigator.serviceWorker.getRegistration().then((registration) => {
@@ -17,6 +35,7 @@ const UpdateNotification: React.FC = () => {
                 // If a new SW is already waiting
                 if (registration.waiting) {
                     setShowUpdateNotification(true);
+                    onUpdate();
                     return;
                 }
 
@@ -55,21 +74,7 @@ const UpdateNotification: React.FC = () => {
         };
     }, []);
 
-    const onUpdate = () => {
-        navigator.serviceWorker.getRegistration().then((registration) => {
-            if (registration && registration.waiting) {
-                const waitingServiceWorker = registration.waiting;
 
-                // Reload when the new SW takes control
-                navigator.serviceWorker.addEventListener('controllerchange', () => {
-                    window.location.reload();
-                });
-
-                // Tell the new SW to activate immediately
-                waitingServiceWorker.postMessage({ type: 'SKIP_WAITING' });
-            }
-        });
-    };
 
     const handleUpdate = () => {
         setShowUpdateNotification(false);
@@ -89,7 +94,7 @@ const UpdateNotification: React.FC = () => {
                     </Button>
                 }
             >
-                {t('newVersionAvailable')}
+                {t('Updating to the latest version...')}
             </Alert>
         </Snackbar>
     );
