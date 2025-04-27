@@ -109,7 +109,7 @@ const SettingsPage: React.FC = () => {
                 <Select name='language' value={settings.language} onChange={handleSettingsChange}>
                   <MenuItem value="en">English</MenuItem>
                   <MenuItem value="ar">العربية</MenuItem>
-                  <MenuItem value="ud">اردو</MenuItem>
+                  <MenuItem value="ur">اردو</MenuItem>
 
 
                 </Select>

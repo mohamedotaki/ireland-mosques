@@ -39,5 +39,16 @@
   "FixedIqamahTimeWillFixedTheTimeUntilChange": "وقت الإقامة الثابت سيبقى كما هو حتى يتم تغييره",
   "DeleteIqamahTime": "حذف وقت الإقامة",
   "ResetAdhanBackToOriginalTime": "إعادة وقت الأذان إلى الوضع الأصلي",
-  "ResendVerificationCode": "إعادة إرسال رمز التحقق"
+  "ResendVerificationCode": "إعادة إرسال رمز التحقق",
+  "Verify": "تحقق",
+  "Logout": "تسجيل الخروج",
+  "EmailVerification": "تحقق البريد الإلكتروني",
+  "SignIn": "تسجيل الدخول",
+  "Email": "البريد الإلكتروني",
+  "Password": "كلمة المرور",
+  "SignUp": "التسجيل",
+  "Donthaveanaccount": "لا تمتلك حسابًا؟",
+  "FullName": "الاسم الكامل",
+  "ConfirmPassword": "تأكيد كلمة المرور",
+  "PhoneNumber": "رقم الهاتف"
 }

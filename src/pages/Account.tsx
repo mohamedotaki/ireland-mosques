@@ -1,6 +1,7 @@
 import { Button, Container, Typography } from "@mui/material";
 import SignInSignUp from "../components/SignInSignUp";
 import { useAuth } from "../hooks/AuthContext";
+import AuthContainer from "../components/auth/AuthContainer";
 
 
 
@@ -21,7 +22,7 @@ export default function AccountPage() {
  */}        </>
     )
         : (
-            <SignInSignUp />
+            <AuthContainer user={user} />
 
         )
 

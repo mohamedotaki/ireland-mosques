@@ -12,6 +12,8 @@ import { usePopup } from "../hooks/PopupContext";
 import { useUpdate } from "../hooks/UpdateContext";
 import { getFromLocalDB, LocalStorageKeys } from "../utils/localDB";
 import { settingsType } from "../types/authTyps";
+import Verification from "../components/auth/Verification";
+import Signin from "../components/auth/Signin";
 
 export default function Home() {
   const { showPopup } = usePopup()

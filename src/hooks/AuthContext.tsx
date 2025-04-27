@@ -5,6 +5,7 @@ import { settingsType, SigninType, SignupType, UserType } from '../types/authTyp
 import i18n from '../services/i18n';
 import { useTheme } from './ThemeContext';
 import { usePopup } from './PopupContext';
+import { getDeviceID } from '../utils/deviceID';
 
 // Define types for our auth state
 
@@ -13,8 +14,8 @@ interface AuthContextType {
   signout: () => Promise<void>;
   signin: (user: SigninType) => Promise<string | undefined>;
   signup: (user: SignupType) => Promise<string | undefined>;
-  verify: (code: string) => Promise<string | undefined>;
-  resendVerificationCode: () => Promise<void>;
+  verify: (code: string) => Promise<boolean>;
+  resendVerificationCode: () => Promise<boolean>;
   updateUser: (user: UserType) => void;
   loading: boolean;
 
@@ -34,6 +35,10 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
 
 
+  const updateUser = async (user: UserType) => {
+    saveToLocalDB(LocalStorageKeys.user, user);
+    setUser(user);
+  }
 
 
   // Logout function
@@ -53,16 +58,15 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   const signin = async (user: SigninType) => {
     setLoading(true)
-    const UUID = getFromLocalDB(LocalStorageKeys.UUID)
+    const UUID = getDeviceID()
     const { data, error } = await apiPost<{ user: SigninType, UUID: string }, { message: string, user: UserType }>('auth/signin', { user, UUID })
     if (data) {
       showPopup({ message: data.message, type: "success" })
-      saveToLocalDB(LocalStorageKeys.user, data.user);
       saveToLocalDB(LocalStorageKeys.AppSettings, data.user.settings)
       i18n.changeLanguage(data.user.settings.language); // Change language dynamically    
       toggleTheme(data.user.settings.theme)
       changeFontSize(data.user.settings.fontSize)
-      setUser(data.user);
+      updateUser(data.user);
       setLoading(false)
       return undefined;
 
@@ -73,18 +77,11 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     }
   }
 
-  const updateUser = async (user: UserType) => {
-    saveToLocalDB(LocalStorageKeys.user, user);
-    setUser(user);
-  }
 
 
   const signup = async (user: SignupType) => {
     setLoading(true)
-
-    const settings: settingsType = getFromLocalDB(LocalStorageKeys.AppSettings)
-
-    const { data, error } = await apiPost<{ user: SignupType }, { message: string, user: UserType }>('auth/signup', { user: { ...user, settings } })
+    const { data, error } = await apiPost<{ user: SignupType }, { message: string, user: UserType }>('auth/signup', { user })
     if (data) {
       showPopup({ message: data.message, type: "success" })
       saveToLocalDB(LocalStorageKeys.user, data.user);
@@ -103,45 +100,32 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   const verify = async (code: string) => {
     setLoading(true)
-
-    const UUID = getFromLocalDB(LocalStorageKeys.UUID)
-    const { data, error } = await apiPost<{ user: UserType | null, code: string, UUID: string }, { message: string, user: UserType | null }>('auth/verify', { user, code, UUID })
+    const UUID = getDeviceID()
+    const { data, error } = await apiPost<{ user: UserType | null, code: string, UUID: string }, { message: string, user: UserType }>('auth/verify', { user, code, UUID })
     if (data) {
       showPopup({ message: data.message, type: "success" })
-
-      saveToLocalDB(LocalStorageKeys.user, data.user);
-      setUser(data.user);
+      updateUser(data.user)
       setLoading(false)
-
-      return undefined
+      return true;
     } else {
       showPopup({ message: error || "Error during email verification. Please try again later.", type: "error" })
-
       setLoading(false)
-
-      if (error === "Too many attempts") {
-        removeFromLocalDB(LocalStorageKeys.user);
-        setUser(null);
-      }
-      return error as string
+      return false;
     }
   }
 
 
   const resendVerificationCode = async () => {
     setLoading(true)
-
     const { data, error } = await apiPost<{ user: UserType | null }, { message: string }>('auth/resend-verification', { user })
     if (data) {
-
       setLoading(false)
-      return undefined;
-
-
+      showPopup({ message: data.message, type: "success" })
+      return true;
     } else {
       setLoading(false)
-
-
+      showPopup({ message: error || "Error during email verification. Please try again later.", type: "error" })
+      return false;
     }
   }
 
