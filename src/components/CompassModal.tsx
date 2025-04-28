@@ -88,20 +88,20 @@ export default function CompassModal({ openModal, handleClose }: PrayerModalProp
   );
 
   const startCompass = async () => {
-    /*     if (isIOS()) { */
-    const DeviceOrientationEventAny = DeviceOrientationEvent as any;
-    DeviceOrientationEventAny.requestPermission?.()
-      .then((response: any) => {
-        if (response === "granted") {
-          window.addEventListener("deviceorientation", handler, true);
-        } else {
-          setError("Location permission is required.");
-        }
-      })
-      .catch(() => setError("Device orientation not supported."));
-    /*    } else {
-         window.addEventListener("deviceorientationabsolute", handler, true);
-       } */
+    if (isIOS()) {
+      const DeviceOrientationEventAny = DeviceOrientationEvent as any;
+      DeviceOrientationEventAny.requestPermission?.()
+        .then((response: any) => {
+          if (response === "granted") {
+            window.addEventListener("deviceorientation", handler, true);
+          } else {
+            setError("Location permission is required.");
+          }
+        })
+        .catch(() => setError("Device orientation not supported."));
+    } else {
+      window.addEventListener("deviceorientationabsolute", handler, true);
+    }
   };
 
   useEffect(() => {
