@@ -86,7 +86,7 @@ const PrayerTable = memo(({ prayersToShow, onPrayerTimeClick, mosqueID, prayersN
     }
   };
 
-
+  console.log(prayersToShow)
 
   return (
     <TableContainer component={Paper} sx={{ direction: isArabic ? "rtl" : "ltr", borderRadius: "0 0 5px 5px" }}>
@@ -144,9 +144,9 @@ const PrayerTable = memo(({ prayersToShow, onPrayerTimeClick, mosqueID, prayersN
               </StyledTableRow>
               :
               <StyledTableRow key={"jummuah"}>
-                <StyledTableCell component="th" scope="row" colSpan={3} sx={{ textAlign: "center" }}>
+                <StyledTableCell onClick={() => handlePrayerTimeClick(prayer, false)} component="th" scope="row" colSpan={3} sx={{ textAlign: "center" }}>
 
-                  {prayer.iqamah ? `Jummuah Prayer is fixed at ${format(prayer.iqamah, is24hFormat)}` : t('Jummuah Iqamah Is Not Set')}
+                  {prayer.adhan ? `Jummuah Prayer is fixed at ${format(prayer.adhan, is24hFormat)}` : t('Jummuah Iqamah Is Not Set')}
                 </StyledTableCell>
               </StyledTableRow>
 

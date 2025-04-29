@@ -268,11 +268,8 @@ const prayersCalc = (
     );
   });
 
-  /*   prayersToday.push({
-      adhan: new Date(),
-      iqamah: null,
-      name: "jummuah",
-    }); */
+
+
 
 
   const prayersToday = prayersTable[(monthToday + 1).toString()][dateToday.toString()].map((hourMinute: Array<number>, index: number) => {
@@ -321,6 +318,30 @@ const prayersCalc = (
       );
     }
   );
+
+
+
+  for (let i = 0; i < mosque.prayers.length; i++) {
+
+    if (mosque.prayers[i].prayer_name === "Jummuah") {
+      const onlineAdhan = mosque.prayers[i].adhan_time.split(":")
+      const time = toDate(new Date(getYear(nowToday), getMonth(nowToday), getDate(nowToday), Number(onlineAdhan[0]), Number(onlineAdhan[1])))
+      const jummuah = {
+        adhan: time,
+        iqamah: null,
+        name: "jummuah",
+        prayerID: mosque.prayers[i].id,
+        trueAdhan: time,
+        adhan_offset: null,
+        iqamah_offset: null,
+        iqamahMode: null,
+        adhan_locked: false
+      }
+      userPrayerDate.push(jummuah);
+      prayersToday.push(jummuah);
+
+    }
+  }
 
 
   /* *********************** */

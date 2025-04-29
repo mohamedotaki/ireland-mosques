@@ -61,7 +61,6 @@ export const UpdateProvider: React.FC<{ children: React.ReactNode }> = ({ childr
                 setError("Please connect to internet and try later")
                 return
             }
-            saveToLocalDB(LocalStorageKeys.FirstLaunch, true)
             saveToLocalDB(LocalStorageKeys.LastDataUpdate, data.newUpdateDate)
             saveToLocalDB(LocalStorageKeys.MosquesData, data.mosques)
             setMosques(data.mosques)
@@ -75,6 +74,8 @@ export const UpdateProvider: React.FC<{ children: React.ReactNode }> = ({ childr
                 setDefaultMosque(arrayOfMosques[0])
             }
             setLoading(false)
+            saveToLocalDB(LocalStorageKeys.FirstLaunch, true)
+
         } else {
             setError("Unable to get mosques and prayers data. please connect to internet and try later")
         }
