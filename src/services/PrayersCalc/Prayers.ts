@@ -324,14 +324,15 @@ const prayersCalc = (
   for (let i = 0; i < mosque.prayers.length; i++) {
 
     if (mosque.prayers[i].prayer_name === "Jummuah") {
-      const onlineAdhan = mosque.prayers[i].adhan_time.split(":")
-      const time = toDate(new Date(getYear(nowToday), getMonth(nowToday), getDate(nowToday), Number(onlineAdhan[0]), Number(onlineAdhan[1])))
+      const onlineAdhan = mosque.prayers[i].iquamh_time?.split(":") || null
+      const time = onlineAdhan ? toDate(new Date(getYear(nowToday), getMonth(nowToday), getDate(nowToday), Number(onlineAdhan[0]), Number(onlineAdhan[1]))) : null
+      const fakeAdahn = toDate(new Date(getYear(nowToday), getMonth(nowToday), getDate(nowToday), 13, 30))
       const jummuah = {
-        adhan: time,
-        iqamah: null,
-        name: "jummuah",
+        adhan: fakeAdahn,
+        iqamah: time,
+        name: "Jummuah",
         prayerID: mosque.prayers[i].id,
-        trueAdhan: time,
+        trueAdhan: fakeAdahn,
         adhan_offset: null,
         iqamah_offset: null,
         iqamahMode: null,

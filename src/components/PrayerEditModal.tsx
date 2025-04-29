@@ -82,6 +82,8 @@ export default function PrayerEditModal({
         hourMax: addHours(prayer.trueAdhan, 2).getHours()
       });
     }
+
+
   }, [prayer, isIqamahClicked]);
 
   const onPrayerUpdate = async (e: PrayerTimeUpdate) => {
@@ -121,6 +123,7 @@ export default function PrayerEditModal({
             exclusive
             onChange={handleChange}
             value={isFixed}
+            disabled={prayerToEdit.name === "Jummuah"}
           >
             <ToggleButton value="fixed">{t("Fixed")}</ToggleButton>
             <ToggleButton disabled={!isIqamahClicked && prayer.name !== "Isha"} value="offset">
@@ -161,7 +164,7 @@ export default function PrayerEditModal({
                   '& .MuiInputBase-input': { textAlign: 'center' }
                 }}
                 shouldDisableTime={(timeValue, clockType) => {
-                  if (clockType === 'hours') {
+                  if (clockType === 'hours' && prayer.name !== "Jummuah") {
                     const hour = timeValue.getHours();
                     const { hourMin, hourMax } = minMaxTime;
 
