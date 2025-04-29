@@ -46,6 +46,9 @@ jobs:
           eval $(ssh-agent -s)
           ssh-add private_key.pem
 
+                # 🔍 Print REMOTE_PATH
+          echo "🚀 Deploying to REMOTE_PATH: $REMOTE_PATH"
+
           # Check REMOTE_PATH isn't dangerously empty or root
           if [[ -z "$REMOTE_PATH" || "$REMOTE_PATH" == "/" || "$REMOTE_PATH" == "/home/$USERNAME" ]]; then
             echo "❌ Aborting deploy: Unsafe REMOTE_PATH"
