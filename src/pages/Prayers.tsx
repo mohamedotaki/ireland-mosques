@@ -35,6 +35,7 @@ export default function Prayers() {
   // Refs to hold dynamic durations without triggering re-renders
   const countUpRef = useRef<number>(prayersData.countUp.duration);
   const countDownRef = useRef<number>(prayersData.countDown.duration);
+  console.log(prayersData)
 
   useEffect(() => {
     const timer = setInterval(() => {

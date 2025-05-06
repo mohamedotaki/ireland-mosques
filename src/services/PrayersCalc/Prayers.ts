@@ -351,12 +351,14 @@ const prayersCalc = (
   let current;
   let next;
   let previous;
-
+  //cehck if isha prayer 
   if (isWithinInterval(nowToday, { start: startToday, end: prayersToday[0].adhan })) {
     previous = prayersYesterday[4];
     current = prayersYesterday[5];
     next = prayersToday[0];
-  } else if (
+  }
+  // check if fajer prayer
+  else if (
     isWithinInterval(nowToday, {
       start: prayersToday[0].adhan,
       end: prayersToday[1].adhan,
@@ -365,7 +367,9 @@ const prayersCalc = (
     previous = prayersYesterday[5];
     current = prayersToday[0];
     next = prayersToday[1];
-  } else if (
+  }
+  // check if shurooq prayer
+  else if (
     isWithinInterval(nowToday, {
       start: prayersToday[1].adhan,
       end: prayersToday[2].adhan,
@@ -374,7 +378,9 @@ const prayersCalc = (
     previous = prayersToday[0];
     current = prayersToday[1];
     next = prayersToday[2];
-  } else if (
+  }
+  // check if duher prayer
+  else if (
     isWithinInterval(nowToday, {
       start: prayersToday[2].adhan,
       end: prayersToday[3].adhan,
@@ -383,7 +389,10 @@ const prayersCalc = (
     previous = prayersToday[1];
     current = prayersToday[2];
     next = prayersToday[3];
-  } else if (
+  }
+  // check if aser prayer
+
+  else if (
     isWithinInterval(nowToday, {
       start: prayersToday[3].adhan,
       end: prayersToday[4].adhan,
@@ -392,7 +401,10 @@ const prayersCalc = (
     previous = prayersToday[2];
     current = prayersToday[3];
     next = prayersToday[4];
-  } else if (
+  }
+  // check if mugherb prayer
+
+  else if (
     isWithinInterval(nowToday, {
       start: prayersToday[4].adhan,
       end: prayersToday[5].adhan,
@@ -401,7 +413,10 @@ const prayersCalc = (
     previous = prayersToday[3];
     current = prayersToday[4];
     next = prayersToday[5];
-  } else {
+  }
+  // anything else is isha prayer
+
+  else {
     previous = prayersToday[4];
     current = prayersToday[5];
     next = prayersTomorrow[0];
