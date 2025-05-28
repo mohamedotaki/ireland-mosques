@@ -14,6 +14,7 @@ import { isIOS, isInStandaloneMode } from './utils/device';
 import InstallDialog from './components/InstallDialog';
 import { useUpdate } from './hooks/UpdateContext';
 import UpdateNotification from './components/UpdateNotification';
+import { PrayerTimes, CalculationMethod, Coordinates, Madhab } from 'adhan';
 
 interface BeforeInstallPromptEvent extends Event {
   prompt: () => Promise<void>;
@@ -24,6 +25,7 @@ export default function App() {
   const { loading, error, appFirstLaunch, checkForUpdate } = useUpdate();
   const [showInstallPrompt, setShowInstallPrompt] = useState(false);
   const deferredPromptRef = useRef<BeforeInstallPromptEvent | null>(null);
+  const [prayerTimes, setPrayerTimes] = useState<{[key:string]:string}>();
 
   useEffect(() => {
     // First time app setup or update check
@@ -77,6 +79,36 @@ export default function App() {
   const handleClose = () => {
     setShowInstallPrompt(false);
   };
+
+
+  useEffect(() => {
+    // Example coordinates (Makkah)
+    const coordinates = new Coordinates(53.764013, -8.763586); 
+    const params = CalculationMethod.NorthAmerica();
+    const date = new Date("2025 05 01");
+    const dateComponents = date;
+    params.madhab = "shafi"
+    params.adjustments.fajr = -3
+    params.adjustments.sunrise = -1
+    params.adjustments.dhuhr = 2
+    params.adjustments.asr = -1
+    params.adjustments.isha = -2
+
+
+    const prayerTimes = new PrayerTimes(coordinates, dateComponents, params);
+
+    console.log(prayerTimes)
+
+    setPrayerTimes({
+      fajr: prayerTimes.fajr.toLocaleTimeString(),
+      sunrise: prayerTimes.sunrise.toLocaleTimeString(),
+      dhuhr: prayerTimes.dhuhr.toLocaleTimeString(),
+      asr: prayerTimes.asr.toLocaleTimeString(),
+      maghrib: prayerTimes.maghrib.toLocaleTimeString(),
+      isha: prayerTimes.isha.toLocaleTimeString(),
+    });
+  }, []);
+  console.log(prayerTimes)
 
   return (
     <Router>
