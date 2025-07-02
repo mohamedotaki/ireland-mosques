@@ -130,7 +130,7 @@ const prayerCalc = (
       for (let i = 0; i < onlineData.length; i++) {
         if (names[index + 1] === onlineData[i].prayer_name) {
           const nextPrayeModifiedDate = new Date(onlineData[i].adhan_modified_on);
-          if (onlineData[i].adhan_time && !onlineData[i].adhan_locked && isWithinInterval(todaysDate, { start: nextPrayeModifiedDate, end: addDays(nextPrayeModifiedDate, 15) })) {
+          if (onlineData[i].adhan_time && !onlineData[i].adhan_locked /* && isWithinInterval(todaysDate, { start: nextPrayeModifiedDate, end: addDays(nextPrayeModifiedDate, 15) }) */) {
             const onlineAdhan = onlineData[i].adhan_time.split(":")
             onlineHourAdhanNext = Number(onlineAdhan[0])
             onlineMinAdhanNext = Number(onlineAdhan[1])
@@ -162,7 +162,7 @@ const prayerCalc = (
           }
         }
         const iqamahModifiedDate = new Date(prayer.iquamh_modified_on);
-        if (prayer.iquamh_time && isWithinInterval(todaysDate, { start: iqamahModifiedDate, end: addDays(iqamahModifiedDate, 15) })) {
+        if (prayer.iquamh_time /* && isWithinInterval(todaysDate, { start: iqamahModifiedDate, end: addDays(iqamahModifiedDate, 15) }) */) {
           const onlineIqamah = prayer.iquamh_time.split(":")
           onlineHourIqamah = Number(onlineIqamah[0])
           onlineMinIqamah = Number(onlineIqamah[1])
@@ -179,7 +179,7 @@ const prayerCalc = (
             iqamahMode = null
 
           }
-        } else if (prayer.iquamh_offset && isWithinInterval(todaysDate, { start: iqamahModifiedDate, end: addDays(iqamahModifiedDate, 15) })) {
+        } else if (prayer.iquamh_offset/*  && isWithinInterval(todaysDate, { start: iqamahModifiedDate, end: addDays(iqamahModifiedDate, 15) }) */) {
           iqamah = addMinutes(adhan, prayer.iquamh_offset)
           iqamahMode = "offset"
           iqamah_offset = prayer.iquamh_offset
