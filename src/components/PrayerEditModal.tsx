@@ -126,7 +126,7 @@ export default function PrayerEditModal({
             disabled={prayerToEdit.name === "Jummuah"}
           >
             <ToggleButton value="fixed">{t("Fixed")}</ToggleButton>
-            <ToggleButton disabled={!isIqamahClicked && prayer.name !== "Isha"} value="offset">
+            <ToggleButton disabled={!isIqamahClicked && prayer.name === "Jummuah"} value="offset">
               {t("Offset")}
             </ToggleButton>
           </ToggleButtonGroup>
@@ -140,6 +140,7 @@ export default function PrayerEditModal({
               value={
                 isIqamahClicked ? prayerToEdit?.iqamah_offset ?? 0 : prayerToEdit?.adhan_offset ?? 0
               }
+              onFocus={(event) => event.target.select()}
               onChange={(e) =>
                 setPrayerToEdit({
                   ...prayerToEdit,

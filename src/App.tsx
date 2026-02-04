@@ -99,7 +99,7 @@ export default function App() {
               <Container maxWidth="lg">
                 <Routes>
                   <Route path="/home" element={<Home />} />
-                  <Route path="/" element={<Prayers />} />
+                  <Route path="*" element={<Prayers />} />
                   <Route path="/settings" element={<SettingsPage />} />
                   <Route path="/account" element={<AccountPage />} />
                 </Routes>

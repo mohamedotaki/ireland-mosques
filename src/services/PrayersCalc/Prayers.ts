@@ -108,10 +108,10 @@ const prayerCalc = (
   const name = names[index];
 
 
-  let adhanBefore = name === "Isha" ? addHours(
+  let adhanBefore = addHours(
     toDate(new Date(getYear(now), getMonth(now), getDate(now), hourBefore, minuteBefore)),
     dstAdjust
-  ) : null;
+  )
 
   let adhan = addHours(
     toDate(new Date(getYear(now), getMonth(now), getDate(now), hour, minute)),
@@ -156,8 +156,8 @@ const prayerCalc = (
               toDate(new Date(getYear(now), getMonth(now), getDate(now), onlineHourAdhan, onlineMinAdhan)),
               isDST(modifiedDate) ? 0 : dstAdjust
             );
-          } else if (prayer.adhan_offset && adhanBefore) {
-            adhan = addMinutes(adhanBefore, prayer.adhan_offset)
+          } else if (prayer.adhan_offset) {
+            adhan = addMinutes(adhan, prayer.adhan_offset)
 
           }
         }

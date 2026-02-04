@@ -1,7 +1,7 @@
 {
   "name": "mosques-frontend",
   "appName": "Muslims Ireland",
-  "version": "1.0.0",
+  "version": "1.2.4",
   "private": true,
   "dependencies": {
     "@emotion/react": "^11.14.0",
