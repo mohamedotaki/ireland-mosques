@@ -17,3 +17,12 @@ export type UserType = {
   modified_on: Date;
   mosqueID: number;
 }
+
+
+export type ActiveUsersType = {
+  day: string;
+  week: string;
+  month: string;
+  year: string;
+  allTime: string
+}

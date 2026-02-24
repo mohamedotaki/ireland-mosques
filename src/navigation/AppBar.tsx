@@ -6,20 +6,20 @@ import IconButton from '@mui/material/IconButton';
 import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
 import Avatar from '@mui/material/Avatar';
-import Button from '@mui/material/Button';
 import LoginIcon from '@mui/icons-material/Login';
 import logo from "../assets/logo.png"
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/AuthContext';
-
+import SettingsOutlinedIcon from '@mui/icons-material/SettingsOutlined';
+import { Menu } from '@mui/material';
+import SettingsPage from '../pages/Settings';
 const pages = ['Products', 'Pricing', 'Blog'];
 
 
 function CustomAppBar() {
-/*   const [anchorElNav, setAnchorElNav] = React.useState<null | HTMLElement>(null);
- *//*   const [anchorElUser, setAnchorElUser] = React.useState<null | HTMLElement>(null);
- */  const navigate = useNavigate();  // <-- hook for navigation
+  const navigate = useNavigate();  // <-- hook for navigation
   const { user/* , signout */ } = useAuth()
+
   /*   const settings = [
       { name: 'Account', function: signout },
       { name: 'Logout', function: signout }
@@ -54,14 +54,17 @@ function CustomAppBar() {
     <AppBar position="sticky">
       <Container maxWidth="xl">
         <Toolbar disableGutters>
-          <Box sx={{ display: { xs: 'flex', md: 'flex' }, mr: 1 }}>
+          <Box sx={{ cursor: "pointer", display: { xs: 'flex', md: 'flex' }, mr: 1 }} onClick={() => navigate("/")}
+          >
             <img src={logo} alt="Logo" style={{ height: 45, width: 45 }} />
           </Box>
           <Typography
+            onClick={() => navigate("/")}
             variant="h6"
             noWrap
             component="a"
             sx={{
+              cursor: "pointer",
               fontSize: 18,
               flexGrow: 1,
               mr: 2,
@@ -77,18 +80,10 @@ function CustomAppBar() {
           </Typography>
 
 
-          <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
-            {pages.map((page) => (
-              <Button
-                key={page}
-/*                 onClick={handleCloseNavMenu}
- */                sx={{ my: 2, color: 'white', display: 'block' }}
-              >
-                {page}
-              </Button>
-            ))}
-          </Box>
-          <Box sx={{ flexGrow: 0 }}>
+
+          <Box sx={{ flexGrow: 0, display: "flex" }}>
+
+            <SettingsMenu />
             {user ?
               <IconButton onClick={handleSignin} sx={{ p: 0 }}>
                 <Avatar alt={user?.name} src="/static/images/avatar/2.jpg" />
@@ -105,3 +100,43 @@ function CustomAppBar() {
   );
 }
 export default CustomAppBar;
+
+
+const SettingsMenu = () => {
+  const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
+  const open = Boolean(anchorEl);
+  const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+    setAnchorEl(event.currentTarget);
+  };
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
+
+  return (
+    <div>
+      <IconButton
+        id="basic-button"
+        aria-controls={open ? 'basic-menu' : undefined}
+        aria-haspopup="true"
+        aria-expanded={open ? 'true' : undefined}
+        onClick={handleClick}
+        sx={{ display: { xs: "none", md: "flex" } }}
+      >
+        <SettingsOutlinedIcon />
+      </IconButton>
+      <Menu
+        id="basic-menu"
+        anchorEl={anchorEl}
+        open={open}
+        onClose={handleClose}
+        slotProps={{
+          list: {
+            'aria-labelledby': 'basic-button',
+          },
+        }}
+      >
+        <SettingsPage floating={true} />
+      </Menu>
+    </div>
+  )
+}

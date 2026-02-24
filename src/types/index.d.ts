@@ -53,6 +53,7 @@ export type mosquesDatabaseType = {
   iban: string;
   prayers: Array<prayerDatabaseType>
   time_table: TimetableType;
+  ramadan_mode: boolean;
 }
 
 export type TimetableType = {

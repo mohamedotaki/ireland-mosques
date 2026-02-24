@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useState } from 'react';
 import { getFromLocalDB, LocalStorageKeys, saveToLocalDB } from '../utils/localDB';
 import { getDateTimeString } from '../utils/dateTime';
-import { apiGet } from '../utils/api';
+import { apiGet, apiPost } from '../utils/api';
 import { mosquesDatabaseType } from '../types';
 import { addDays, isWithinInterval } from 'date-fns';
 import { useAuth } from './AuthContext';
@@ -14,6 +14,7 @@ import { requestNotificationPermission } from '../utils/permissions';
 const UpdateContext = createContext<{
     checkForUpdate: () => Promise<void>;
     appFirstLaunch: () => Promise<void>;
+    record_active_user: () => Promise<void>;
     loading: boolean;
     error: string;
     mosques: { [key: string]: mosquesDatabaseType } | null;
@@ -55,6 +56,7 @@ export const UpdateProvider: React.FC<{ children: React.ReactNode }> = ({ childr
 
         requestNotificationPermission()
         const { data } = await apiGet<appFirstLunchType>("app")
+        console.log("data", data)
         if (data) {
             const arrayOfMosques = Object.values(data.mosques)
             if (arrayOfMosques.length === 0) {
@@ -124,8 +126,19 @@ export const UpdateProvider: React.FC<{ children: React.ReactNode }> = ({ childr
 
     };
 
+
+    const record_active_user = async () => {
+        const UserActiveDate = getFromLocalDB(LocalStorageKeys.UserActiveDate)
+        if (!UserActiveDate || new Date(UserActiveDate) < new Date()) {
+            const uuid = getFromLocalDB(LocalStorageKeys.UUID)
+            const newDate = new Date()
+            saveToLocalDB(LocalStorageKeys.UserActiveDate, newDate)
+            await apiPost<{ uuid: string }, { res: string }>("app/active_user", { uuid })
+        }
+    }
+
     return (
-        <UpdateContext.Provider value={{ checkForUpdate, loading, error, appFirstLaunch, mosques, defaultMosque }}>
+        <UpdateContext.Provider value={{ record_active_user, checkForUpdate, loading, error, appFirstLaunch, mosques, defaultMosque }}>
             {children}
         </UpdateContext.Provider>
     );

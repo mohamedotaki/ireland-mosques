@@ -11,6 +11,7 @@ import MosqueInfo from "../components/MosqueInfo";
 import MosqueInfoModal from "../components/MosqueInfoModal";
 import CompassModal from "../components/CompassModal";
 import { useUpdate } from "../hooks/UpdateContext";
+import RamadanTimeTable from "./RamadanTimeTable";
 /* import NotificationManager from "../components/NotificationManager";
  */
 interface ModalProps {
@@ -114,6 +115,7 @@ export default function Prayers() {
     <>
       {/* <NotificationManager todaysPrayers={prayersData.prayers.today} notificationsSettings={prayerNotification} /> */}
       <PrayerDate date={prayersDate} updateDate={setPrayerDate} />
+      {mosque.ramadan_mode && <RamadanTimeTable />}
       <MosqueInfo mosqueDetails={mosque} handleInfoModalOpen={handleInfoModalOpen} handleCompassOpen={handleCompassOpen} />
       <ProgressBar progress={progress} time={timeLeftToNextPrayer} />
       <PrayerTable
