@@ -129,7 +129,7 @@ export const UpdateProvider: React.FC<{ children: React.ReactNode }> = ({ childr
 
     const record_active_user = async () => {
         const UserActiveDate = getFromLocalDB(LocalStorageKeys.UserActiveDate)
-        if (!UserActiveDate || new Date(UserActiveDate) < new Date()) {
+        if (!UserActiveDate || new Date(UserActiveDate).getDate() < new Date().getDate()) {
             const uuid = getFromLocalDB(LocalStorageKeys.UUID)
             const newDate = new Date()
             saveToLocalDB(LocalStorageKeys.UserActiveDate, newDate)
