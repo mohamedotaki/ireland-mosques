@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Typography, FormControl, Select, MenuItem, Grid2 as Grid, Card } from '@mui/material';
+import { Typography, FormControl, Select, MenuItem, Grid2 as Grid, Card, Divider } from '@mui/material';
 import { useTheme } from '../hooks/ThemeContext';
 import { getFromLocalDB, LocalStorageKeys, saveToLocalDB } from '../utils/localDB';
 import { useTranslation } from 'react-i18next';
@@ -9,9 +9,12 @@ import debounce from 'lodash/debounce';
 import { apiPut } from '../utils/api';
 import isEqual from 'lodash/isEqual';
 import { useAuth } from '../hooks/AuthContext';
+import ActiveUsers from '../components/ActiveUsers';
 
-
-const SettingsPage: React.FC = () => {
+type SettingsPageProps = {
+  floating?: boolean;
+};
+const SettingsPage: React.FC<SettingsPageProps> = ({ floating = false }) => {
 
   const hasMounted = React.useRef(false);
   const { theme, toggleTheme, changeFontSize } = useTheme();
@@ -92,133 +95,113 @@ const SettingsPage: React.FC = () => {
   }, [settings]);
 
   return (
-    <>
-      <Card sx={{ maxWidth: 600, margin: 'auto', padding: 2, mt: 2, direction: isArabic ? "rtl" : "ltr" }}>
-        <Typography variant="h6" textAlign="center" sx={{ mb: 2 }}>
-          General
-        </Typography>
 
-        <Grid container spacing={3}>
-          {/* Language Selection */}
-          <Grid size={12} container>
-            <Grid size={6}>
-              <Typography variant="body1">{t("Language")}</Typography>
-            </Grid>
-            <Grid size={6}>
-              <FormControl fullWidth>
-                <Select name='language' value={settings.language} onChange={handleSettingsChange}>
-                  <MenuItem value="en">English</MenuItem>
-                  <MenuItem value="ar">العربية</MenuItem>
-                  <MenuItem value="ur">اردو</MenuItem>
+    <Card sx={{ maxWidth: 600, margin: 'auto', padding: 2, my: { xs: 2, md: -1 }, direction: isArabic ? "rtl" : "ltr" }}>
+      <Typography color="primary" variant="h6" textAlign="center" sx={{ mb: 2 }}>
+        General
+      </Typography>
 
-
-                </Select>
-              </FormControl>
-            </Grid>
+      <Grid container spacing={3}>
+        {/* Language Selection */}
+        <Grid size={12} container alignItems="center">
+          <Grid size={6} >
+            <Typography variant="body1">{t("Language")}</Typography>
           </Grid>
+          <Grid size={6}>
+            <FormControl fullWidth size={floating ? "small" : "medium"}>
+              <Select name='language' value={settings.language} onChange={handleSettingsChange} >
+                <MenuItem value="en">English</MenuItem>
+                <MenuItem value="ar">العربية</MenuItem>
+                <MenuItem value="ur">اردو</MenuItem>
 
-          {/* Theme Selection */}
-          <Grid size={12} container alignItems="center">
-            <Grid size={6}>
-              <Typography variant="body1">{t("Theme")}</Typography>
-            </Grid>
-            <Grid size={6}>
-              <FormControl fullWidth>
-                <Select value={theme} name='theme' onChange={handleSettingsChange}>
-                  <MenuItem value="system_default">{t("System Default")}</MenuItem>
-                  <MenuItem value="dark">{t("Dark")}</MenuItem>
-                  <MenuItem value="light">{t("Light")}</MenuItem>
-                </Select>
-              </FormControl>
-            </Grid>
-          </Grid>
 
-          {/* Time Format Selection */}
-          <Grid size={12} container alignItems="center">
-            <Grid size={6}>
-              <Typography variant="body1">{t("Time Format")}</Typography>
-            </Grid>
-            <Grid size={6}>
-              <FormControl fullWidth>
-                <Select value={settings.timeFormatIs24H ? "24-h" : "12-h"} name='timeFormatIs24H' onChange={(e) => handleSettingsChange({ ...e, target: { name: 'timeFormatIs24H', value: e.target.value === "24-h" ? true : false } })}>
-                  <MenuItem value="12-h">{t("12-hour")}</MenuItem>
-                  <MenuItem value="24-h">{t("24-hour")}</MenuItem>
-                </Select>
-              </FormControl>
-            </Grid>
-          </Grid>
-
-          {/* Font Size Slider */}
-          <Grid size={12} container alignItems="center">
-            <Grid size={6}>
-              <Typography variant="body1">{t("Font Size")}</Typography>
-            </Grid>
-            <Grid size={6}>
-              <FormControl fullWidth>
-                <Slider
-                  name='fontSize'
-                  aria-label="Font Size"
-                  defaultValue={14}
-                  value={settings.fontSize}
-                  valueLabelDisplay="auto"
-                  step={1}
-                  marks={marks}
-                  min={10}
-                  max={20}
-                  onChange={handleSettingsChange}
-                  sx={{
-                    '& .MuiSlider-thumb': {
-                      marginRight: "-10%"
-                    },
-                    '& .MuiSlider-track': {
-                      direction: 'ltr', // Flip the track in RTL mode
-                    },
-                  }}
-                />
-              </FormControl>
-            </Grid>
+              </Select>
+            </FormControl>
           </Grid>
         </Grid>
 
-
-      </Card>
-
-
-
-
-
-      {/*     <Card sx={{ maxWidth: 600, margin: 'auto', padding: 2, mt: 2, direction: isArabic ? "rtl" : "ltr" }}>
-        <Typography variant="h6" textAlign="center" sx={{ mb: 2 }}>
-          Contact Us
-        </Typography>
-
+        {/* Theme Selection */}
         <Grid size={12} container alignItems="center">
           <Grid size={6}>
-            <Typography variant="body1">{t("Rate us")}</Typography>
+            <Typography variant="body1">{t("Theme")}</Typography>
           </Grid>
           <Grid size={6}>
-
+            <FormControl fullWidth size={floating ? "small" : "medium"}>
+              <Select value={theme} name='theme' onChange={handleSettingsChange}>
+                <MenuItem value="system_default">{t("System Default")}</MenuItem>
+                <MenuItem value="dark">{t("Dark")}</MenuItem>
+                <MenuItem value="light">{t("Light")}</MenuItem>
+              </Select>
+            </FormControl>
           </Grid>
         </Grid>
 
-        <Grid container spacing={3}>
-      <Grid size={12} container justifyContent="center">
-        <Grid size={12} >
-          <Typography variant="body1" textAlign={"center"}>{t("Leave us a feedback")}</Typography>
-          <TextField fullWidth label="Feedback" id="fullWidth" rows={2} multiline />
-          <Button variant="text">Send Feedback</Button>
-
+        {/* Time Format Selection */}
+        <Grid size={12} container alignItems="center">
+          <Grid size={6}>
+            <Typography variant="body1">{t("Time Format")}</Typography>
+          </Grid>
+          <Grid size={6}>
+            <FormControl fullWidth size={floating ? "small" : "medium"}>
+              <Select value={settings.timeFormatIs24H ? "24-h" : "12-h"} name='timeFormatIs24H' onChange={(e) => handleSettingsChange({ ...e, target: { name: 'timeFormatIs24H', value: e.target.value === "24-h" ? true : false } })}>
+                <MenuItem value="12-h">{t("12-hour")}</MenuItem>
+                <MenuItem value="24-h">{t("24-hour")}</MenuItem>
+              </Select>
+            </FormControl>
+          </Grid>
         </Grid>
+
+        {/* Font Size Slider */}
+        <Grid size={12} container alignItems="center">
+          <Grid size={6}>
+            <Typography variant="body1">{t("Font Size")}</Typography>
+          </Grid>
+          <Grid size={6}>
+            <FormControl fullWidth>
+              <Slider
+                name='fontSize'
+                aria-label="Font Size"
+                defaultValue={14}
+                value={settings.fontSize}
+                valueLabelDisplay="auto"
+                step={1}
+                marks={marks}
+                min={10}
+                max={20}
+                onChange={handleSettingsChange}
+                sx={{
+                  '& .MuiSlider-thumb': {
+                    marginRight: "-10%"
+                  },
+                  '& .MuiSlider-track': {
+                    direction: 'ltr', // Flip the track in RTL mode
+                  },
+                }}
+              />
+            </FormControl>
+          </Grid>
+        </Grid>
+        <Grid size={12}>
+          <Divider />
+        </Grid>
+        {user?.userType === "Owner" && <Grid size={12}>
+          <ActiveUsers />
+          <Divider sx={{ mt: 2 }} />
+
+        </Grid>}
       </Grid>
-    </Grid >
 
-
-      </Card > */}
-      {/* Display App Version at the bottom */}
       <Typography variant="body2" color="textSecondary" textAlign="center" sx={{ mt: 4 }}>
         Version: {process.env.REACT_APP_VERSION} {/* Access the version from .env */}
       </Typography>
-    </>
+
+
+    </Card>
+
+
+
+
+
   );
 };
 

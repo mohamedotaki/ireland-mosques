@@ -9,6 +9,7 @@ export enum LocalStorageKeys {
   UUID = "UUID",
   PrayerNotifications = "PrayerNotifications",
   AppSettings = "AppSettings",
+  UserActiveDate = "UserActiveDate",
 
 
 

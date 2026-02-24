@@ -37,7 +37,7 @@ export default function BottomNavigationBar() {
 
   return (
     <Box sx={{ bottom: 0, right: 0, left: 0, position: "fixed", backgroundColor: 'background.paper', display: { md: 'none' }, paddingBottom: 'env(safe-area-inset-bottom)' }}>
-      <BottomNavigation value={value} onChange={handleNavigation}>
+      <BottomNavigation value={value} onChange={handleNavigation} showLabels>
         <BottomNavigationAction label="Home" icon={<FeedIcon sx={{ fontSize: 30 }} />} />
         <BottomNavigationAction label="Prayers" icon={<WatchLaterIcon sx={{ fontSize: 30 }} />} />
         <BottomNavigationAction label="Settings" icon={<SettingsIcon sx={{ fontSize: 30 }} />} />

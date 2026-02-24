@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import './App.css';
 import BottomNavigationBar from './navigation/BottomNavigation';
-import { CssBaseline, Box, Container } from '@mui/material';
+import { CssBaseline, Box, Container, useTheme, useMediaQuery } from '@mui/material';
 import CustomAppBar from './navigation/AppBar';
 import Prayers from './pages/Prayers';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
@@ -14,6 +14,7 @@ import { isIOS, isInStandaloneMode } from './utils/device';
 import InstallDialog from './components/InstallDialog';
 import { useUpdate } from './hooks/UpdateContext';
 import UpdateNotification from './components/UpdateNotification';
+import Desktop from './pages/Desktop';
 
 interface BeforeInstallPromptEvent extends Event {
   prompt: () => Promise<void>;
@@ -21,16 +22,18 @@ interface BeforeInstallPromptEvent extends Event {
 }
 
 export default function App() {
-  const { loading, error, appFirstLaunch, checkForUpdate } = useUpdate();
+  const { loading, error, appFirstLaunch, checkForUpdate, record_active_user } = useUpdate();
   const [showInstallPrompt, setShowInstallPrompt] = useState(false);
   const deferredPromptRef = useRef<BeforeInstallPromptEvent | null>(null);
-
+  const theme = useTheme();
+  const isDesktop = useMediaQuery(theme.breakpoints.up("md")); // md = 960px
   useEffect(() => {
     // First time app setup or update check
     if (!isKeyInLocalDB(LocalStorageKeys.FirstLaunch)) {
       appFirstLaunch();
     } else {
       checkForUpdate();
+      record_active_user()
     }
 
     // Android install prompt handler
@@ -99,7 +102,7 @@ export default function App() {
               <Container maxWidth="lg">
                 <Routes>
                   <Route path="/home" element={<Home />} />
-                  <Route path="*" element={<Prayers />} />
+                  <Route path="*" element={isDesktop ? <Desktop /> : <Prayers />} />
                   <Route path="/settings" element={<SettingsPage />} />
                   <Route path="/account" element={<AccountPage />} />
                 </Routes>
