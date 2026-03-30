@@ -1,20 +1,7 @@
-import PrayerTable from "../components/PrayerTable";
-import PrayerDate from "../components/PrayerDate";
-import HadithCard from "../components/HadithCard";
-import { calculatePrayerProgress, prayersCalc } from "../services/PrayersCalc/Prayers";
-import { useCallback, useEffect, useRef, useState } from "react";
-import PrayerEditModal from "../components/PrayerEditModal";
-import { PrayersCalcType, PrayerType } from "../types";
-import ProgressBar from "../components/ProgressBar";
-import { getFromLocalDB, LocalStorageKeys, saveToLocalDB } from "../utils/localDB";
-import MosqueInfo from "../components/MosqueInfo";
-import MosqueInfoModal from "../components/MosqueInfoModal";
-import CompassModal from "../components/CompassModal";
-import { useUpdate } from "../hooks/UpdateContext";
-import RamadanTimeTable from "./RamadanTimeTable";
 import { Grid } from "@mui/material";
 import Prayers from "./Prayers";
 import Home from "./Home";
+import { PrayerType } from "../types";
 /* import NotificationManager from "../components/NotificationManager";
  */
 interface ModalProps {
