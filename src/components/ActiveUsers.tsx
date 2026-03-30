@@ -1,4 +1,4 @@
-import { CircularProgress, Grid2, Typography } from '@mui/material';
+import { CircularProgress, Grid, Typography } from '@mui/material';
 import { useEffect, useState } from 'react';
 import { apiGet } from '../utils/api';
 import { ActiveUsersType } from '../types/user';
@@ -38,38 +38,38 @@ export default function ActiveUsers() {
 
   return (error || loading) ?
     (
-      <Grid2 container size={12} >
-        <Grid2 size={12} alignContent={"center"} textAlign={"center"}>
+      <Grid container size={12} >
+        <Grid size={12} alignContent={"center"} textAlign={"center"}>
           {loading && <CircularProgress />}
           <Typography color={error ? "error" : "info"}>{error ? error : `Loading Data`}</Typography>
 
-        </Grid2>
+        </Grid>
 
-      </Grid2>
+      </Grid>
     )
 
     : (
-      <Grid2 container size={12}>
-        <Grid2 size={12} alignContent={"center"} >
+      <Grid container size={12}>
+        <Grid size={12} alignContent={"center"} >
           <Typography gutterBottom variant="h6" color="primary" textAlign={"center"}>Active Users</Typography>
-        </Grid2>
+        </Grid>
         {
           time.map((time) => (
 
-            <Grid2 container size={4} mt={1} key={time}>
-              <Grid2 size={12} alignContent={"center"} textAlign={"center"}>
+            <Grid container size={4} mt={1} key={time}>
+              <Grid size={12} alignContent={"center"} textAlign={"center"}>
                 <Typography fontWeight={600}>{time}</Typography>
-              </Grid2>
-              <Grid2 size={12} textAlign={"center"}>
+              </Grid>
+              <Grid size={12} textAlign={"center"}>
                 <Typography>{`${activeUsers[time]}`}</Typography>
-              </Grid2>
-            </Grid2>
+              </Grid>
+            </Grid>
 
           ))
         }
 
 
 
-      </Grid2>
+      </Grid>
     );
 }

@@ -3,9 +3,8 @@ import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
 import Modal from '@mui/material/Modal';
 import { mosquesDatabaseType } from '../types';
-import Grid from '@mui/material/Grid2';
 import Divider from '@mui/material/Divider';
-import { TextField } from '@mui/material';
+import { Grid, TextField } from '@mui/material';
 
 const style = {
   position: 'absolute',

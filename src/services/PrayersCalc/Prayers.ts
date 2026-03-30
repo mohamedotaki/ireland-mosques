@@ -91,6 +91,8 @@ const prayerCalc = (
   let [hourBefore, minuteBefore] = hourMinutePrevious;
   let [hour, minute] = hourMinute;
   let [hourNext, minuteNext] = hourMinuteNext;
+  let onlineHourAdhanBefore = null
+  let onlineMinAdhanBefore = null
   let onlineHourAdhan = null
   let onlineMinAdhan = null
   let onlineHourAdhanNext = null
@@ -102,11 +104,11 @@ const prayerCalc = (
   let adhan_offset = null;
   let adhan_locked = true;
   let iqamahMode = null;
+  let adhan_offset_type = null
   let prayerID = 0;
   const todaysDate = new Date();
   const names = ["Fajr", "Shurooq", "Dhuhr", "Asr", "Maghrib", "Isha"];
   const name = names[index];
-
 
   let adhanBefore = addHours(
     toDate(new Date(getYear(now), getMonth(now), getDate(now), hourBefore, minuteBefore)),
@@ -128,7 +130,22 @@ const prayerCalc = (
     onlineData.forEach((prayer: prayerDatabaseType) => {
       //update next prayer adhan time
       for (let i = 0; i < onlineData.length; i++) {
-        if (names[index + 1] === onlineData[i].prayer_name) {
+        //updated previous adhan for offset calculation
+        if (index < 6 && index > 0 && names[index - 1] === onlineData[i].prayer_name) {
+          const previousPrayeModifiedDate = new Date(onlineData[i].adhan_modified_on);
+          if (onlineData[i].adhan_time && !onlineData[i].adhan_locked) {
+            const onlineAdhan = onlineData[i].adhan_time.split(":")
+            onlineHourAdhanBefore = Number(onlineAdhan[0])
+            onlineMinAdhanBefore = Number(onlineAdhan[1])
+            adhanBefore = addHours(
+              toDate(new Date(getYear(now), getMonth(now), getDate(now), onlineHourAdhanBefore, onlineMinAdhanBefore)),
+              isDST(previousPrayeModifiedDate) ? 0 : dstAdjust
+            );
+
+          }
+
+        }
+        if (index < 5 && names[index + 1] === onlineData[i].prayer_name) {
           const nextPrayeModifiedDate = new Date(onlineData[i].adhan_modified_on);
           if (onlineData[i].adhan_time && !onlineData[i].adhan_locked/*  && isWithinInterval(todaysDate, { start: nextPrayeModifiedDate, end: addDays(nextPrayeModifiedDate, 15) }) */) {
             const onlineAdhan = onlineData[i].adhan_time.split(":")
@@ -139,15 +156,15 @@ const prayerCalc = (
               isDST(nextPrayeModifiedDate) ? 0 : dstAdjust
             );
           }
-          break
         }
       }
 
 
       if (prayer.prayer_name === name) {
+
         prayerID = prayer.id
         const modifiedDate = new Date(prayer.adhan_modified_on);
-        if ((prayer.adhan_time || prayer.adhan_offset) && !prayer.adhan_locked /* && isWithinInterval(todaysDate, { start: modifiedDate, end: addDays(modifiedDate, 15) }) */) {
+        if ((prayer.adhan_time || prayer.adhan_offset) && !prayer.adhan_locked) {
           if (prayer.adhan_time) {
             const onlineAdhan = prayer.adhan_time.split(":")
             onlineHourAdhan = Number(onlineAdhan[0])
@@ -157,12 +174,22 @@ const prayerCalc = (
               isDST(modifiedDate) ? 0 : dstAdjust
             );
           } else if (prayer.adhan_offset) {
-            adhan = addMinutes(adhan, prayer.adhan_offset)
+            adhan_offset_type = prayer.adhan_offset_type
+            adhan_offset = prayer.adhan_offset
+            switch (prayer.adhan_offset_type) {
+              case "original_time_offset":
+                adhan = addMinutes(adhan, prayer.adhan_offset)
+                break;
+              case "prayer_time_offset":
+                adhan = addMinutes(adhanBefore, prayer.adhan_offset)
+                break;
+
+            }
 
           }
         }
         const iqamahModifiedDate = new Date(prayer.iquamh_modified_on);
-        if (prayer.iquamh_time /* && isWithinInterval(todaysDate, { start: iqamahModifiedDate, end: addDays(iqamahModifiedDate, 15) }) */) {
+        if (prayer.iquamh_time) {
           const onlineIqamah = prayer.iquamh_time.split(":")
           onlineHourIqamah = Number(onlineIqamah[0])
           onlineMinIqamah = Number(onlineIqamah[1])
@@ -197,6 +224,7 @@ const prayerCalc = (
     adhan,
     trueAdhan,
     iqamah,
+    adhan_offset_type,
     adhan_locked,
     name,
     iqamahMode,
@@ -254,7 +282,7 @@ const prayersCalc = (
     const hourMinuteNext =
       index < 5 ? prayersTable[(month + 1).toString()][date.toString()][index + 1] : [24, 0];
     const hourMinutePrevious =
-      index === 5 ? prayersTable[(month + 1).toString()][date.toString()][index - 1] : [24, 0];
+      (index < 6 && index > 0) ? prayersTable[(month + 1).toString()][date.toString()][index - 1] : [24, 0];
 
     return prayerCalc(
       hourMinute,
@@ -276,7 +304,7 @@ const prayersCalc = (
     const hourMinuteNext =
       index < 5 ? prayersTable[(monthToday + 1).toString()][dateToday.toString()][index + 1] : [24, 0];
     const hourMinutePrevious =
-      index < 5 && index > 0 ? prayersTable[(month + 1).toString()][date.toString()][index - 1] : [24, 0];
+      index < 6 && index > 0 ? prayersTable[(month + 1).toString()][date.toString()][index - 1] : [24, 0];
 
     return prayerCalc(
       hourMinute,
@@ -288,6 +316,7 @@ const prayersCalc = (
       hourMinutePrevious
     );
   });
+
 
 
   const prayersTomorrow = prayersTable[monthTomorrow + 1][dateTomorrow].map(
@@ -331,6 +360,7 @@ const prayersCalc = (
         adhan: fakeAdahn,
         iqamah: time,
         name: "Jummuah",
+        adhan_offset_type: null,
         prayerID: mosque.prayers[i].id,
         trueAdhan: fakeAdahn,
         adhan_offset: null,

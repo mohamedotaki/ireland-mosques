@@ -6,7 +6,7 @@ import { PrayerType } from '../types';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFnsV3';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { MobileTimePicker } from '@mui/x-date-pickers/MobileTimePicker';
-import { Container, CircularProgress } from '@mui/material';
+import { Container, CircularProgress, MenuItem } from '@mui/material';
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import ToggleButton from '@mui/material/ToggleButton';
@@ -40,6 +40,7 @@ interface PrayerModalProps {
 type PrayerTimeUpdate = {
   mosqueID: number;
   prayerID: number;
+  adhan_offset_type: PrayerType["adhan_offset_type"]
   newPrayerTime: string | null;
   offset: number | null;
   isIqamah: boolean;
@@ -56,7 +57,7 @@ export default function PrayerEditModal({
   const [prayerToEdit, setPrayerToEdit] = useState<any>(prayer);
   const [loading, setLoading] = useState<boolean>(false);
   const [isFixed, setIsFixed] = useState<"fixed" | "offset">(
-    isIqamahClicked ? prayer.iqamahMode || "fixed" : "fixed"
+    isIqamahClicked ? prayer.iqamahMode || "fixed" : prayer.adhan_offset ? "offset" : "fixed"
   );
   const { t } = useTranslation();
   const { checkForUpdate } = useUpdate();
@@ -87,6 +88,7 @@ export default function PrayerEditModal({
   }, [prayer, isIqamahClicked]);
 
   const onPrayerUpdate = async (e: PrayerTimeUpdate) => {
+    if (!e.isIqamah && e.offset && !e.adhan_offset_type) return
     setLoading(true);
     const { data, error } = await apiPost<PrayerTimeUpdate, { message: string }>("prayers/prayertime", e);
     if (data) {
@@ -134,21 +136,41 @@ export default function PrayerEditModal({
 
         <Container sx={{ display: "flex", flexDirection: "column", textAlign: "center" }}>
           {isFixed === "offset" ? (
-            <TextField
-              label={t("Minutes")}
-              type="number"
-              value={
-                isIqamahClicked ? prayerToEdit?.iqamah_offset ?? 0 : prayerToEdit?.adhan_offset ?? 0
-              }
-              onFocus={(event) => event.target.select()}
-              onChange={(e) =>
-                setPrayerToEdit({
-                  ...prayerToEdit,
-                  newPrayerTime: null,
-                  [isIqamahClicked ? "iqamah_offset" : "adhan_offset"]: Number(e.target.value)
-                })
-              }
-            />
+            <>
+              {!isIqamahClicked && <TextField
+                label={t("OffsetType")}
+                value={
+                  prayerToEdit?.adhan_offset_type
+                }
+                select
+                onChange={(e) =>
+                  setPrayerToEdit({
+                    ...prayerToEdit,
+                    newPrayerTime: null,
+                    adhan_offset_type: e.target.value
+                  })
+                }
+              >
+                <MenuItem key={1} value={"original_time_offset"}>Original time offset</MenuItem>
+                <MenuItem key={2} value={"prayer_time_offset"}>Offser from previous prayer</MenuItem>
+
+              </TextField>}
+              <TextField
+                label={t("Minutes")}
+                type="number"
+                value={
+                  isIqamahClicked ? prayerToEdit?.iqamah_offset ?? 0 : prayerToEdit?.adhan_offset ?? 0
+                }
+                onFocus={(event) => event.target.select()}
+                onChange={(e) =>
+                  setPrayerToEdit({
+                    ...prayerToEdit,
+                    newPrayerTime: null,
+                    [isIqamahClicked ? "iqamah_offset" : "adhan_offset"]: Number(e.target.value)
+                  })
+                }
+              />
+            </>
           ) : (
             <LocalizationProvider dateAdapter={AdapterDateFns}>
               <MobileTimePicker
@@ -188,7 +210,8 @@ export default function PrayerEditModal({
                 prayerID: prayer.prayerID,
                 newPrayerTime: null,
                 offset: null,
-                isIqamah: isIqamahClicked
+                isIqamah: isIqamahClicked,
+                adhan_offset_type: null
               })
             }
             sx={{ mt: 1 }}
@@ -225,6 +248,7 @@ export default function PrayerEditModal({
                       "HH:mm"
                     )
                     : null,
+                adhan_offset_type: isFixed === "fixed" ? null : prayerToEdit.adhan_offset_type,
                 offset:
                   isFixed === "offset"
                     ? isIqamahClicked
@@ -232,6 +256,7 @@ export default function PrayerEditModal({
                       : prayerToEdit.adhan_offset
                     : null,
                 isIqamah: isIqamahClicked
+
               })
             }
             disabled={loading}

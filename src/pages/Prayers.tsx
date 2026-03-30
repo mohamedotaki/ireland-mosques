@@ -111,6 +111,8 @@ export default function Prayers() {
     });
   }, []);
 
+
+
   return (
     <>
       {/* <NotificationManager todaysPrayers={prayersData.prayers.today} notificationsSettings={prayerNotification} /> */}

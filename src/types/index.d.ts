@@ -7,6 +7,7 @@ export type PrayerType = {
   prayerID: number;
   name: string;
   trueAdhan: Date;
+  adhan_offset_type: 'original_time_offset' | 'prayer_time_offset' | null;
   adhan: Date;
   iqamah: Date | null;
   adhan_offset: number | null;
@@ -23,6 +24,7 @@ export type prayerDatabaseType = {
   prayer_name: string;
   adhan_time: string;
   adhan_locked: boolean;
+  adhan_offset_type: 'original_time_offset' | 'prayer_time_offset' | null;
   iquamh_time: string;
   adhan_offset: number;
   iquamh_offset: number;
